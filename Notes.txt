@@ -1,1 +1,3 @@
 This is a file to keep track of any issues we are having, plans, etc.
+
+Trying the notes for the first time.
