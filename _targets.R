@@ -13,10 +13,16 @@ tar_option_set(format = 'qs')
 
 # Variables ---------------------------------------------------------------
 data_path <- if (Sys.info()['sysname'] == 'Windows') {
-  'E:/HR_data'
+  # 'E:/HR_data'
+  'data/Cleaned_GPS'
 } else {
   message('set your data path')
 }
+
+utm7N <- '+proj=utm +zone=7 ellps=WGS84'
+
+# Split by iteration 
+split_by <- c('ID', 'year')
 
 
 # Targets workflow --------------------------------------------------------
@@ -31,7 +37,14 @@ c(
     pattern = map(gps_files)
   ),
   tar_target(
-    rows,
-    nrow(gps)
+    gps_by,
+    gps[, tar_group := .GRP, split_by],
+    iteration = "group"
+  ),
+  tar_target(
+    areas,
+    mcp_area(gps_by, 'x.utm', 'y.utm', c('ID', 'year', 'datetime'), utm7N),
+    pattern = map(gps_by)
   )
 )
+
