@@ -10,8 +10,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #state the UTM zone (zone 7)
 utm7N <- '+proj=utm +zone=7 ellps=WGS84'
 
-#create file path to cleaned gpd data
-files <- dir("data/cleaned_gps", full.names = TRUE)
+#create file path to cleaned gps data
+files <- dir("data/Cleaned_gps", full.names = TRUE)
 
 
 
@@ -39,54 +39,46 @@ gps[, date := tstrsplit(datetime, " ", keep = 1)][, date := mdy(date)]
 # Function to determine asymptote -----------------------------------------
 
 
-onebun <- gps[ID == 22130 & year == "2015-2016"]
+onebun <- gps[ID == "22130" & year == "2015-2016"]
+
+onebun[, diffday := date - min(date)]
+
+mcp_area(x= 'x.utm', y ='y.utm', 
+        extra_cols = c('ID', 'sex', 'grid'), 
+        utmzone = utm7N, 
+        dt = t1)
+
+buns <- list(
+t8 = onebun[diffday < 8],
+t14 = onebun[diffday < 15],
+t21 = onebun[diffday < 22],
+t28 = onebun[diffday < 29],
+t35 = onebun[diffday < 36])
 
 
-#convert to space things and calculate MCP
 
-testfun <- function(x, y, col1, col2, col3, utmzone, df){
+lapply(c(8, 15, 22), function(APPLES) {
+  mcp_area(onebun[diffday < APPLES], x = 'x.utm', 'y.utm', 'year', utm7N)
+})
 
-  spdf <- SpatialPointsDataFrame(df[, .(x, y)],
-                         data = df[, .(col1, col2, col3)],
-                         proj4string = CRS(utmzone))
+bunintervals <- rbindlist(buns, fill = TRUE,  use.names = TRUE)
+
+
+
+test <- function(bunyear){
   
-  size <- as.character(mcp.area(spdf, percent = 95, plotit = FALSE))
+  #calculate the difference between a gps fix date and the first date of the bunny year
+  bunyear[, diffday := date - min(date)]
   
-  return(size)
+
+  
+  
 }
 
 
-testfun(x= t1$x.utm, y = t1$y.utm, 
-        col1 = t1$ID, col2 = t1$sex, col3 = t1$grid, 
-        utmzone = utm7N, 
-        df = t1)
 
 
-#onebun <- onebun[order(datetime)]
-onebun[, diffday := date - min(date)]
 
-
-t1 <- onebun[diffday < 8]
-t2 <- onebun[diffday < 15]
-t3 <- onebun[diffday < 22]
-
-sp1 <- SpatialPointsDataFrame(t1[, .(x.utm, y.utm)],
-                       data = t1[, .(ID, grid, sex)],
-                       proj4string = CRS(utm7N))
-
-sp2 <- SpatialPointsDataFrame(t2[, .(x.utm, y.utm)],
-                              data = t2[, .(ID, grid, sex)],
-                              proj4string = CRS(utm7N))
-
-
-sp3 <- SpatialPointsDataFrame(t3[, .(x.utm, y.utm)],
-                              data = t3[, .(ID, grid, sex)],
-                              proj4string = CRS(utm7N))
-
-
-mcp1 <- as.character(mcp.area(sp1, percent = 95, plotit = FALSE))
-mcp2 <- as.character(mcp.area(sp2, percent = 95, plotit = FALSE))
-mcp3 <- as.character(mcp.area(sp3, percent = 95, plotit = FALSE))
 
 
 #why do we get a warning when we add other columns (grid, sex, etc), but 
