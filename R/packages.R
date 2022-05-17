@@ -4,6 +4,8 @@ library(targets)
 library(tarchetypes)
 library(qs)
 
+library(ggplot2)
+
 library(sp)
 library(tidyverse)
 library(zoo)
