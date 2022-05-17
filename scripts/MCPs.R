@@ -36,15 +36,19 @@ gps[, date := tstrsplit(datetime, " ", keep = 1)][, date := mdy(date)]
 
 
 
+# Function to determine asymptote -----------------------------------------
+
 
 onebun <- gps[ID == 22130]
 
 
-
 onebun <- onebun[order(datetime)]
+onebun[, diffday := date - min(date)]
 
 
-onebun[1:30]
+onebun[diffday < 8]
+onebun[diff < 15]
+onebun[]
 
 onebunsp <- SpatialPointsDataFrame(onebun[, .(x.utm, y.utm)],
                        data = onebun[, .(ID, grid, sex)],
