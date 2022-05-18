@@ -13,3 +13,4 @@ mcp_area <- function(gpsdata, x, y, utmzone) {
   
   return(area)
 }
+
