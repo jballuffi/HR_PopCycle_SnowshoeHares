@@ -2,10 +2,10 @@
 #Arguments: x = x coord; y = y coord; col1-col3 = additional data to include
 # utmzone = the utm zone; df = the data.table
 
-mcp_area <- function(dt, x, y, extra_cols, utmzone) {
+mcp_area <- function(dt, x, y, utmzone) {
   #first convert to a spatial points data frame
   spdf <- SpatialPointsDataFrame(dt[, .SD, .SDcols = c(x, y)],
-                                 data = dt[, .SD, .SDcols = extra_cols],
+                                 data = dt,
                                  proj4string = CRS(utmzone))
   
   #calculate mcp size
