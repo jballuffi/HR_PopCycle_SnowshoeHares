@@ -7,57 +7,31 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in prepped GPS data
-fread("Data/all_gps.rds")
+gps <- readRDS("Data/all_gps.rds")
 
 
-# Function to determine asymptote -----------------------------------------
+# Collect home range size asymptote data -----------------------------------------
 
-#grab just one bunny year
-onebun <- gps[ID == "22130" & winter == "2016-2017"]
-#calculate difference between fix date and first date
-onebun[, diffday := date - min(date)]
 
 #grab 30 bunnies randomly
-randIDs <- sample(unique(gps$ID), 30, replace = FALSE)
-randGPS <- gps[ID %in% randIDs] 
-#calculate difference between fix date and first date by ID and by winter (year)
-randGPS[, diffday := date - min(date), by = .(ID, winter)]
+randbuns <- gps[ID %in% sample(unique(gps$ID), 30, replace = FALSE)] 
+
+#check sample sizes for each ind-year category
+randbuns[, .N, by = .(ID, winter)]
+
+#run the area_asym function on the sample of hares by ID and by winter
+asym_data <- randbuns[, area_asym(DT = .SD), by = c("ID", "winter")]
+
+asym_data[, IDwinter := paste0(ID, " ", winter)]
+
+asym_means <- asym_data[, .(mean(area), sd(area)), by = daycount]
+names(asym_means) <- c("daycount", "mean", "sd")
 
 
 
+ggplot(asym_means)+
+  geom_line(aes(x = daycount, y = mean))+
+  geom_ribbon(aes(x = daycount, ymax = mean+sd, ymin = mean-sd), alpha = .5)
 
-  # bunintervals <- rbindlist(hrs, fill = TRUE,  use.names = TRUE)
-  
-  # list(
-  #   area = hrs,
-  #   id = unique(subdt$ID)
-  # )
-  # # names(bunintervals) <-"area"
-  # bunintervals[, ID := unique(subdt$ID)]
-  # bunintervals[, winter := unique(subdt$winter)]
-  # bunintervals[, effortday := effort]
-  # 
-  # return(bunintervals)
-  
-
-
-outonebun <- area_asym(DT = onebun)
-
-
-outonebun[, ID := unique(onebun$ID)]
-
-
-output <- lapply(unique(randGPS$ID), function(x) {
-  asymptote(randGPS[ID == x])
-})
-output <- list(randGPS[, asymptote(subdt = .SD), by = c("ID", "winter")])
-hreffort <- rbindlist(output, fill = TRUE, use.names = TRUE)
-
-
-
-
-#why do we get a warning when we add other columns (grid, sex, etc), but 
-#it doesn't work when we only use ID?
-
-hrsize <- as.character(mcp.area(onebunsp, percent = 95, plotit = FALSE))
-
+ggplot(asym_data)+
+  geom_line(aes(x = daycount, y = area, group = IDwinter))
