@@ -45,3 +45,9 @@ gps <- gps[!is.na(winter)]
 
 #calculate the difference in days from first day of sampling in winter
 gps[, diffday := date - min(date), by = c("ID", "winter")]
+
+
+
+# Save compiled gps data --------------------------------------------------
+
+saveRDS(gps, "Data/all_gps.rds")
