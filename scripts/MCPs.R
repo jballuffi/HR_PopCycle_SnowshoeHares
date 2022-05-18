@@ -51,40 +51,52 @@ gps <- gps[!is.na(winter)]
 
 # Function to determine asymptote -----------------------------------------
 
-onebun <- gps[ID == "22130" & year == "2015-2016"]
+#grab just one bunny year
+onebun <- gps[ID == "22130" & winter == "2016-2017"]
+#calculate difference between fix date and first date
+onebun[, diffday := date - min(date)]
 
+#grab 30 bunnies randomly
+randIDs <- sample(unique(gps$ID), 30, replace = FALSE)
+randGPS <- gps[ID %in% randIDs] 
+#calculate difference between fix date and first date by ID and by winter (year)
+randGPS[, diffday := date - min(date), by = .(ID, winter)]
 
-randsamp <- sample(unique(gps$ID), 2, replace = FALSE)
 
 
 asymptote <- function(subdt){
   
-  #calculate the difference between a gps fix date and the first date of the bunny year
-  subdt[, diffday := date - min(date)]
-  
   effort <- c(8, 15, 22, 29, 36)
   
   hrs <- lapply(effort, function(n) {
-    mcp_area(subdt[diffday < n], x = 'x.utm', 'y.utm', 'year', utm7N)
+    mcp_area(subdt[diffday < n], x = 'x.utm', 'y.utm', 'winter', utm7N)
   })
   
-  bunintervals <- rbindlist(hrs, fill = TRUE,  use.names = TRUE)
+  # bunintervals <- rbindlist(hrs, fill = TRUE,  use.names = TRUE)
   
-  names(bunintervals) <-"area"
-  bunintervals[, ID := unique(onebun$ID)]
-  bunintervals[, year := unique(onebun$year)]
-  bunintervals[, effortday := effort]
-  
-  return(bunintervals)
+  list(
+    area = hrs,
+    id = unique(subdt$ID)
+  )
+  # names(bunintervals) <-"area"
+  # bunintervals[, ID := unique(subdt$ID)]
+  # bunintervals[, winter := unique(subdt$winter)]
+  # bunintervals[, effortday := effort]
+  # 
+  # return(bunintervals)
   
 }
 
-output <- asymptote(subdt = onebun)
+outonebun <- asymptote(subdt = onebun)
 
-
-output <- list(gps[, asymptote(subdt = gps), by = c("ID", "year")])
-
+output <- lapply(unique(randGPS$ID), function(x) {
+  asymptote(randGPS[ID == x])
+})
+output <- list(randGPS[, asymptote(subdt = .SD), by = c("ID", "winter")])
 hreffort <- rbindlist(output, fill = TRUE, use.names = TRUE)
+
+
+
 
 #why do we get a warning when we add other columns (grid, sex, etc), but 
 #it doesn't work when we only use ID?
