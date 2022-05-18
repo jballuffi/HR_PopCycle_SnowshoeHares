@@ -4,20 +4,24 @@
 
 area_asym <- function(DT){
   
+  #declare sample effort categories (count of days)
   effort <- c(8, 15, 22, 29, 36)
   
+  #apply the mcp_area function to calculate area of home range to list of sample efforts
   hrs <- lapply(effort, function(n) {
     mcp_area(DT[diffday < n], x = 'x.utm', 'y.utm', utm7N)
   })
   
-  list(area = unlist(hrs), daycount = effort)
+  #rbindlist output
+  hrsDT <- rbindlist(hrs)
   
-  # hrsDT <- rbindlist(hrs)
-  # 
-  # names(hrsDT) <- "area"
-  # 
-  # hrsDT[, daycount := effort]
-  # 
-  # return(hrsDT)
+  #rename column as area
+  names(hrsDT) <- "area"
+
+  #add in column showing sample effort (count of days)
+  hrsDT[, daycount := effort]
+  
+  #return data.table
+  return(hrsDT)
 
 }
