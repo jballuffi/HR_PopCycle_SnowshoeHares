@@ -38,7 +38,6 @@ gps[, date := tstrsplit(datetime, " ", keep = 1)][, date := mdy(date)]
 
 # Function to determine asymptote -----------------------------------------
 
-
 onebun <- gps[ID == "22130" & year == "2015-2016"]
 
 
@@ -67,7 +66,7 @@ asymptote <- function(subdt){
 output <- asymptote(subdt = onebun)
 
 
-output <- list(gps[, asymptote(subdt = onebun), by = c("ID", "year")])
+output <- list(gps[, asymptote(subdt = gps), by = c("ID", "year")])
 
 hreffort <- rbindlist(output, fill = TRUE, use.names = TRUE)
 
