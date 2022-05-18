@@ -9,15 +9,23 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 # Data --------------------------------------------------------------------
-files <- dir("data/Cleaned_gps", full.names = TRUE)
 
-onebun <- fread(sample(files, 1))
+gps <- fread(sample(files, 1))
+
+
+
+# subset data -------------------------------------------------------------
+
+onebun <- gps[ID == sample(ID, 1) & date < as.Date()]
 twobun <- rbindlist(lapply(sample(files, 2), fread))
+goodbun <- gps[ID == "22130" & winter == "2016-2017"]
+
+
 
 # Tests -------------------------------------------------------------------
-# One individual
 
-mcp_area(gpsdata = onebun, x = onebun$x.utm, y = onebun$y.utm, utmzone = utm7N)
+# One bun
+mcp_area(gpsdata = onebun, x = "x.utm", y = "y.utm", utmzone = utm7N)
 
 
 # Two individuals
