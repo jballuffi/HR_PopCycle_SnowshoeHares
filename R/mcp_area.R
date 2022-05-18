@@ -9,5 +9,7 @@ mcp_area <- function(dt, x, y, extra_cols, utmzone) {
                                  proj4string = CRS(utmzone))
   
   #calculate mcp size
-  return(area = mcp.area(spdf, percent = 95, plotit = FALSE))
+  area <- mcp.area(spdf, percent = 95, plotit = FALSE)
+  
+  return(area)
 }
