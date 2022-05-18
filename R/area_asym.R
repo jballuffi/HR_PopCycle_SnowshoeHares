@@ -7,7 +7,17 @@ area_asym <- function(DT){
   effort <- c(8, 15, 22, 29, 36)
   
   hrs <- lapply(effort, function(n) {
-    mcp_area(DT[diffday < n], x = 'x.utm', 'y.utm', 'winter', utm7N)
+    mcp_area(DT[diffday < n], x = 'x.utm', 'y.utm', utm7N)
   })
-  return(rbindlist(hrs))
+  
+  list(area = unlist(hrs), daycount = effort)
+  
+  # hrsDT <- rbindlist(hrs)
+  # 
+  # names(hrsDT) <- "area"
+  # 
+  # hrsDT[, daycount := effort]
+  # 
+  # return(hrsDT)
+
 }
