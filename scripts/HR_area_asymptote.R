@@ -12,7 +12,6 @@ gps <- readRDS("Data/all_gps.rds")
 
 # Collect home range size asymptote data -----------------------------------------
 
-
 #grab 30 bunnies randomly
 randbuns <- gps[ID %in% sample(unique(gps$ID), 30, replace = FALSE)] 
 
@@ -22,7 +21,17 @@ randbuns[, .N, by = .(ID, winter)]
 #run the area_asym function on the sample of hares by ID and by winter
 asym_data <- randbuns[, area_asym(DT = .SD), by = c("ID", "winter")]
 
+
+
+# Look at data ------------------------------------------------------------
+
+
+asym_data[, mean(area), by = ID]
+
+
 asym_data[, IDwinter := paste0(ID, " ", winter)]
+
+
 
 asym_means <- asym_data[, .(mean(area), sd(area)), by = daycount]
 names(asym_means) <- c("daycount", "mean", "sd")
@@ -30,8 +39,7 @@ names(asym_means) <- c("daycount", "mean", "sd")
 
 
 ggplot(asym_means)+
-  geom_line(aes(x = daycount, y = mean))+
-  geom_ribbon(aes(x = daycount, ymax = mean+sd, ymin = mean-sd), alpha = .5)
+  geom_line(aes(x = daycount, y = mean))
 
 ggplot(asym_data)+
-  geom_line(aes(x = daycount, y = area, group = IDwinter))
+  geom_line(aes(x = daycount, y = area, group = IDwinter, color = ID))
