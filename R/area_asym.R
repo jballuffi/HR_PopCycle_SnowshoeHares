@@ -10,7 +10,9 @@ area_asym <- function(DT){
   #apply the mcp_area function to calculate area of home range to list of sample efforts
   hrs <- lapply(effort, function(n) {
     mcp_area(DT[diffday < n], x = 'x.utm', 'y.utm', utm7N)
-  })
+  }) 
+  
+  maxDD <- DT[, max(diffday)]
   
   #rbindlist output
   hrsDT <- rbindlist(hrs)
@@ -20,6 +22,9 @@ area_asym <- function(DT){
 
   #add in column showing sample effort (count of days)
   hrsDT[, daycount := effort]
+  
+  #add in column with the max diff day
+  hrsDT[, maxdiffday := maxDD]
   
   #return data.table
   return(hrsDT)
