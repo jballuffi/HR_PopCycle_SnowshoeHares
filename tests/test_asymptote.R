@@ -9,13 +9,13 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 # Data --------------------------------------------------------------------
 
-gps <- fread(sample(files, 1))
+gps <- readRDS("Data/all_gps.rds")
 
 
 
 # Subset data -------------------------------------------------------------
 
-onebun <- gps[ID == sample(ID, 1) & date < as.Date()]
+onebun <- gps[ID %in% sample(unique(gps$ID), 5, replace = FALSE)]
 
 goodbun <- gps[ID == "22130" & winter == "2016-2017"]
 

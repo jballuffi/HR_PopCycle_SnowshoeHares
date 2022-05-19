@@ -10,7 +10,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 # Data --------------------------------------------------------------------
 
-gps <- fread(sample(files, 1))
+gps <- readRDS("Data/all_gps.rds")
 
 
 
