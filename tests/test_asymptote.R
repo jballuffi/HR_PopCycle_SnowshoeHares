@@ -15,7 +15,7 @@ gps <- readRDS("Data/all_gps.rds")
 
 # Subset data -------------------------------------------------------------
 
-onebun <- gps[ID %in% sample(unique(gps$ID), 5, replace = FALSE)]
+onebun <- gps[ID %in% sample(unique(gps$ID), 1, replace = FALSE)]
 
 goodbun <- gps[ID == "22130" & winter == "2016-2017"]
 
