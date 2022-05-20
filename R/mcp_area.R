@@ -9,7 +9,7 @@ mcp_area <- function(gpsdata, x, y, utmzone) {
                                  proj4string = CRS(utmzone))
   
   #calculate mcp size
-  area <- mcp.area(spdf, percent = 95, plotit = FALSE)
+  area <- mcp.area(spdf, percent = 90, plotit = FALSE)
   
   return(area)
 }
