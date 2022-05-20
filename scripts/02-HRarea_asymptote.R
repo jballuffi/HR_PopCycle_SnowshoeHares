@@ -42,6 +42,7 @@ names(asym_means) <- c("daycount", "mean", "sd")
 
 ggplot(asym_means)+
   geom_line(aes(x = daycount, y = mean))
+  #geom_ribbon(aes(x = daycount, ymax = mean + sd, ymin = mean - sd), alpha = .5)
 
 ggplot(asym_data)+
-  geom_line(aes(x = daycount, y = area, group = IDwinter, color = ID))
+  geom_line(aes(x = daycount, y = area, group = IDwinter))
