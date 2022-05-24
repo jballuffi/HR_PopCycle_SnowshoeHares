@@ -31,7 +31,7 @@ gps[, ID := as.factor(ID)]
 #make datetime a datetime
 gps[, datetime := as.POSIXct(datetime, format = '%m/%d/%Y %H:%M')]
 
-#get rid of year column
+#remove year column
 gps[, year := NULL]
 
 #create a date column
