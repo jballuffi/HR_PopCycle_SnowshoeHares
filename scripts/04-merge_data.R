@@ -31,12 +31,8 @@ inds <- unique(areas$ID)
 # also subset to remove all cases where weight was not taken
 t2 <- trapping[ID %in% inds & Weight > 0]
 
-
-
 #turn dateCap column into a date with lubridate function
 t2[, date := dmy(dateCap)]
-
-
 
 #categorize gps fixes into winters,
 #grab all of october because that's when a lot of trapping started
@@ -58,9 +54,20 @@ t2[, m := month(date)]
 t2[m == 10| m == 11| m == 12, season := "early"]
 t2[m == 2| m == 3, season := "late"]
 
+#remove anything that isn't in early winte or late winter
+t2 <- t2[!is.na(season)]
+
+ggplot(t2)+
+  geom_boxplot(aes(x = season, y = Weight))
+summary(lm(t2$Weight ~ t2$season))
+
+inds2 <- unique(t2$ID)
+
+
+
 
 
 #average mass for early winter season (November and December)
-masses <- 
+
 
 #average mass for late winter season (February and March)
