@@ -28,22 +28,39 @@ trapping[, ID := as.factor(Eartag)]
 inds <- unique(areas$ID)
 
 #subset the trapping data.table to only include these individuals
-t2 <- trapping[ID %in% inds]
+# also subset to remove all cases where weight was not taken
+t2 <- trapping[ID %in% inds & Weight > 0]
+
+
 
 #turn dateCap column into a date with lubridate function
 t2[, date := dmy(dateCap)]
 
-#categorize gps fixes into winters
+
+
+#categorize gps fixes into winters,
+#grab all of october because that's when a lot of trapping started
 #should prob turn this into a function
-t2[date > "2015-10-31" & date < "2016-04-01", winter := "2015-2016"]
-t2[date > "2016-10-31" & date < "2017-04-01", winter := "2016-2017"]
-t2[date > "2017-10-31" & date < "2018-04-01", winter := "2017-2018"]
-t2[date > "2018-10-31" & date < "2019-04-01", winter := "2018-2019"]
+t2[date > "2015-10-01" & date < "2016-04-01", winter := "2015-2016"]
+t2[date > "2016-10-01" & date < "2017-04-01", winter := "2016-2017"]
+t2[date > "2017-10-01" & date < "2018-04-01", winter := "2017-2018"]
+t2[date > "2018-10-01" & date < "2019-04-01", winter := "2018-2019"]
 
 #remove anything that doesn't fall into winter
 t2<- t2[!is.na(winter)]
 
-#average mass for early winter season (November and December)
+#take out month from date column
+t2[, m := month(date)]
 
+#create early winter and late winter categories
+#fixes in nov and dec are "early"
+#fixes in feb and march are "late"
+t2[m == 10| m == 11| m == 12, season := "early"]
+t2[m == 2| m == 3, season := "late"]
+
+
+
+#average mass for early winter season (November and December)
+masses <- 
 
 #average mass for late winter season (February and March)
