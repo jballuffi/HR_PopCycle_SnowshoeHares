@@ -19,7 +19,7 @@ areas <- readRDS("output/results/hrareas.rds")
 trapping[, id := as.factor(Eartag)]
 
 #grab all unique individuals from home range calculations
-inds <- unique(areas$id)
+inds <- unique(areas$ID)
 
 #subset the trapping data.table to only include these individuals
 # also subset to remove all cases where weight was not taken
@@ -40,7 +40,7 @@ t2[date > "2018-10-01" & date < "2019-04-01", winter := "2018-2019"]
 t2<- t2[!is.na(winter)]
 
 #take out month from date column
-# t2[, mnth := month(date)]
+t2[, mnth := month(date)]
 
 #create early winter and late winter categories
 #fixes in nov and dec are "early"
