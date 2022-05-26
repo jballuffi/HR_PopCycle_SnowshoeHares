@@ -17,11 +17,11 @@ gps <- gps[uniquedays >= 21]
 #save as RDS
 
 #MCP at 90%
-area90 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 90), by = .(id, winter, season)]
+area90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = .(id, winter, season)]
 setnames(area90, "a", "90") #change column name
 
 #MCP at 90
-area50 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 50), by = .(id, winter, season)]
+area50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = .(id, winter, season)]
 setnames(area50, "a", "50") #change column name
 
 #merge areas of 90% and 50% volume together
