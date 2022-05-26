@@ -12,6 +12,8 @@ gps <- gps[samplerange >= 21]
 #use only sample periods with 21 or more unique days
 gps <- gps[uniquedays >= 21]
 
+#remove anything from January
+gps <- gps[mnth != 1]
 
 #MCP size at 90% and 50%, keep id, winter, season, and grid
 #save as RDS
