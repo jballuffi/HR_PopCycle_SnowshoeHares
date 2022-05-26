@@ -16,14 +16,14 @@ areas <- readRDS("output/results/hrareas.rds")
 # clean trapping data -----------------------------------------------------
 
 #make eartag a factor
-trapping[, ID := as.factor(Eartag)]
+trapping[, id := as.factor(Eartag)]
 
 #grab all unique individuals from home range calculations
-inds <- unique(areas$ID)
+inds <- unique(areas$id)
 
 #subset the trapping data.table to only include these individuals
 # also subset to remove all cases where weight was not taken
-t2 <- trapping[ID %in% inds & Weight > 0]
+t2 <- trapping[id %in% inds & Weight > 0]
 
 #turn dateCap column into a date with lubridate function
 t2[, date := dmy(dateCap)]
@@ -40,13 +40,13 @@ t2[date > "2018-10-01" & date < "2019-04-01", winter := "2018-2019"]
 t2<- t2[!is.na(winter)]
 
 #take out month from date column
-t2[, m := month(date)]
+# t2[, mnth := month(date)]
 
 #create early winter and late winter categories
 #fixes in nov and dec are "early"
 #fixes in feb and march are "late"
-t2[m == 10| m == 11| m == 12, season := "early"]
-t2[m == 2| m == 3, season := "late"]
+t2[mnth == 10| mnth == 11| mnth == 12, season := "early"]
+t2[mnth == 2| mnth == 3, season := "late"]
 
 #remove anything that isn't in early winte or late winter
 t2 <- t2[!is.na(season)]
@@ -57,7 +57,7 @@ summary(lm(t2$Weight ~ t2$season))
 
 
 
-weights <- t2[, mean(Weight), by = .(ID, winter, season)]
+weights <- t2[, mean(Weight), by = .(id, winter, season)]
 setnames()
 
 
