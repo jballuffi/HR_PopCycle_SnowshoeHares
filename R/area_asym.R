@@ -9,7 +9,7 @@ area_asym <- function(DT){
   
   #apply the mcp_area function to calculate area of home range to list of sample efforts
   hrs <- lapply(effort, function(n) {
-    mcp_area(DT[diffday < n], x = 'x.utm', y = 'y.utm', utmzone = utm7N, vol = 90)
+    mcp_area(DT[diffday < n], x = 'x_proj', y = 'y_proj', utmzone = utm7N, vol = 90)
   }) 
   
   maxDD <- DT[, max(diffday)]
