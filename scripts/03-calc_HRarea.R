@@ -13,19 +13,19 @@ gps <- gps[samplerange >= 21]
 gps <- gps[uniquedays >= 21]
 
 
-#MCP size at 90% and 50%, keep ID, winter, season, and grid
+#MCP size at 90% and 50%, keep id, winter, season, and grid
 #save as RDS
 
 #MCP at 90%
-area90 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 90), by = .(ID, winter, season)]
+area90 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 90), by = .(id, winter, season)]
 setnames(area90, "a", "90") #change column name
 
 #MCP at 90
-area50 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 50), by = .(ID, winter, season)]
+area50 <- gps[, mcp_area(.SD, x = "x.utm", y = "y.utm", utmzone = utm7N, vol = 50), by = .(id, winter, season)]
 setnames(area50, "a", "50") #change column name
 
 #merge areas of 90% and 50% volume together
-areas <- merge(area90, area50, by = c("ID", "winter", "season"))
+areas <- merge(area90, area50, by = c("id", "winter", "season"))
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
