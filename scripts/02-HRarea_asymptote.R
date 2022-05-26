@@ -13,26 +13,26 @@ gps <- readRDS("Data/all_gps.rds")
 # Collect home range size asymptote data -----------------------------------------
 
 #grab 30 bunnies randomly
-randbuns <- gps[ID %in% sample(unique(gps$ID), 30, replace = FALSE)] 
+randbuns <- gps[id %in% sample(unique(gps$id), 30, replace = FALSE)] 
 
 #check sample sizes for each individual-year category
-randbuns[, .N, by = .(ID, winter)]
+randbuns[, .N, by = .(id, winter)]
 
-#run the area_asym function on the sample of hares by ID and by winter
-asym_data <- randbuns[, area_asym(DT = .SD), by = c("ID", "winter")]
+#run the area_asym function on the sample of hares by id and by winter
+asym_data <- randbuns[, area_asym(DT = .SD), by = c("id", "winter")]
 
 #remove rows where the number of collaring days didn't reach the weekly sampling interval
 asym_data <- asym_data[!maxdiffday < daycount]
 
-#create an ID-winter column
-asym_data[, IDwinter := paste0(ID, " ", winter)]
+#create an id-winter column
+asym_data[, id_winter := paste0(id, " ", winter)]
 
 
 
 # Look at data ------------------------------------------------------------
 
 #calculate mean home range
-asym_data[, mean(area), by = ID]
+asym_data[, mean(area), by = id]
 
 #take means and sd for each day count, summarising results from all individuals
 asym_means <- asym_data[, .(mean(area), sd(area)), by = daycount]
@@ -45,4 +45,4 @@ ggplot(asym_means)+
   #geom_ribbon(aes(x = daycount, ymax = mean + sd, ymin = mean - sd), alpha = .5)
 
 ggplot(asym_data)+
-  geom_line(aes(x = daycount, y = area, group = IDwinter))
+  geom_line(aes(x = daycount, y = area, group = id_winter))
