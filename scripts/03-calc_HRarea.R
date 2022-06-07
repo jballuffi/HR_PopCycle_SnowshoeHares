@@ -16,14 +16,20 @@ gps <- gps[!is.na(burst)]
 
 #MCP at 90%
 area90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = .(id, winter, season, burst)]
-setnames(area90, "a", "90") #change column name
+setnames(area90, "a", "HRninety") #change column name
 
 #MCP at 90
 area50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = .(id, winter, season, burst)]
-setnames(area50, "a", "50") #change column name
+setnames(area50, "a", "HRfifty") #change column name
 
 #merge areas of 90% and 50% volume together
 areas <- merge(area90, area50, by = c("id", "winter", "season", "burst"))
+
+
+##### look into outlier
+areas <- areas[HRninety < 90]
+
+
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
