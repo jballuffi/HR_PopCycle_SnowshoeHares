@@ -21,9 +21,10 @@ weights <- readRDS("output/results/bodymass.rds")
 
 # clean hare density ------------------------------------------------------
 
-
+#split season off of season year column
 hdensity[, season := tstrsplit(Season_year, " ", keep = 1)]
 hdensity[, year := tstrsplit(Season_year, " ", keep = 2)]
+
 
 hdensity[, year := as.integer(year)]
 
