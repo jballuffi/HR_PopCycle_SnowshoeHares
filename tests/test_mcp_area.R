@@ -16,16 +16,16 @@ gps <- readRDS("Data/all_gps.rds")
 
 # subset data -------------------------------------------------------------
 
-onebun <- gps[ID == sample(ID, 1) & date < as.Date()]
-twobun <- rbindlist(lapply(sample(files, 2), fread))
-goodbun <- gps[ID == "22130" & winter == "2016-2017"]
+onebun <- gps[id == sample(id, 1)]
+#twobun <- rbindlist(lapply(sample(files, 2), fread))
+#goodbun <- gps[id == "22130" & winter == "2016-2017"]
 
 
 
 # Tests -------------------------------------------------------------------
 
 # One bun
-mcp_area(gpsdata = onebun, x = "x.utm", y = "y.utm", utmzone = utm7N)
+mcp_area(onebun, x = 'x_proj', y = 'y_proj', utmzone = utm7N, vol = 90)
 
 
 # Two individuals

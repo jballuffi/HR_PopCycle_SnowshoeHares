@@ -15,11 +15,9 @@ gps <- readRDS("Data/all_gps.rds")
 
 # Subset data -------------------------------------------------------------
 
-onebun <- gps[ID %in% sample(unique(gps$ID), 1, replace = FALSE)]
+onebun <- gps[id %in% sample(unique(gps$id), 1, replace = FALSE)]
 
-goodbun <- gps[ID == "22130" & winter == "2016-2017"]
-
-morebun <- gps[ID %in% sample(unique(gps$ID), 5, replace = FALSE)] 
+morebun <- gps[id %in% sample(unique(gps$id), 5, replace = FALSE)] 
 
 
 # Tests -------------------------------------------------------------------
@@ -27,4 +25,4 @@ morebun <- gps[ID %in% sample(unique(gps$ID), 5, replace = FALSE)]
 
 out1 <- area_asym(onebun)
 
-outmore <- morebun[, area_asym(DT = .SD), by = c("ID", "winter")]
+outmore <- morebun[, area_asym(DT = .SD), by = c("id", "winter")]
