@@ -32,14 +32,14 @@ gps[idate > "2019-10-31" & idate < "2020-04-01", winter := "2019-2020"]
 gps[idate > "2020-10-31" & idate < "2021-04-01", winter := "2020-2021"]
 gps[idate > "2021-10-31" & idate < "2022-04-01", winter := "2021-2022"]
 
-#remove anything that doesn't fall into winter
-gps <- gps[!is.na(winter)]
-
 #create early winter and late winter categories
 #fixes in nov and dec are "early"
 #fixes in feb and march are "late"
 gps[mnth == 11| mnth == 12, season := "early"]
 gps[mnth == 2| mnth == 3, season := "late"]
+
+#remove anything that doesn't fall into early or late winter
+gps <- gps[!is.na(season)]
 
 #variables that we are splitting calculations by
 splitburst <- c("id", "winter", "burst")
@@ -54,13 +54,13 @@ gps[, burstlength := max(diffday), by = splitburst]
 #calculate the total sample range per bunny-season
 gps[, seasonlength := max(idate - min(idate)), by = splitseason]
 
-#calculate the difference between days of fix, in order of datetime
+#calculate the difference between days of fix, in order of datetime, by season
 setorder(gps, datetime)
-gps[, shiftdate := shift(idate), by = splitby]
-gps[, lagdate := idate - shiftdate]
+gps[, shiftdate := shift(idate), by = splitseason] #take date before , for each fix
+gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
 
 #take max lag between fixes for each bunny-season
-gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitby]
+gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitburst]
 
 
 # Save compiled gps data --------------------------------------------------
