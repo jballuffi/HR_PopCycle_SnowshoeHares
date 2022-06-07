@@ -48,11 +48,11 @@ splitseason <- c("id", "winter", "season")
 #calculate the difference in days from first day of a burst
 gps[, diffday := idate - min(idate), by = splitburst]
 
-#calculate the total sample range per bunny-burst
-gps[, burstlength := max(diffday), by = splitburst]
+#calculate the length of a season
+gps[, seasonlength := max(idate) - min(idate), by = splitburst]
 
-#calculate the total sample range per bunny-season
-gps[, seasonlength := max(idate - min(idate)), by = splitseason]
+#calculate the length of each burst
+gps[, burstlength := max(idate) - min(idate), by = splitburst]
 
 #calculate the difference between days of fix, in order of datetime, by season
 setorder(gps, datetime)
@@ -60,7 +60,7 @@ gps[, shiftdate := shift(idate), by = splitseason] #take date before , for each 
 gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
 
 #take max lag between fixes for each bunny-season
-gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitburst]
+gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitseason]
 
 
 # Save compiled gps data --------------------------------------------------
