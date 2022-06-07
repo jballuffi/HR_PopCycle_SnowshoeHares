@@ -25,23 +25,30 @@ weights <- readRDS("output/results/bodymass.rds")
 hdensity[, season := tstrsplit(Season_year, " ", keep = 1)]
 hdensity[, year := tstrsplit(Season_year, " ", keep = 2)]
 
-
+#reclassify year
 hdensity[, year := as.integer(year)]
 
+#rename seasons to match other data
 hdensity[season == "Fall", season := "early"]
 hdensity[season == "Spring", season := "late"]
 
+#remove earlier years
 hdensity <- hdensity[year > 2010]
 
+#create a winter column to match other data
 hdensity[season == "early", winter := paste(year, "-", year+1)]
 hdensity[season == "late", winter := paste(year-1, "-", year)]
 
+#remove spaces that were created when pasting winter column
 hdensity[, winter := gsub(" ", "", winter)]
 
+#remove useless columns
 hdensity[, Season_year := NULL]
 
+#rename
 setnames(hdensity, "Density", "haredensity")
 
+#recalculate hare density from hectare to 100km2
 hdensity[, haredensity := haredensity*10000]
 
 # merge densities ---------------------------------------------------------
