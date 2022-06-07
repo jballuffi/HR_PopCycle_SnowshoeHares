@@ -12,7 +12,7 @@ gps <- readRDS("Data/all_gps.rds")
 
 # Collect home range size asymptote data -----------------------------------------
 
-#grab 305 bunnies randomly
+#grab 35 bunnies randomly
 randbuns <- gps[id %in% sample(unique(gps$id), 35, replace = FALSE)] 
 
 #check sample sizes for each individual-year category
