@@ -2,44 +2,64 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
-
+#read in data
 DT <- readRDS("output/results/compileddata.rds")
 densities <- readRDS("data/densities.rds")
 
-  geom_line(aes(x = winter, y = lynxdensity, group = season, color = season))
-DT[is.na(mass), mass := mean(mass)]
-
-ppratio <- DT[, mean(ppratio), by = winter]
-
-ggplot(ppratio)+
-  geom_line(aes(y = V1, x = winter, by = winter))
-
-ggplot(DT)+
-  geom_point(aes(y = ppratio, x = winter, color = season))
 
 
-summary(lm(DT$HRninety ~ DT$haredensity*DT$lynxdensity + DT$season + DT$mass))
+# plot showing animal densities over time ----------------------------------
+
+#rename the season categories for figures
+densities[season == "late", season := "late winter"]
+densities[season == "early", season := "early winter"]
+
+#hare density over time
+(h <- ggplot(densities)+
+  geom_line(aes(x = winter, y = haredensity, group = season, color = season))+
+  labs(x = "", y = "Hares per 100 km2")+
+  theme_densities)
+
+#lynx density over time
+(l <- ggplot(densities)+
+  geom_path(aes(x = winter, y = lynxdensity, group = 1))+
+  labs(x = "", y = "Lynx per 100 km2")+
+  theme_densities)
+
+#pred-prey ratio over time
+(pp <- ggplot(densities)+
+  geom_path(aes(x = winter, y = ppratio, group = season, color = season))+
+  labs(x = "Winter", y = "Lynx:Hare Ratio")+
+  theme_densities+
+  theme(legend.position = "none"))
+
+#ggarrange all densities
+(densityplots <- ggarrange(h, l, pp, ncol = 1, nrow = 3))
 
 
-plot(DT$HRninety/DT$mass ~ DT$ppratio)
+
+# body mass plots ---------------------------------------------------------
+
+#rename the season categories for figures
+DT[season == "late", season := "late winter"]
+DT[season == "early", season := "early winter"]
 
 
+(seasonmass <- 
+  ggplot(DT)+
+  geom_boxplot(aes(x = season, y = mass), width = .5)+
+  labs(x = "", y = "Body Mass (g)")+
+  theme_boxplots)
 
-ggplot(DT)+
-  geom_point(aes(y = HRninety, x = lynxdensity))
+(yearmass <- 
+  ggplot(DT)+
+  geom_boxplot(aes(x = winter, y = mass))+
+  geom_jitter(aes(x = winter, y = mass), width = .25, alpha = .5)+
+  labs(x = "Winter", y = "Body Mass (g)")+
+  theme_boxplots)
 
-ggplot(DT)+
-  geom_point(aes(y = HRninety, x = haredensity))
+(bodymassplots <- ggarrange(seasonmass, yearmass, ncol = 1, nrow = 2))
 
-ggplot(DT)+
-  geom_boxplot(aes(y = HRninety, x = season))
 
-ggplot(DT)+
-  geom_point(aes(y = HRninety, x = ppratio, color = winter, shape = season), size = 2)+
-  theme_minimal()
-
-ggplot(DT)+
-  geom_point(aes(y = ppratio, x = lynxdensity))
-
-ggplot(DT)+
-  geom_point(aes(y = ppratio, x = haredensity))
+ggsave("output/figures/bodymass.jpeg", bodymassplots, width = 6, height = 8, units = "in")
+ggsave("output/figures/densities.jpeg", bodymassplots, width = 6, height = 9, units = "in")
