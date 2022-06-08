@@ -4,6 +4,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 DT <- readRDS("output/results/compileddata.rds")
+densities <- readRDS("data/densities.rds")
 
 DT[is.na(mass), mass := mean(mass)]
 
