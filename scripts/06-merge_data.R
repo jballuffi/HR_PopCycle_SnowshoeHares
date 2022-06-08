@@ -18,6 +18,9 @@ ldensity <- fread("data/Lynx Density_simple.csv")
 #import weight results
 weights <- readRDS("output/results/bodymass.rds")
 
+#import fod add bunnies
+foodadd <- readRDS("data/food_adds.rds")
+
 
 # clean hare density ------------------------------------------------------
 
@@ -58,24 +61,33 @@ names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_u
 #subset just two columns of interest
 lynx <- ldensity[, .(winter, ltracks, lynxdensity)]
 
-
+#merge hare and lynx densities together
 densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
 
+#calculate Pred:Prey ratio
 densities[, ppratio := lynxdensity/haredensity]
 
-plot(densities$ldensity ~ densities$hdensity)
 
+# merge all data together ----------------------------------------------------------
 
-
-# merge all data ----------------------------------------------------------
-
+#set id as factor
 areas[, id := as.factor(id)]
+foodadd[, id := as.factor(Eartag)]
+
 
 #merge weights with area
-area.weight <- merge(areas, weights, by = c("id", "winter", "season"), all.x = TRUE)
+DT1 <- merge(areas, weights, by = c("id", "winter", "season"), all.x = TRUE)
+
+#merge in food adds
+DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
+DT2[, Eartag := NULL] #remove extra eartage col from food adds
+DT2[is.na(Food), Food := 0] #haares with NA in food add get zero to rep control
 
 #merge in densities
-area.weight.densities <- merge(area.weight, densities, by = c("winter", "season"), all.x = TRUE)
+DT3 <- merge(DT2, densities, by = c("winter", "season"), all.x = TRUE)
 
 #save merged data
-saveRDS(area.weight.densities, "output/results/compileddata.rds")
+saveRDS(DT3, "output/results/compileddata.rds")
+
+#save just densities
+saveRDS(densities, "data/densities.rds")
