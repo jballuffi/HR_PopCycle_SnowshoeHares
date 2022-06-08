@@ -5,6 +5,7 @@ library(tarchetypes)
 library(qs)
 
 library(ggplot2)
+library(ggpubr)
 
 library(sp)
 library(tidyverse)
