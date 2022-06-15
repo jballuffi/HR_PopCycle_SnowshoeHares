@@ -62,4 +62,4 @@ DT[season == "early", season := "early winter"]
 
 
 ggsave("output/figures/bodymass.jpeg", bodymassplots, width = 6, height = 8, units = "in")
-ggsave("output/figures/densities.jpeg", bodymassplots, width = 6, height = 9, units = "in")
+ggsave("output/figures/densities.jpeg", densityplots, width = 6, height = 9, units = "in")
