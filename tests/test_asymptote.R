@@ -25,4 +25,4 @@ morebun <- gps[id %in% sample(unique(gps$id), 5, replace = FALSE)]
 
 out1 <- area_asym(onebun)
 
-outmore <- morebun[, area_asym(DT = .SD), by = c("id", "winter")]
+outmore <- morebun[, area_asym(DT = .SD), by = c("id", "winter", "season")]
