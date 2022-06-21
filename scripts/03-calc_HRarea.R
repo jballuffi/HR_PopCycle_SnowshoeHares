@@ -6,7 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in prepped GPS data
 gps <- readRDS("Data/all_gps.rds")
 
-#use only sample periods that are 21 days or more
+#use only sample periods that are 10 days or more
 gps <- gps[burstlength >= 10]
 
 gps <- gps[!is.na(burst)]
