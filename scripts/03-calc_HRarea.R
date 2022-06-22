@@ -11,6 +11,10 @@ gps <- gps[burstlength >= 10]
 
 gps <- gps[!is.na(burst)]
 
+#remove unlikely fixes based on small UTM easting
+gps <- gps[x_proj > 300000]
+
+
 #MCP size at 90% and 50%, keep id, winter, season, and grid
 #save as RDS
 
@@ -40,13 +44,13 @@ stancheck<-areas[HRninety >= 15]
 unique(stancheck$id)
 
 b23698<-gps[id == "23698" ]
-b23698<-b23698[x_proj > 300000] # one big outlier, but other outliers too -hopefully would get caught by out-and-back cleaning later
+b23698<-b23698[x_proj > 300000] # remove one big outlier
 b25618<-gps[id == "25618"] 
 b26316<-gps[ id == "26316"]
 b26342<-gps[id == "26342"]
 
 ggplot(b23698, aes(x=x_proj, y=y_proj)) +
-     geom_point(aes(size=0.1, colour= datetime)) 
+     geom_point(aes(size=0.1, colour= datetime))#still other outliers - hopefully would get caught by out-and-back cleaning later
 ggplot(b25618, aes(x=x_proj, y=y_proj)) +
       geom_point(aes(size=0.1, colour= datetime)) 
 ggplot(b26316, aes(x=x_proj, y=y_proj)) +
@@ -54,3 +58,8 @@ ggplot(b26316, aes(x=x_proj, y=y_proj)) +
 ggplot(b26342, aes(x=x_proj, y=y_proj)) +
       geom_point(aes(size=0.1, colour= datetime)) 
 
+#looking into 2020-21 HRs- Liam
+w20.21<-gps[winter == "2020-2021"]
+
+ggplot(w20.21, aes(x=x_proj, y=y_proj)) +
+  geom_point(aes(size=0.1, colour= datetime, shape= as.factor(id))) 
