@@ -40,15 +40,17 @@ stancheck<-areas[HRninety >= 15]
 unique(stancheck$id)
 
 b23698<-gps[id == "23698" ]
+b23698<-b23698[x_proj > 300000] # one outlier -hopefully would get caught by out-and-back cleaning later
 b25618<-gps[id == "25618"] 
 b26316<-gps[ id == "26316"]
 b26342<-gps[id == "26342"]
 
 ggplot(b23698, aes(x=x_proj, y=y_proj)) +
-     geom_point(aes(size=0.1)) 
+     geom_point(aes(size=0.1, colour= datetime)) 
 ggplot(b25618, aes(x=x_proj, y=y_proj)) +
-      geom_point(aes(size=0.1)) 
+      geom_point(aes(size=0.1, colour= datetime)) 
 ggplot(b26316, aes(x=x_proj, y=y_proj)) +
-      geom_point(aes(size=0.1)) 
+      geom_point(aes(size=0.1, colour= datetime)) 
 ggplot(b26342, aes(x=x_proj, y=y_proj)) +
-      geom_point(aes(size=0.1)) 
+      geom_point(aes(size=0.1, colour= datetime)) 
+
