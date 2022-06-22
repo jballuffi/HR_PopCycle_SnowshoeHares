@@ -18,7 +18,7 @@ gps <- gps[!is.na(burst)]
 area90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = .(id, winter, season, burst)]
 setnames(area90, "a", "HRninety") #change column name
 
-#MCP at 90
+#MCP at 50%
 area50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = .(id, winter, season, burst)]
 setnames(area50, "a", "HRfifty") #change column name
 
