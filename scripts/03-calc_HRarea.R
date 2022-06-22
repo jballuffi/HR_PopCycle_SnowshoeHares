@@ -13,6 +13,7 @@ gps <- gps[!is.na(burst)]
 
 #remove unlikely fixes based on small UTM easting
 gps <- gps[x_proj > 300000]
+#check why one mean y.proj became 0???
 
 
 #MCP size at 90% and 50%, keep id, winter, season, and grid
