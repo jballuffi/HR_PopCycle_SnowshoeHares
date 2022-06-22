@@ -28,7 +28,7 @@ DT[, Food := as.factor(Food)]
 (hrsize <- ggarrange(byyear, byhdensity, byppratio, ncol = 1, nrow = 3))
 
 
-ggsave("output/figures/hrsize_withseason.jpeg", hrsize, width = 6, height = 8, units = "in")
+ggsave("output/figures/hrsize_90MCP_withseason.jpeg", hrsize, width = 6, height = 8, units = "in")
 
 
 #75% MCP plots
