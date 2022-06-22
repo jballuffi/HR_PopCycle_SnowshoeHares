@@ -26,17 +26,22 @@ gps <- gps[y_proj > 6750000 & y_proj < 6770000] #removed 2 more
 area90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = .(id, winter, season, burst)]
 setnames(area90, "a", "HRninety") #change column name
 
+#MCP at 75%
+area75 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 75), by = .(id, winter, season, burst)]
+setnames(area75, "a", "HR75") #change column name
+
 #MCP at 50%
 area50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = .(id, winter, season, burst)]
 setnames(area50, "a", "HRfifty") #change column name
 
-#merge areas of 90% and 50% volume together
-areas <- merge(area90, area50, by = c("id", "winter", "season", "burst"))
+#merge areas of 90% , 75% volume together
+areas.temp <- merge(area90, area75, by = c("id", "winter", "season", "burst"))
+#merge the 50% volume as well
+areas<- merge(areas.temp, area50, by = c("id", "winter", "season", "burst"))
 
 
 ##### look into outlier
 areas <- areas[HRninety < 90]
-
 
 
 #save HR areas as an RDS file in the output folder
