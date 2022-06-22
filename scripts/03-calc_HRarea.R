@@ -40,7 +40,7 @@ stancheck<-areas[HRninety >= 15]
 unique(stancheck$id)
 
 b23698<-gps[id == "23698" ]
-b23698<-b23698[x_proj > 300000] # one outlier -hopefully would get caught by out-and-back cleaning later
+b23698<-b23698[x_proj > 300000] # one big outlier, but other outliers too -hopefully would get caught by out-and-back cleaning later
 b25618<-gps[id == "25618"] 
 b26316<-gps[ id == "26316"]
 b26342<-gps[id == "26342"]
