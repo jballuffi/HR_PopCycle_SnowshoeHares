@@ -82,6 +82,7 @@ gps[, fixrate := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] 
 hist(gps$fixrate)
 #a lot of zero fix rates - they should have been removed in prep_locs?
 
+
 #put next coordinates in new column
 setorder(gps, datetime)
 gps[, next_x_proj := shift(x_proj, n=1, type="lead"), by = .(id, winter, season, burst)]
@@ -95,6 +96,10 @@ gps<-gps[, .(id, winter, season, burst, datetime, nextfix, fixrate, x_proj, next
 
 #remove SLs greater than 5000 meters
 gps<- gps[S.L. <= 5000]
+
+
+#create speed column
+gps[, speed := S.L./fixrate, by= .(id, winter, season, burst)]
 
 #initial plots
 ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
