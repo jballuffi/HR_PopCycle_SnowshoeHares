@@ -65,3 +65,40 @@ gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitseason]
 
 # Save compiled gps data --------------------------------------------------
 saveRDS(gps, "Data/all_gps.rds")
+
+
+#Liam Step length TA analysis
+
+#use only sample periods that are 10 days or more
+gps <- gps[burstlength >= 10]
+
+gps <- gps[!is.na(burst)]
+
+
+#calculate the difference between times of fix, in order of datetime, by season
+setorder(gps, datetime)
+gps[, nextfix := shift(datetime, n=1, type="lead"), by = .(id, winter, season, burst)] #take time before , for each fix
+gps[, fixrate := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
+hist(gps$fixrate)
+#a lot of zero fix rates - they should have been removed in prep_locs?
+
+#put next coordinates in new column
+setorder(gps, datetime)
+gps[, next_x_proj := shift(x_proj, n=1, type="lead"), by = .(id, winter, season, burst)]
+gps[, next_y_proj := shift(y_proj, n=1, type="lead"), by = .(id, winter, season, burst)]
+
+#calculate step length
+gps[, S.L. := sqrt((next_x_proj - x_proj)^2 + (next_y_proj - y_proj)^2)] 
+
+#grab important columns
+gps<-gps[, .(id, winter, season, burst, datetime, nextfix, fixrate, x_proj, next_x_proj, y_proj, next_y_proj, S.L.)]
+
+#remove SLs greater than 5000 meters
+gps<- gps[S.L. <= 5000]
+
+#initial plots
+ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
+   theme(legend.position="none")
+hist(gps$S.L.)
+
+
