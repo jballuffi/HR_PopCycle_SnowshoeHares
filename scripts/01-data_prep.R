@@ -101,6 +101,11 @@ gps<- gps[S.L. <= 5000]
 #create speed column
 gps[, speed := S.L./fixrate, by= .(id, winter, season, burst)]
 
+
+stats <- gps[, .(median(fixrate), median(S.L.), median(speed)), by = .(id, winter, season, burst)]
+setnames(stats, c("V1", "V2", "V3"), c("fixrate", "S.L.", "speed"))
+
+
 #initial plots
 ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
    theme(legend.position="none")
