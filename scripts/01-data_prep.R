@@ -63,17 +63,12 @@ gps[, lagdate := idate - shiftdate] #calculate difference between previous date 
 gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitseason]
 
 
-# Save compiled gps data --------------------------------------------------
-saveRDS(gps, "Data/all_gps.rds")
-
-
-#Liam Step length TA analysis
+#Liam Step length analysis --------------------------------------------------
 
 #use only sample periods that are 10 days or more
 gps <- gps[burstlength >= 10]
 
 gps <- gps[!is.na(burst)]
-
 
 #calculate the difference between times of fix, in order of datetime, by season
 setorder(gps, datetime)
@@ -81,7 +76,6 @@ gps[, nextfix := shift(datetime, n=1, type="lead"), by = .(id, winter, season, b
 gps[, fixrate := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
 hist(gps$fixrate)
 #a lot of zero fix rates - they should have been removed in prep_locs?
-
 
 #put next coordinates in new column
 setorder(gps, datetime)
@@ -91,20 +85,32 @@ gps[, next_y_proj := shift(y_proj, n=1, type="lead"), by = .(id, winter, season,
 #calculate step length
 gps[, S.L. := sqrt((next_x_proj - x_proj)^2 + (next_y_proj - y_proj)^2)] 
 
-#grab important columns
-gps<-gps[, .(id, winter, season, burst, datetime, nextfix, fixrate, x_proj, next_x_proj, y_proj, next_y_proj, S.L.)]
-
-#remove SLs greater than 5000 meters
-gps<- gps[S.L. <= 5000]
+#grab important columns - ignore with '#' for purpose of creating full output
+#gps<-gps[, .(id, winter, season, burst, datetime, nextfix, fixrate, x_proj, next_x_proj, y_proj, next_y_proj, S.L.)]
 
 
-#create speed column
+#create new columns for speed, 
 gps[, speed := S.L./fixrate, by= .(id, winter, season, burst)]
 
+#remove SLs greater than 5000 meters
+gps<- gps[S.L. <= 5000] #below stats functions were not working unless I ran this line
+#It must have removed some NAs?????????????????????????
 
-stats <- gps[, .(median(fixrate), median(S.L.), median(speed)), by = .(id, winter, season, burst)]
-setnames(stats, c("V1", "V2", "V3"), c("fixrate", "S.L.", "speed"))
+#add cols for median fixrate, median steplength, median speed
+gps[, median.fixrate := median(fixrate), by= .(id, winter, season, burst)]
+gps[, median.SL := median(S.L.), by= .(id, winter, season, burst)]
+gps[, median.speed := median(speed), by= .(id, winter, season, burst)]
 
+quantile(gps$speed, probs=0.987) # this was percentile where it seemed reasonable
+#remove remove speeds greater than the 98.7% percentile (> 194 meters/min)
+gps<- gps[speed <= 194]
+#remove fix rates over 12 hours (just anything unreasonable)
+gps <- gps[fixrate <= 720]
+#remove fix rates = 0 (shouldnt be there after speed reduction (infinity), but just check)
+gps<- gps[fixrate != 0]
+#remove fixes wth step lengths above 99.7% quantile (balance data reduction and reasonable SL)
+quantile(gps$S.L., probs=0.997)
+gps<- gps[S.L. <= 500]
 
 #initial plots
 ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
@@ -112,3 +118,5 @@ ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
 hist(gps$S.L.)
 
 
+# Save compiled gps data --------------------------------------------------
+saveRDS(gps, "Data/all_gps.rds")
