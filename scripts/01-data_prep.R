@@ -22,7 +22,7 @@ gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 
 #variables that we are splitting calculations by
 splitburst <- c("id", "winter", "burst")
-splitwinter <- c("id", "winter")
+splityear <- c("id", "winter")
 
 #overwrite id column with animal
 gps[, id := animal]
@@ -32,7 +32,7 @@ gps[mnth > 10, winter := paste0(yr, "-", yr+1)]
 gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 
 #grab only winter
-gps <- gps[mnth > 10| mnth < 4]
+gps <- gps[!is.na(winter)]
 
 #remove any fixes not allocated to a burst
 gps <- gps[!is.na(burst)]
@@ -44,20 +44,8 @@ gps <- gps[!is.na(burst)]
 #calculate the difference in days from first day of a burst
 gps[, diffday := idate - min(idate), by = splitburst]
 
-#calculate the length of a season
-gps[, winterlength := max(idate) - min(idate), by = splityear]
-
 #calculate the length of each burst
 gps[, burstlength := max(idate) - min(idate), by = splitburst]
-
-#calculate the difference between days of fix, in order of datetime, by season
-setorder(gps, datetime)
-# gps[, shiftdate := shift(idate), by = splityear] #take date before , for each fix
-# gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
-# 
-# #take max lag between fixes for each bunny-season
-# gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splityear]
-
 
 
 # lag dates ---------------------------------------------------------------
@@ -65,22 +53,23 @@ setorder(gps, datetime)
 
 #calculate the difference between days of fix, in order of datetime, by burst
 #bursts with gaps greater than a day or two must be bursts where many fixes got removed in cleaning
+#calculate the difference between days of fix, in order of datetime, by season
+setorder(gps, datetime)
 
 #calculate the difference between times of fix, in order of datetime, by season
-
 setorder(gps, datetime)
 gps[, shiftdate := shift(idate), by = splitburst] #take date before , for each fix
 gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
 #take max lag between fixes for each bunny-winter
-gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitburst]
+gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splityear]
 
 
 
 # fix rates, step length and speed ---------------------------------------------------------------
 
 gps[, nextfix := shift(datetime, n=1, type="lead"), by = splitburst] #take time before , for each fix
-gps[, fixrate := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
-hist(gps$fixrate)
+gps[, difffix := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
+hist(gps$difffix)
 #a lot of zero fix rates - they should have been removed in prep_locs?
 
 #put next coordinates in new column
@@ -89,50 +78,34 @@ gps[, next_x_proj := shift(x_proj, n=1, type="lead"), by = splitburst]
 gps[, next_y_proj := shift(y_proj, n=1, type="lead"), by = splitburst]
 
 #calculate step length
-gps[, S.L. := sqrt((next_x_proj - x_proj)^2 + (next_y_proj - y_proj)^2)] 
+gps[, sl := sqrt((next_x_proj - x_proj)^2 + (next_y_proj - y_proj)^2)] 
 
 #create speed column
-gps[, speed := S.L./fixrate, by = splitburst]
-
+gps[, speed := sl/difffix, by = splitburst]
 
 
 # clean out unrealistic movements -----------------------------------------
 
 
-quantile(gps$speed, probs=0.987) # this was percentile where it seemed reasonable
-#remove remove speeds greater than the 98.7% percentile (> 194 meters/min)
-gps<- gps[speed <= 194]
+#remove cases where fix rate is zero minutes
+gps <- gps[!difffix == 0]
+
+#define the upper quantile of speed
+quant <- quantile(gps$speed, probs = 0.995, na.rm = TRUE)
+#remove remove speeds greater than the 99.5% percentile
+gps<- gps[speed <= quant]
+
 #remove fix rates over 12 hours (just anything unreasonable)
-gps <- gps[fixrate <= 720]
-#remove fix rates = 0 (shouldnt be there after speed reduction (infinity), but just check)
-gps<- gps[fixrate != 0]
-#remove fixes wth step lengths above 99.7% quantile (balance data reduction and reasonable SL)
-quantile(gps$S.L., probs=0.997)
-gps<- gps[S.L. <= 500]
+gps <- gps[difffix <= 720]
+
 
 #add cols for median fixrate, median steplength, median speed
-gps[, median.fixrate := median(fixrate), by = splitburst]
-gps[, median.SL := median(S.L.), by = splitburst]
-gps[, median.speed := median(speed), by = splitburst]
+gps[, fixrate := median(difffix), by = splitburst]
+gps[, med.sl := median(sl), by = splitburst]
+gps[, med.speed := median(speed), by = splitburst]
 
 
 
 # Save compiled gps data --------------------------------------------------
 saveRDS(gps, "Data/all_gps.rds")
 
-
-
-
-
-
-
-
-
-#initial plots
-ggplot(gps, aes(S.L., fill = factor(id))) + geom_density(alpha = 0.4) +
-   theme(legend.position="none")
-hist(gps$S.L.)
-
-
-# Save compiled gps data --------------------------------------------------
-saveRDS(gps, "Data/all_gps.rds")
