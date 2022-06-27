@@ -22,36 +22,17 @@ gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 
 #variables that we are splitting calculations by
 splitburst <- c("id", "winter", "burst")
-splityear <- c("id", "winter")
+splitwinter <- c("id", "winter")
 
 #overwrite id column with animal
 gps[, id := animal]
 
-<<<<<<< HEAD
-#grab only fixes during winter
-gps <- gps[mnth == 11 | mnth == 12 | mnth == 1 | mnth == 2 | mnth == 3]
-=======
-#categorize gps fixes into winters
-gps[idate > "2015-10-31" & idate < "2016-04-01", winter := "2015-2016"]
-gps[idate > "2016-10-31" & idate < "2017-04-01", winter := "2016-2017"]
-gps[idate > "2017-10-31" & idate < "2018-04-01", winter := "2017-2018"]
-gps[idate > "2018-10-31" & idate < "2019-04-01", winter := "2018-2019"]
-gps[idate > "2019-10-31" & idate < "2020-04-01", winter := "2019-2020"]
-gps[idate > "2020-10-31" & idate < "2021-04-01", winter := "2020-2021"]
-gps[idate > "2021-10-31" & idate < "2022-04-01", winter := "2021-2022"]
+#grab only winter
+gps <- gps[mnth > 10| mnth < 4]
 
-#create early winter and late winter categories
-#fixes in nov and dec are "early"
-#fixes in feb and march are "late"
-gps[mnth == 11| mnth == 12, season := "early"]
-gps[mnth == 2| mnth == 3, season := "late"]
-
-#remove anything that doesn't fall into early or late winter
-gps <- gps[!is.na(season)]
-
-#variables that we are splitting calculations by
-splitburst <- c("id", "winter", "burst")
-splitseason <- c("id", "winter", "season")
+#categorize fixes into winters
+gps[mnth > 9, winter := paste0(yr, "-", yr+1)]
+gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 
 #calculate the difference in days from first day of a burst
 gps[, diffday := idate - min(idate), by = splitburst]
@@ -75,12 +56,11 @@ gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splitseason]
 
 #use only sample periods that are 10 days or more
 gps <- gps[burstlength >= 10]
->>>>>>> e45c3917f5f04b5347a376541011e58f30e5f23f
 
 #remove any fixes not allocated to a burst
 gps <- gps[!is.na(burst)]
 
-<<<<<<< HEAD
+
 
 #categorize fixes into winters
 gps[mnth > 9, winter := paste0(yr, "-", yr+1)]
@@ -102,9 +82,9 @@ gps[, burstlength := max(idate) - min(idate), by = splitburst]
 
 #calculate the difference between days of fix, in order of datetime, by burst
 #bursts with gaps greater than a day or two must be bursts where many fixes got removed in cleaning
-=======
+
 #calculate the difference between times of fix, in order of datetime, by season
->>>>>>> e45c3917f5f04b5347a376541011e58f30e5f23f
+
 setorder(gps, datetime)
 gps[, shiftdate := shift(idate), by = splitburst] #take date before , for each fix
 gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
