@@ -30,38 +30,24 @@ t2 <- trapping[id %in% inds & Weight > 0]
 #turn dateCap column into a date with lubridate function
 t2[, date := dmy(dateCap)]
 
-#categorize gps fixes into winters,
-#grab all of october because that's when a lot of trapping started
-#should prob turn this into a function
-t2[date > "2015-10-01" & date < "2016-04-01", winter := "2015-2016"]
-t2[date > "2016-10-01" & date < "2017-04-01", winter := "2016-2017"]
-t2[date > "2017-10-01" & date < "2018-04-01", winter := "2017-2018"]
-t2[date > "2018-10-01" & date < "2019-04-01", winter := "2018-2019"]
-t2[date > "2019-10-01" & date < "2020-04-01", winter := "2019-2020"]
-t2[date > "2020-10-01" & date < "2021-04-01", winter := "2020-2021"]
-t2[date > "2021-10-01" & date < "2022-04-01", winter := "2021-2022"]
-
-
 #take out month from date column
 t2[, mnth := month(date)]
 
-#create early winter and late winter categories
-#fixes in nov and dec are "early"
-#fixes in feb and march are "late"
-t2[mnth == 10| mnth == 11| mnth == 12, season := "early"]
-t2[mnth == 2| mnth == 3, season := "late"]
+#categorize fixes into winters
+t2[mnth > 9, winter := paste0(year(date), "-", year(date)+1)] #grab october because we miss lots of weights otherwise
+t2[mnth < 4, winter := paste0(year(date)-1, "-", year(date))]
 
-#remove anything that isn't in early winte or late winter
-t2 <- t2[!is.na(season)]
+t2 <- t2[!is.na(winter)]
 
 #plot between seasons
 ggplot(t2)+
-  geom_boxplot(aes(x = season, y = Weight))
-summary(lm(t2$Weight ~ t2$season))
+  geom_point(aes(x = mnth, y = Weight))
+
+t2[, summary(lm(Weight ~ date))]
 
 
 #calc body mass by id, winter and season
-weights <- t2[, mean(Weight), by = .(id, winter, season)]
+weights <- t2[, mean(Weight), by = .(id, winter)]
 setnames(weights, "V1", "mass")
 
 saveRDS(weights, "output/results/bodymass.rds")
