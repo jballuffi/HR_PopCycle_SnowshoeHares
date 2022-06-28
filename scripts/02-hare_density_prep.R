@@ -49,10 +49,16 @@ predictdens <- function(yvar, xvar) {
   #create data frame of dates
   output <- data.table(winterday = seq(1, 197, by = 1))
   #predict densities for each date
-  output[, hdensity := (slope*winterday) + int]
+  output[, haredensity := (slope*winterday) + int]
   return(output)
 }
 
+#run function by winter
+densitypred <- hdensity[, predictdens(yvar = haredensity, xvar = winterday), by = winter]
 
-test <- hdensity[, regtable(yvar = haredensity, xvar = date), by = winter]
+#recreate date based on winter day if the min date is oct 1
+densitypred[, minyear := tstrsplit(winter, "-", keep = 1)]
+densitypred[, mindate := dmy(paste0("30-09", "-", minyear))]
+densitypred[, date := mindate + winterday]
 
+saveRDS(densitypred, "output/results/dailyharedensities.rds")
