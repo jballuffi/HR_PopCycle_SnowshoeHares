@@ -5,17 +5,19 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
 
+DT <- DT[!HRninety > 20]
+
 (byyear <- 
   ggplot(DT)+
   geom_boxplot(aes(x = winter, y = HRninety), outlier.shape = NA)+
-  geom_jitter(aes(x = winter, y = HRninety, colour= season), alpha = .5, width = .3)+
+  geom_jitter(aes(x = winter, y = HRninety, color = winterday), alpha = .7, width = .3)+
   labs(y = "90% MCP area (ha)", x = "Winter")+
   theme_boxplots)
 
 
 (byhdensity <- 
   ggplot(DT)+
-  geom_point(aes(x = haredensity/10000, y = HRninety, colour= season))+
+  geom_point(aes(x = haredensity/10000, y = HRninety))+
   labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
   theme_densities)
 

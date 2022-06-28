@@ -10,7 +10,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 areas <- readRDS("output/results/hrareas.rds")
 
 #import hare densities
-hdensity <- fread("data/Hare_density_monthly.csv")
+hdensity <- readRDS("output/results/dailyharedensities.rds")
 
 #import lynx densities
 ldensity <- fread("data/Lynx Density_simple.csv")
@@ -22,33 +22,21 @@ weights <- readRDS("output/results/bodymass.rds")
 foodadd <- readRDS("data/food_adds.rds")
 
 
-# clean hare density ------------------------------------------------------
+# merge hare densities ------------------------------------------------------
 
-#classify months as either early or late winter for year stuff
-late <- c(1, 2, 3, 4)
-early <- c(10, 11, 12)
+#reclassify date
+areas[, date := ymd(weekdate)]
+#set id as factor
+areas[, id := as.factor(id)]
 
-#change col names
-setnames(hdensity, "Year", "winter")
-setnames(hdensity, "hdensity", "haredensity")
+#cut the hare density data into important cols
+hdensity <- hdensity[, .(date, haredensity, winterday)]
 
-#pull months, years, and days into separate col
-hdensity[, mnth := month(Time)]
-hdensity[mnth %in% early, y := tstrsplit(winter, "-", keep = 1)]
-hdensity[mnth %in% late, y := tstrsplit(winter, "-", keep = 2)]
-hdensity[, day := day(Time)]
-
-#create a date col
-hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
-
-#recalculate hare density from hectare to 100km2
-hdensity[, haredensity := haredensity*10000]
-
-#last step: remove time col
-hdensity[, Time := NULL]
+#merge hare density by day of week
+DT1 <- merge(areas, hdensity, by = "date", all.x = TRUE)
 
 
-# merge densities ---------------------------------------------------------
+# merge lynx densities ---------------------------------------------------------
 
 #rename lynx data
 names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_upper", "lynxdensity")
@@ -56,41 +44,31 @@ names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_u
 #subset just two columns of interest
 lynx <- ldensity[, .(winter, lynxdensity)]
 
-#merge hare and lynx densities together
-densities <- merge(hdensity, lynx, by = "winter", all.x = TRUE)
-
-#calculate Pred:Prey ratio
-densities[, ppratio := lynxdensity/haredensity]
+#merge in lynx data 
+DT2 <- merge(DT1, lynx, by = "winter", all.x = TRUE)
 
 
-
-# prep food add -----------------------------------------------------------
+# merge food add -----------------------------------------------------------
 
 foodadd[, id := as.factor(Eartag)]
 foodadd[, Eartag := NULL] #remove extra eartage col from food adds
 
+#merge in food adds
+DT3 <- merge(DT2, foodadd, by = c("id", "winter"), all.x = TRUE)
+DT3[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
+DT3[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
-# merge all data together ----------------------------------------------------------
 
-#set id as factor
-areas[, id := as.factor(id)]
 
-#create month col in areas based on the middle date of weekly measures
-areas[, mnth := month(weekdate)]
+# merge in weights by winter ----------------------------------------------
+
 
 #merge weights with area
-DT1 <- merge(areas, weights, by = c("id", "winter"), all.x = TRUE)
+DT4 <- merge(DT3, weights, by = c("id", "winter"), all.x = TRUE)
 
-#merge in food adds
-DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
-DT2[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
-DT2[winter == "2018-2019" & weekdate < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
-
-#merge in densities
-DT3 <- merge(DT2, densities, by = c("winter", "season"), all.x = TRUE)
 
 #save merged data
-saveRDS(DT3, "output/results/compileddata.rds")
+saveRDS(DT4, "output/results/compileddata.rds")
 
-#save just densities
-saveRDS(densities, "data/densities.rds")
+# #save just densities
+# saveRDS(densities, "data/densities.rds")
