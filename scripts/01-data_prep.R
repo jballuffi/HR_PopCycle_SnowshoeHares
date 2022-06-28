@@ -10,7 +10,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #create file path to cleaned gps data from the prepare locs project
 files <- dir("../prepare-locs-kluane-hares/output/", full.names = TRUE)
 
-
 #fread the list of files using lapply
 ls.files<-lapply(files, fread)
 
@@ -39,7 +38,7 @@ gps <- gps[!is.na(burst)]
 
 
 
-# calculate sample periods ------------------------------------------------
+# calculate time differences in data and sample periods ------------------------------------------------
 
 #calculate the difference in days from first day of a burst
 gps[, diffday := idate - min(idate), by = splitburst]
@@ -47,25 +46,22 @@ gps[, diffday := idate - min(idate), by = splitburst]
 #calculate the length of each burst
 gps[, burstlength := max(idate) - min(idate), by = splitburst]
 
+#remove any bursts that are less than a week long
+gps <- gps[burstlength >= 7]
 
-# lag dates ---------------------------------------------------------------
+#cut diffday into weeks
+gps[, week := cut(diffday, breaks = c(-1, 7, 14, 21, 28, 35, 42, 49, 56))]
 
+#average the date for each week
+gps[, weekdate := mean(idate), by = c("id", "winter", "burst", "week")]
 
-#calculate the difference between days of fix, in order of datetime, by burst
-#bursts with gaps greater than a day or two must be bursts where many fixes got removed in cleaning
-#calculate the difference between days of fix, in order of datetime, by season
-setorder(gps, datetime)
-
-#calculate the difference between times of fix, in order of datetime, by season
-setorder(gps, datetime)
-gps[, shiftdate := shift(idate), by = splitburst] #take date before , for each fix
-gps[, lagdate := idate - shiftdate] #calculate difference between previous date and current date
-#take max lag between fixes for each bunny-winter
-gps[, maxlagdate := max(lagdate, na.rm = TRUE), by = splityear]
+#calculate week length
+gps[, weeklength := max(idate) - min(idate), by = .(id, weekdate)]
 
 
 
 # fix rates, step length and speed ---------------------------------------------------------------
+setorder(gps, datetime)
 
 gps[, nextfix := shift(datetime, n=1, type="lead"), by = splitburst] #take time before , for each fix
 gps[, difffix := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
@@ -85,6 +81,13 @@ gps[, speed := sl/difffix, by = splitburst]
 
 
 # clean out unrealistic movements -----------------------------------------
+
+#remove outlier fixes based on distribution of easting and northings
+#eastings
+gps <- gps[x_proj > 300000 & x_proj < 342000] #removed 10
+#northings
+gps <- gps[y_proj > 6750000 & y_proj < 6770000] #removed 2 more
+#check why one mean y_lat became 0 when just y_lat was non-zero???
 
 
 #remove cases where fix rate is zero minutes
