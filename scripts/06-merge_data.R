@@ -63,20 +63,28 @@ densities <- merge(hdensity, lynx, by = "winter", all.x = TRUE)
 densities[, ppratio := lynxdensity/haredensity]
 
 
+
+# prep food add -----------------------------------------------------------
+
+foodadd[, id := as.factor(Eartag)]
+foodadd[, Eartag := NULL] #remove extra eartage col from food adds
+
+
 # merge all data together ----------------------------------------------------------
 
 #set id as factor
 areas[, id := as.factor(id)]
-foodadd[, id := as.factor(Eartag)]
 
+#create month col in areas based on the middle date of weekly measures
+areas[, mnth := month(weekdate)]
 
 #merge weights with area
-DT1 <- merge(areas, weights, by = c("id", "winter", "season"), all.x = TRUE)
+DT1 <- merge(areas, weights, by = c("id", "winter"), all.x = TRUE)
 
 #merge in food adds
 DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
-DT2[, Eartag := NULL] #remove extra eartage col from food adds
-DT2[is.na(Food), Food := 0] #haares with NA in food add get zero to rep control
+DT2[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
+DT2[winter == "2018-2019" & weekdate < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
 #merge in densities
 DT3 <- merge(DT2, densities, by = c("winter", "season"), all.x = TRUE)
