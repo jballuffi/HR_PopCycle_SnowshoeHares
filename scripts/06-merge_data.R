@@ -10,7 +10,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 areas <- readRDS("output/results/hrareas.rds")
 
 #import hare densities
-hdensity <- fread("data/Hare_density_simple.csv")
+hdensity <- fread("data/Hare_density_monthly.csv")
 
 #import lynx densities
 ldensity <- fread("data/Lynx Density_simple.csv")
@@ -24,45 +24,40 @@ foodadd <- readRDS("data/food_adds.rds")
 
 # clean hare density ------------------------------------------------------
 
-#split season off of season year column
-hdensity[, season := tstrsplit(Season_year, " ", keep = 1)]
-hdensity[, year := tstrsplit(Season_year, " ", keep = 2)]
+#classify months as either early or late winter for year stuff
+late <- c(1, 2, 3, 4)
+early <- c(10, 11, 12)
 
-#reclassify year
-hdensity[, year := as.integer(year)]
+#change col names
+setnames(hdensity, "Year", "winter")
+setnames(hdensity, "hdensity", "haredensity")
 
-#rename seasons to match other data
-hdensity[season == "Fall", season := "early"]
-hdensity[season == "Spring", season := "late"]
+#pull months, years, and days into separate col
+hdensity[, mnth := month(Time)]
+hdensity[mnth %in% early, y := tstrsplit(winter, "-", keep = 1)]
+hdensity[mnth %in% late, y := tstrsplit(winter, "-", keep = 2)]
+hdensity[, day := day(Time)]
 
-#remove earlier years
-hdensity <- hdensity[year > 2010]
-
-#create a winter column to match other data
-hdensity[season == "early", winter := paste(year, "-", year+1)]
-hdensity[season == "late", winter := paste(year-1, "-", year)]
-
-#remove spaces that were created when pasting winter column
-hdensity[, winter := gsub(" ", "", winter)]
-
-#remove useless columns
-hdensity[, Season_year := NULL]
-
-#rename
-setnames(hdensity, "Density", "haredensity")
+#create a date col
+hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
 
 #recalculate hare density from hectare to 100km2
 hdensity[, haredensity := haredensity*10000]
+
+#last step: remove time col
+hdensity[, Time := NULL]
+
 
 # merge densities ---------------------------------------------------------
 
 #rename lynx data
 names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_upper", "lynxdensity")
+
 #subset just two columns of interest
-lynx <- ldensity[, .(winter, ltracks, lynxdensity)]
+lynx <- ldensity[, .(winter, lynxdensity)]
 
 #merge hare and lynx densities together
-densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
+densities <- merge(hdensity, lynx, by = "winter", all.x = TRUE)
 
 #calculate Pred:Prey ratio
 densities[, ppratio := lynxdensity/haredensity]
