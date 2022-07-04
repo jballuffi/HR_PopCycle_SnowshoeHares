@@ -15,3 +15,6 @@ library(adehabitatHR)
 library(lubridate)
 library(data.table)
 library(sf)
+
+library(AICcmodavg)
+library(lme4)
