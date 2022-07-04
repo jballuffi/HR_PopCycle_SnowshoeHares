@@ -3,7 +3,6 @@ library(ggplot2)
 theme_densities <- theme(axis.title = element_text(size=12),
                          axis.text.y = element_text(size=10),
                          axis.text.x = element_text(size = 9),
-                         legend.position = "top",
                          legend.key = element_blank(),
                          legend.title = element_blank(),
                          panel.background = element_blank(),
