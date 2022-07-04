@@ -20,6 +20,10 @@ areas <- readRDS("output/results/hrareas.rds")
 #make eartag a factor
 trapping[, id := as.factor(Eartag)]
 
+#get most common sex by individual and make factor
+trapping[, Sex := getmode(Sex), by = id]
+trapping[, Sex := as.factor(Sex)]
+
 #grab all unique individuals from home range calculations
 inds <- unique(areas$id)
 
@@ -37,17 +41,12 @@ t2[, mnth := month(date)]
 t2[mnth > 9, winter := paste0(year(date), "-", year(date)+1)] #grab october because we miss lots of weights otherwise
 t2[mnth < 4, winter := paste0(year(date)-1, "-", year(date))]
 
+#remove anything that doesn't fall within winter
 t2 <- t2[!is.na(winter)]
-
-#plot between seasons
-ggplot(t2)+
-  geom_point(aes(x = mnth, y = Weight))
-
-t2[, summary(lm(Weight ~ date))]
 
 
 #calc body mass by id, winter and season
-weights <- t2[, mean(Weight), by = .(id, winter)]
-setnames(weights, "V1", "mass")
+weights <- t2[, .(mean(Weight), getmode(Sex)), by = .(id, winter)]
+setnames(weights, c("V1", "V2"), c("mass", "sex"))
 
 saveRDS(weights, "output/results/bodymass.rds")
