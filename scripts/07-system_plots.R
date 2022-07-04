@@ -10,56 +10,47 @@ densities <- readRDS("data/densities.rds")
 
 # plot showing animal densities over time ----------------------------------
 
-#rename the season categories for figures
-densities[season == "late", season := "late winter"]
-densities[season == "early", season := "early winter"]
+#pull means by year
+wintermeans <- densities[, .(mean(haredensity), mean(lynxdensity), mean(ppratio)), by = winter]
+names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio")
+
 
 #hare density over time
-(h <- ggplot(densities)+
-  geom_line(aes(x = winter, y = haredensity, group = season, color = season))+
+(h <- ggplot(wintermeans)+
+  geom_path(aes(x = winter, y = haredensity, group = 1))+
   labs(x = "", y = "Hares per 100 km2")+
   theme_densities)
 
 #lynx density over time
-(l <- ggplot(densities)+
+(l <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = lynxdensity, group = 1))+
   labs(x = "", y = "Lynx per 100 km2")+
   theme_densities)
 
 #pred-prey ratio over time
-(pp <- ggplot(densities)+
-  geom_path(aes(x = winter, y = ppratio, group = season, color = season))+
+(pp <- ggplot(wintermeans)+
+  geom_path(aes(x = winter, y = ppratio, group = 1))+
   labs(x = "Winter", y = "Lynx:Hare Ratio")+
-  theme_densities+
-  theme(legend.position = "none"))
+  theme_densities)
 
 #ggarrange all densities
 (densityplots <- ggarrange(h, l, pp, ncol = 1, nrow = 3))
 
 
 
-# body mass plots ---------------------------------------------------------
 
-#rename the season categories for figures
-DT[season == "late", season := "late winter"]
-DT[season == "early", season := "early winter"]
+# predation risk over winter ---------------------------------------------------
 
-
-(seasonmass <- 
-  ggplot(DT)+
-  geom_boxplot(aes(x = season, y = mass), width = .5)+
-  labs(x = "", y = "Body Mass (g)")+
-  theme_boxplots)
-
-(yearmass <- 
-  ggplot(DT)+
-  geom_boxplot(aes(x = winter, y = mass))+
-  geom_jitter(aes(x = winter, y = mass), width = .25, alpha = .5)+
-  labs(x = "Winter", y = "Body Mass (g)")+
-  theme_boxplots)
-
-(bodymassplots <- ggarrange(seasonmass, yearmass, ncol = 1, nrow = 2))
+(ppwinter <-
+  ggplot(densities)+
+  geom_line(aes(x = winterday, y = ppratio, color = winter, group = winter))+
+  labs(y = "Lynx:Hare Ratio", x = "Days into winter")+
+  theme_densities)
 
 
-ggsave("output/figures/bodymass.jpeg", bodymassplots, width = 6, height = 8, units = "in")
+
+
+
+
 ggsave("output/figures/densities.jpeg", densityplots, width = 6, height = 9, units = "in")
+ggsave("output/figures/ppratios.jpeg", ppwinter, width = 6, height = 4, units = "in")
