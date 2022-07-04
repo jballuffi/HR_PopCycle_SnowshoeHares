@@ -22,21 +22,7 @@ weights <- readRDS("output/results/bodymass.rds")
 foodadd <- readRDS("data/food_adds.rds")
 
 
-# merge hare densities ------------------------------------------------------
-
-#reclassify date
-areas[, date := ymd(weekdate)]
-#set id as factor
-areas[, id := as.factor(id)]
-
-#cut the hare density data into important cols
-hdensity <- hdensity[, .(date, haredensity, winterday)]
-
-#merge hare density by day of week
-DT1 <- merge(areas, hdensity, by = "date", all.x = TRUE)
-
-
-# merge lynx densities ---------------------------------------------------------
+# make just a density dataframe -------------------------------------------
 
 #rename lynx data
 names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_upper", "lynxdensity")
@@ -44,8 +30,25 @@ names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_u
 #subset just two columns of interest
 lynx <- ldensity[, .(winter, lynxdensity)]
 
-#merge in lynx data 
-DT2 <- merge(DT1, lynx, by = "winter", all.x = TRUE)
+#cut the hare density data into important cols
+hdensity <- hdensity[, .(winter, date, haredensity, winterday)]
+
+#merge by winter
+densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
+
+#create pred:prey
+densities[, ppratio := lynxdensity/haredensity]
+
+# merge densities with home ranges ------------------------------------------------------
+
+#reclassify date
+areas[, date := ymd(weekdate)]
+#set id as factor
+areas[, id := as.factor(id)]
+
+#merge hare density by day of week and winter
+DT1 <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
+
 
 
 # merge food add -----------------------------------------------------------
@@ -54,9 +57,9 @@ foodadd[, id := as.factor(Eartag)]
 foodadd[, Eartag := NULL] #remove extra eartage col from food adds
 
 #merge in food adds
-DT3 <- merge(DT2, foodadd, by = c("id", "winter"), all.x = TRUE)
-DT3[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
-DT3[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
+DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
+DT2[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
+DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
 
 
@@ -64,11 +67,13 @@ DT3[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn'
 
 
 #merge weights with area
-DT4 <- merge(DT3, weights, by = c("id", "winter"), all.x = TRUE)
+DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
+
+
 
 
 #save merged data
-saveRDS(DT4, "output/results/compileddata.rds")
+saveRDS(DT3, "output/results/compileddata.rds")
 
-# #save just densities
-# saveRDS(densities, "data/densities.rds")
+#save just densities
+saveRDS(densities, "data/densities.rds")
