@@ -39,6 +39,11 @@ densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
 #create pred:prey
 densities[, ppratio := lynxdensity/haredensity]
 
+#delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
+densities <- densities[winterday >= 32]
+densities[, winterday := winterday - 31]
+
+
 # merge densities with home ranges ------------------------------------------------------
 
 #reclassify date
@@ -48,7 +53,6 @@ areas[, id := as.factor(id)]
 
 #merge hare density by day of week and winter
 DT1 <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
-
 
 
 # merge food add -----------------------------------------------------------
