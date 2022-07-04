@@ -39,21 +39,7 @@ hdensity[, Time := NULL]
 
 # run linear models of density decrease by winter -------------------------
 
-#function runs model and creates a prediction for each day
-predictdens <- function(yvar, xvar) {
-  # Make the model
-  model <- lm(yvar ~ xvar)
-  #pull out slopes and intercepts
-  slope <- coef(model)["xvar"]
-  int <- coef(model)["(Intercept)"]
-  #create data frame of dates
-  output <- data.table(winterday = seq(1, 197, by = 1))
-  #predict densities for each date
-  output[, haredensity := (slope*winterday) + int]
-  return(output)
-}
-
-#run function by winter
+#run predictdens function by winter (lm of density over time, predicts for each day)
 densitypred <- hdensity[, predictdens(yvar = haredensity, xvar = winterday), by = winter]
 
 #recreate date based on winter day if the min date is oct 1
