@@ -65,7 +65,7 @@ DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
 DT2[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
 DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
-
+DT2[, Food := is.factor(Food)]
 
 # merge in weights by winter ----------------------------------------------
 
