@@ -18,3 +18,4 @@ library(sf)
 
 library(AICcmodavg)
 library(lme4)
+library(rsq)
