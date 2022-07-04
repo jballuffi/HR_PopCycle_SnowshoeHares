@@ -23,7 +23,7 @@ DT <- DT[!HRninety > 20]
 
 (byppratio <- 
   ggplot(DT)+
-  geom_point(aes(x = ppratio, y = HRninety, colour= season))+
+  geom_point(aes(x = lynxdensity, y = HRninety))+
   labs(y = "90% MCP area (ha)", x = "Lynx:Hare Ratio")+
   theme_densities)
 
@@ -37,20 +37,20 @@ ggsave("output/figures/hrsize_90MCP_withseason.jpeg", hrsize, width = 6, height 
 (byyear <- 
     ggplot(DT)+
     geom_boxplot(aes(x = winter, y = HR75), outlier.shape = NA)+
-    geom_jitter(aes(x = winter, y = HR75, colour= season), alpha = .5, width = .3)+
+    geom_jitter(aes(x = winter, y = HR75), alpha = .5, width = .3)+
     labs(y = "75% MCP area (ha)", x = "Winter")+
     theme_boxplots)
 
 
 (byhdensity <- 
     ggplot(DT)+
-    geom_point(aes(x = haredensity/10000, y = HR75, colour= season))+
+    geom_point(aes(x = haredensity/10000, y = HR75))+
     labs(y = "75% MCP area (ha)", x = "Hare Density (hares per ha)")+
     theme_densities)
 
 (byppratio <- 
     ggplot(DT)+
-    geom_point(aes(x = ppratio, y = HR75, colour= season))+
+    geom_point(aes(x = lynxdensity, y = HR75))+
     labs(y = "75% MCP area (ha)", x = "Lynx:Hare Ratio")+
     theme_densities)
 
