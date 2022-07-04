@@ -80,4 +80,4 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 saveRDS(DT3, "output/results/compileddata.rds")
 
 #save just densities
-saveRDS(densities, "data/densities.rds")
+saveRDS(densities, "output/results/densities.rds")

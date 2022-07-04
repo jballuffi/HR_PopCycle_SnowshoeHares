@@ -4,7 +4,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 DT <- readRDS("output/results/compileddata.rds")
-densities <- readRDS("data/densities.rds")
+densities <- readRDS("output/results/densities.rds")
 
 
 
