@@ -10,7 +10,7 @@ lm_out <- function(model) {
   coefOut<-round(coefOut, 3)
   
   #collect standard errors
-  seOut <- data.table(t(out$coefficients[, 1]))
+  seOut <- data.table(t(out$coefficients[, 2]))
   seOut<-round(seOut, 3)
   
   #Paste coef and standard errors together, rename cols
