@@ -20,9 +20,14 @@ areas <- readRDS("output/results/hrareas.rds")
 #make eartag a factor
 trapping[, id := as.factor(Eartag)]
 
-#get most common sex by individual and make factor
+#for sex: 0 = no data, 1 = female, 2 = male 
+#turn 0s to NAs
+trapping[Sex == 0, Sex := NA]
+#get mode by ID, this function doesnt account for NAs
 trapping[, Sex := getmode(Sex), by = id]
+#change to factor
 trapping[, Sex := as.factor(Sex)]
+
 
 #grab all unique individuals from home range calculations
 inds <- unique(areas$id)
