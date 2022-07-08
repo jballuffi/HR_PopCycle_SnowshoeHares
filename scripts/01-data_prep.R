@@ -63,18 +63,18 @@ gps[, weeklength := max(idate) - min(idate), by = .(id, weekdate)]
 # fix rates, step length and speed ---------------------------------------------------------------
 setorder(gps, datetime)
 
-gps[, nextfix := shift(datetime, n=1, type="lead"), by = splitburst] #take time before , for each fix
-gps[, difffix := as.numeric(round(difftime(nextfix, datetime, units= 'mins')))] #calculate difference between previous time and current time
-hist(gps$difffix)
+gps[, prevfix := shift(datetime, n=1, type="lag"), by = splitburst] #take time before , for each fix
+gps[, difffix := as.numeric(round(difftime(datetime, prevfix, units= 'mins')))] #calculate difference between previous time and current time
+gps[difffix < 100, hist(difffix)]
 #a lot of zero fix rates - they should have been removed in prep_locs?
 
-#put next coordinates in new column
+#put previous coordinates in new column
 setorder(gps, datetime)
-gps[, next_x_proj := shift(x_proj, n=1, type="lead"), by = splitburst]
-gps[, next_y_proj := shift(y_proj, n=1, type="lead"), by = splitburst]
+gps[, prev_x_proj := shift(x_proj, n=1, type="lag"), by = splitburst]
+gps[, prev_y_proj := shift(y_proj, n=1, type="lag"), by = splitburst]
 
 #calculate step length
-gps[, sl := sqrt((next_x_proj - x_proj)^2 + (next_y_proj - y_proj)^2)] 
+gps[, sl := sqrt((prev_x_proj - x_proj)^2 + (prev_y_proj - y_proj)^2)] 
 
 #create speed column
 gps[, speed := sl/difffix, by = splitburst]
@@ -97,9 +97,6 @@ gps <- gps[!difffix == 0]
 quant <- quantile(gps$speed, probs = 0.995, na.rm = TRUE)
 #remove remove speeds greater than the 99.5% percentile
 gps<- gps[speed <= quant]
-
-#remove fix rates over 12 hours (just anything unreasonable)
-gps <- gps[difffix <= 720]
 
 
 #add cols for median fixrate, median steplength, median speed
