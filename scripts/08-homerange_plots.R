@@ -5,7 +5,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
 
-DT <- DT[!HRninety > 20]
+#Need to figure out these outliers!
+DT <- DT[!HRninety > 20] 
 
 
 
