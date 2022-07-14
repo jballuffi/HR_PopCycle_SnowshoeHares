@@ -39,8 +39,23 @@ setnames(area50, "a", "HRfifty") #change column name
 #merge areas of 90% , 75% volume together
 areas.temp <- merge(area90, area75, by = weeksplit)
 #merge the 50% volume as well
-areas<- merge(areas.temp, area50, by = weeksplit)
+areas.temp1<- merge(areas.temp, area50, by = weeksplit)
 
+#obtain unique info for fix rates
+gps.sub <- gps[, unique(id), by = .(winter,burst,fixrate)]
+setnames(gps.sub, "V1", "id") #change column name
+
+#merge the fix rates with the HR areas
+FRsplit <- c("id", "winter", "burst")
+areas <- merge(areas.temp1, gps.sub, by = FRsplit)
+
+#plot areas against fix rate
+ggplot(areas) +
+  geom_jitter(aes(x= fixrate, y = HRninety), colour="red", width = 0.5) +
+  geom_jitter(aes(x= fixrate, y = HR75), colour="green", width = 0.5) +
+  geom_jitter(aes(x= fixrate, y = HRfifty), colour="blue", width = 0.5) 
+#look into whether smaller HRs for 5 min FR is just because of smaller total 
+#number of fixes???
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
