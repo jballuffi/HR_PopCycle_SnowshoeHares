@@ -99,11 +99,18 @@ quant <- quantile(gps$speed, probs = 0.995, na.rm = TRUE)
 gps<- gps[speed <= quant]
 
 
-#add cols for median fixrate, median steplength, median speed
-gps[, fixrate := median(difffix), by = splitburst]
+#add cols for median fixrate, mode fixrate, median steplength, median speed
+gps[, med.fixrate := median(difffix), by = splitburst]
+gps[, modeFR := getmode(difffix), by = splitburst]
 gps[, med.sl := median(sl), by = splitburst]
 gps[, med.speed := median(speed), by = splitburst]
 
+
+#Compare median and mode fixdiff to determine real fix rates
+gps[, unique(modeFR), by=med.fixrate]
+#looked into individual buns, and mode seems to better estimate true fix rate
+#so, resetting fix rate as the mode
+gps[, fixrate := modeFR]
 
 
 # Save compiled gps data --------------------------------------------------
