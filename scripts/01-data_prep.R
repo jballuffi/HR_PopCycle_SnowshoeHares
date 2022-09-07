@@ -1,6 +1,14 @@
 
 # script that prepares the *already cleaned* gps data for all aspects of analysis
 
+#THINGS TO CHECK ON ALEC'S CLEANING SCRIPT:
+#satellite threshold should be 3, not 2?
+#why so many 'locs outside of deployment'?
+#removing if less than 4 locs in 2 mins should be after DOP removal, b/c DOP removal 
+             #could drop number of locs below 4? 
+#remove points after mortality - use axy data from Emily??
+
+
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
