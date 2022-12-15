@@ -8,16 +8,18 @@ DT[, Food := as.factor(Food)]
 #Need to figure out these outliers!
 DT <- DT[!HRninety > 20] 
 
-
+#reorder phase cycles
+DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
 # 90% MCP  -------------------------------------------------------
 
 (byyear90 <- 
   ggplot(DT)+
-  geom_boxplot(aes(x = winter, y = HRninety), outlier.shape = NA)+
-  geom_jitter(aes(x = winter, y = HRninety), alpha = .7, width = .3)+
+  geom_boxplot(aes(x = winter, y = HRninety))+
+  #geom_jitter(aes(x = winter, y = HRninety), alpha = .7, width = .3)+
   labs(y = "90% MCP area (ha)", x = "Winter")+
-  theme_boxplots)
+  theme_boxplots+
+   theme(axis.text.x.bottom = element_text(size = 8)))
 
 (byhdensity90 <- 
   ggplot(DT)+
@@ -31,37 +33,14 @@ DT <- DT[!HRninety > 20]
   labs(y = "90% MCP area (ha)", x = "Lynx:Hare Ratio")+
   theme_densities)
 
-(hrsize90 <- ggarrange(byyear90, byhdensity90, byppratio90, ncol = 1, nrow = 3))
+(byphase <- 
+  ggplot(DT)+
+  geom_boxplot(aes(x = phase, y = HRninety))+
+  labs(y = "90% MCP area (ha)", x = "Cycle Phase")+
+  theme_boxplots)
+
+(hrsize90 <- ggarrange(byyear90, byhdensity90, byppratio90, byphase,
+                       ncol = 2, nrow = 2))
 
 
-
-
-# 50% MCP -----------------------------------------------------------------
-
-
-(byyear50 <- 
-    ggplot(DT)+
-    geom_boxplot(aes(x = winter, y = HRfifty), outlier.shape = NA)+
-    geom_jitter(aes(x = winter, y = HRfifty), alpha = .7, width = .3)+
-    labs(y = "50% MCP area (ha)", x = "Winter")+
-    theme_boxplots)
-
-(byhdensity50 <- 
-    ggplot(DT)+
-    geom_point(aes(x = haredensity/10000, y = HRfifty))+
-    labs(y = "50% MCP area (ha)", x = "Hare Density (hares per ha)")+
-    theme_densities)
-
-(byppratio50 <- 
-    ggplot(DT)+
-    geom_point(aes(x = ppratio, y = HRfifty))+
-    labs(y = "50% MCP area (ha)", x = "Lynx:Hare Ratio")+
-    theme_densities)
-
-(hrsize50 <- ggarrange(byyear50, byhdensity50, byppratio50, ncol = 1, nrow = 3))
-
-
-
-
-ggsave("output/figures/hrsize_90MCP.jpeg", hrsize90, width = 6, height = 8, units = "in")
-ggsave("output/figures/hrsize_50MCP.jpeg", hrsize50, width = 6, height = 8, units = "in")
+ggsave("output/figures/hrsize_90MCP.jpeg", hrsize90, width = 10, height = 6, units = "in")
