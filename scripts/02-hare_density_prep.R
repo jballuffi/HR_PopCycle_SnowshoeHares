@@ -46,15 +46,15 @@ hdensity[, haredensity := haredensity*10000]
 springs <- hdensity[mnth == 4]
 
 #compare last year's density to this year's density
-springs[, prevdens := shift(haredensity, n = 1, type = "lag")]
+springs[, nextdens := shift(haredensity, n = 1, type = "lead")]
 
 #calculate the finite rate of change
-springs[, change := haredensity/prevdens]
+springs[, change := nextdens/haredensity]
 
-#categorize based on rate of change
+#categorize based on rate of change for increase vs decrease
 springs[change > 1.89, phase := "increase"]
-springs[winter == "2015-2016", phase := "increase"] #there's no prev winter for this one
 springs[change < 0.44, phase := "decrease"]
+# and population dens for low vs high
 springs[is.na(phase) & haredensity < 1000, phase := "low"]
 springs[is.na(phase) & haredensity > 4000, phase := "peak"]
 
