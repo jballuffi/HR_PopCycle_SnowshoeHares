@@ -11,31 +11,33 @@ densities <- readRDS("output/results/densities.rds")
 # plot showing animal densities over time ----------------------------------
 
 #pull means by year
-wintermeans <- densities[, .(mean(haredensity), mean(lynxdensity), mean(ppratio)), by = winter]
-names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio")
+wintermeans <- densities[, .(mean(haredensity), mean(lynxdensity), mean(ppratio), phase), by = winter]
+names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phase")
 
 
 #hare density over time
 (h <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = haredensity, group = 1))+
+  geom_point(aes(x = winter, y = haredensity, color = phase), size = 2)+
   labs(x = "", y = "Hares per 100 km2")+
   theme_densities)
 
 #lynx density over time
 (l <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = lynxdensity, group = 1))+
+  geom_point(aes(x = winter, y = lynxdensity, color = phase), size = 2)+
   labs(x = "", y = "Lynx per 100 km2")+
   theme_densities)
 
 #pred-prey ratio over time
 (pp <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = ppratio, group = 1))+
+  geom_point(aes(x = winter, y = ppratio, color = phase), size = 2)+
   labs(x = "Winter", y = "Lynx:Hare Ratio")+
   theme_densities)
 
 #ggarrange all densities
 (densityplots <- ggarrange(h, l, pp, ncol = 1, nrow = 3))
-
 
 
 
