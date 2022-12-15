@@ -31,7 +31,7 @@ names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_u
 lynx <- ldensity[, .(winter, lynxdensity)]
 
 #cut the hare density data into important cols
-hdensity <- hdensity[, .(winter, date, haredensity, winterday)]
+hdensity <- hdensity[, .(winter, date, haredensity, winterday, phase)]
 
 #merge by winter
 densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
