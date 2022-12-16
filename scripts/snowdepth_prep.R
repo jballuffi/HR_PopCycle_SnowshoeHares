@@ -86,8 +86,8 @@ snd[, winter := paste0(w1, "-", w2)]
 
 #which year-months have data
 snd[, count := .N, by = .(yr, mnth, where)]
-snd[, countyr := .N, by = .(yr, where)]
-snd[, unique(countyr), by=.(yr,where)] #important output!
+snd[, countwin := .N, by = .(winter, where)]
+snd[, unique(countwin), by=.(winter,where)] #important output!
 
 #add col for if grid or transect (type)
 snd[where %like% "OAH", type := "pred.trans"]
@@ -98,3 +98,19 @@ ggplot(snd) +
   geom_point(aes(x = Date, y = sdepth, colour=where, shape=type), size=3) 
 #tough becasue transects have deeper snow in 2020-21 (which we know is true)
   #but we dont know if the grid measurements also would have been high in those years
+#BUT even tho limited 2015-16 transect data, it is comparable to grid data, so can use both?
+
+
+#over whole project for curiosity
+dtp<-dt[!is.na(SnowDepthStn)]
+dtp[, mnth := month(Date)] #extract month
+dtp<-dtp[mnth <= 3 | mnth >= 11]
+
+gsp<-gs[!is.na(`OPEN SD`) & `OPEN SD` != 0]
+gsp[, mnth := month(Date)] #extract month
+gsp<-gsp[mnth <= 3 | mnth >= 11]
+
+ggplot() +
+  geom_point(data=dtp, aes(x = Date, y = SnowDepthStn, colour=where), size=3) +
+  geom_point(data=gsp, aes(x = Date, y = `OPEN SD`, colour=where), size=3) 
+
