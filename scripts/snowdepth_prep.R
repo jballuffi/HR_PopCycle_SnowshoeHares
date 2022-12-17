@@ -5,13 +5,98 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 #transect snow depth
-dt <- fread("data/Kluane_PredTrans_SnowDepth.csv")
-#grid snow depths
-ag <- fread("data/Agnes.csv")
-jo <- fread("data/Jo.csv")
-kl <- fread("data/Kloo.csv")
+sd1 <- fread("data/Kluane_PredTrans_SnowDepth.csv")
 
-#Prep for grid snow depth -------------------------------
+#data from alice
+sd2 <- fread("data/snowdepthdataentry.csv")
+
+#grid snow depths
+ag <- fread("data/Snow_cam_agnes.csv")
+jo <- fread("data/Snow_cam_jo.csv")
+kl <- fread("data/Snow_cam_kloo.csv")
+
+
+
+
+# Prep snow depth data from predator transects (Alice) --------
+
+#rename cols
+names(sd2) <- c("where", "Date", "sdepth", "Comments")
+
+#make date a date
+sd2[, Date := dmy(Date)]
+
+#clear old data out
+sd2 <- sd2[Date >= "2015-11-01"]
+
+#remove comments
+sd2[, Comments := NULL]
+
+#check the years we have left
+sd2[, unique(year(Date))] #ends at 2020
+sd2[, unique(Date)]
+enddate <- sd2[, max(Date)] #define the last date in Alice's data
+
+
+
+#Prep other transect snow depth -------------------------------
+
+#add  label for transect data (just the segment because that is a unique measure and
+#tells that it is from pred transect data)
+sd1[, where := Segment]
+
+#convert to date
+sd1[, Date := dmy(DateTrans)]
+
+#remove data from before November 1, 2015 (the cutoff date for HR analysis)
+sd1 <- sd1[Date >= "2015-11-01"]
+
+#remove NA snow depths 
+sd1[!is.na(SnowDepthStn), unique(year(Date))] #(ask Alice about no data 2017-19) 
+sd1 <- sd1[!is.na(SnowDepthStn)]
+
+#remove repeat snow measure per segment
+sd1 <- sd1[, unique(SnowDepthStn), by = .(Date, where)]
+setnames(sd1, "V1", "sdepth")
+
+#subset to only dates after SD2 ends
+sd1late <- sd1[Date > enddate]
+
+
+# merge SD1 and SD2 -------------------------------------------------------
+
+#merge two dts together and remove faulty values (36 where sdepth = -9999)
+snow <- rbind(sd2, sd1late)
+snow <- snow[!sdepth < 0]
+
+#avg across locations by date
+crossavg <- snow[, mean(sdepth), Date]
+setnames(crossavg, "V1", "sdepth")
+
+
+#some exploring
+crossavg[year(Date) == 2018, ggplot()+geom_point(aes(x = Date, y = sdepth))]
+crossavg[, mean(sdepth), by = year(Date)]
+
+#create category of winter
+crossavg[month(Date) > 10, winter := paste0(year(Date), "-", year(Date)+1)]
+crossavg[month(Date) < 4, winter := paste0(year(Date)-1, "-", year(Date))]
+
+#save as RDS
+saveRDS(crossavg, "Data/snowdepthavg.rds")
+
+
+
+
+
+
+
+
+###what is below here is data wrangling for camera trap data on grids
+
+
+
+#Prep for camera snow depth -------------------------------
 
 #add grid label for each grid snow file
 ag[, where := "agnes"]
@@ -32,27 +117,6 @@ gs1<-gs1[Date >= "2015-11-01"]
 
 #remove NA snow depths
 gs1<-gs1[!is.na(`OPEN SD`)]
-
-
-#Prep for transect snow depth -------------------------------
-
-#add  label for transect data (just the segment because that is a unique measure and
-#tells that it is from pred transect data)
-dt[, where := Segment]
-
-#convert to date
-dt[, Date := dmy(DateTrans)]
-
-#remove data from before November 1, 2015 (the cutoff date for HR analysis)
-dt1<-dt[Date >= "2015-11-01"]
-
-#remove NA snow depths 
-dt1[!is.na(SnowDepthStn), unique(year(Date))] #(ask Alice about no data 2017-19) 
-dt1<-dt1[!is.na(SnowDepthStn)]
-
-#remove repeat snow measure per segment
-dt2<-dt1[, unique(SnowDepthStn), by = .(Date, where)]
-setnames(dt2, "V1", "sdepth")
 
 
 # Prep for combining different data types ---------------------------------
