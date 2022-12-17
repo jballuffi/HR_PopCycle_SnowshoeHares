@@ -64,23 +64,20 @@ sd1late <- sd1[Date > enddate]
 
 
 # merge SD1 and SD2 -------------------------------------------------------
+#for now, I have just averaged snow depth by month and winter 
 
 #merge two dts together and remove faulty values (36 where sdepth = -9999)
 snow <- rbind(sd2, sd1late)
 snow <- snow[!sdepth < 0]
 
-#avg across locations by date
-crossavg <- snow[, mean(sdepth), Date]
+#create category of winter
+snow[month(Date) > 10, winter := paste0(year(Date), "-", year(Date)+1)]
+snow[month(Date) < 4, winter := paste0(year(Date)-1, "-", year(Date))]
+
+#avg across locations by month and winter
+crossavg <- snow[, mean(sdepth), by = .(winter, month(Date))]
 setnames(crossavg, "V1", "sdepth")
 
-
-#some exploring
-crossavg[year(Date) == 2018, ggplot()+geom_point(aes(x = Date, y = sdepth))]
-crossavg[, mean(sdepth), by = year(Date)]
-
-#create category of winter
-crossavg[month(Date) > 10, winter := paste0(year(Date), "-", year(Date)+1)]
-crossavg[month(Date) < 4, winter := paste0(year(Date)-1, "-", year(Date))]
 
 #save as RDS
 saveRDS(crossavg, "Data/snowdepthavg.rds")
