@@ -1,3 +1,8 @@
 This is a file to keep track of any issues we are having, plans, etc.
 
 Trying the notes for the first time.
+
+add snow depth to merge_data script
+calculate HR overlap (spatsoc?) 
+double check mass data  some might be incorrectly input (RHS where body mass should be)
+make models 
