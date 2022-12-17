@@ -18,11 +18,15 @@ ldensity <- fread("data/Lynx Density_simple.csv")
 #import weight results
 weights <- readRDS("output/results/bodymass.rds")
 
-#import fod add bunnies
+#import food add bunnies
 foodadd <- readRDS("data/food_adds.rds")
 
+#import snow depth
+snow <- readRDS("data/snowdepthavg.rds")
 
-# make just a density dataframe -------------------------------------------
+
+
+# make just a density data frame -------------------------------------------
 
 #rename lynx data
 names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_upper", "lynxdensity")
@@ -44,6 +48,8 @@ densities <- densities[winterday >= 32]
 densities[, winterday := winterday - 31]
 
 
+
+
 # merge densities with home ranges ------------------------------------------------------
 
 #reclassify date
@@ -53,6 +59,8 @@ areas[, id := as.factor(id)]
 
 #merge hare density by day of week and winter
 DT1 <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
+
+
 
 
 # merge food add -----------------------------------------------------------
@@ -67,13 +75,22 @@ DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn'
 
 DT2[, Food := as.factor(Food)]
 
-# merge in weights by winter ----------------------------------------------
 
+
+# merge in weights by winter ----------------------------------------------
 
 #merge weights with area
 DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 
+
+# merge in snow depth data ------------------------------------------------
+
+
+
+
+
+# Save final datasets -----------------------------------------------------
 
 
 #save merged data
