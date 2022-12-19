@@ -82,7 +82,9 @@ setnames(crossavg, "V1", "sdepth")
 #save as RDS
 saveRDS(crossavg, "Data/snowdepthavg.rds")
 
-
+#plot
+ggplot(crossavg) +
+  geom_point(aes(x = winter, y = sdepth, colour=as.factor(month)), size=3) 
 
 
 
