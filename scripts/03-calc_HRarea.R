@@ -13,49 +13,89 @@ weeksplit <- c("id", "winter", "burst", "week", "weekdate")
 
 
 
-# calculate weekly MCP areas ----------------------------------------------
+# calculate weekly Kernel Density areas -----------------------------------
+#this uses our pre-made function called "kernel_area" in the "R/" folder
+#kernels at 90, 70, and 50%
 
-#MCP size at 90% and 50%, keep id, winter, season, and grid
-#save as RDS
+kern90 <- gps[, kernel_area(gpsdata = .SD, utmzone = utm7N, vol = 90), by = weeksplit]
+setnames(kern90, "V1", "K90")
 
-#MCP at 90%
-area90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = weeksplit]
-setnames(area90, "a", "HRninety") #change column name
+kern75 <- gps[, kernel_area(gpsdata = .SD, utmzone = utm7N, vol = 75), by = weeksplit]
+setnames(kern75, "V1", "K75")
 
-#MCP at 75%
-area75 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 75), by = weeksplit]
-setnames(area75, "a", "HR75") #change column name
-
-#MCP at 50%
-area50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = weeksplit]
-setnames(area50, "a", "HRfifty") #change column name
+kern50 <- gps[, kernel_area(gpsdata = .SD, utmzone = utm7N, vol = 50), by = weeksplit]
+setnames(kern50, "V1", "K50")
 
 
 
+# calculate weekly MCP areas ---------------------------------------------- 
+#this uses our pre-made function called "mcp_area" in the "R/" folder
+#MCPs at 90, 70, and 50%
 
-# merge and save output ---------------------------------------------------
+mcp90 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = weeksplit]
+setnames(mcp90, "a", "M90") #change column name
+
+mcp75 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 75), by = weeksplit]
+setnames(mcp75, "a", "M75") #change column name
+
+mcp50 <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 50), by = weeksplit]
+setnames(mcp50, "a", "M50") #change column name
 
 
-#merge areas of 90% , 75% volume together
-areas.temp <- merge(area90, area75, by = weeksplit)
-#merge the 50% volume as well
-areas.temp1<- merge(areas.temp, area50, by = weeksplit)
+
+# merge MCP home range results and Kernel density results ---------------------------------------------------
+
+#merge MCP areas of 90% , 75% volume together
+mcpfull <- merge(mcp90, mcp75, by = weeksplit)
+mcpfull2 <- merge(mcpfull, mcp50, by = weeksplit)
+
+#merge kernal densities of 90%, 75%, and 50% together
+kernelfull <- merge(kern90, kern75, by = weeksplit)
+kernelfull2 <- merge(kern50, kernelfull, by = weeksplit)
+
+#merge MCPs and kernal density home ranges
+mcpkernel <- merge(mcpfull2, kernelfull2, by = weeksplit)
+
+
+
+# Get fix rates for each burst and merge with results ---------------------
 
 #obtain unique info for fix rates
-gps.sub <- gps[, unique(id), by = .(winter,burst,fixrate)]
+gps.sub <- gps[, unique(id), by = .(winter, burst, fixrate)]
 setnames(gps.sub, "V1", "id") #change column name
 
 #merge the fix rates with the HR areas
 FRsplit <- c("id", "winter", "burst")
-areas <- merge(areas.temp1, gps.sub, by = FRsplit)
+areas <- merge(mcpkernel, gps.sub, by = FRsplit)
+
+
+
+
+
+# explore data basics -----------------------------------------------------
+
 
 #plot areas against fix rate
 ggplot(areas) +
-  geom_jitter(aes(x= fixrate, y = HRninety), colour="red", width = 0.5) +
-  geom_jitter(aes(x= fixrate, y = HR75), colour="green", width = 0.5) +
-  geom_jitter(aes(x= fixrate, y = HRfifty), colour="blue", width = 0.5) 
+  geom_jitter(aes(x= fixrate, y = K90), colour="red", width = 0.5) +
+  geom_jitter(aes(x= fixrate, y = K75), colour="green", width = 0.5) +
+  geom_jitter(aes(x= fixrate, y = K50), colour="blue", width = 0.5) 
 #look into whether smaller HRs for 5 min FR is just because of smaller total 
 #number of fixes???
+
+#plot home range sizes of kernels against MCPS
+ggplot(areas)+
+  geom_point(aes(x = M90, y = K90), color = "red")+
+  geom_point(aes(x = M75, y = K75), color = "green")+
+  geom_point(aes(x = M50, y = K50), color = "blue")+
+  xlim(0, 40)+
+  ylim(0, 40)
+
+#plot kernel 90 against kernel 50
+ggplot(areas)+
+  geom_point(aes(x = M50, y = M90))+
+  xlim(0, 20)+
+  ylim(0, 20)
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
