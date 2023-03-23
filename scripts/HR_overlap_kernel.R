@@ -10,6 +10,7 @@ gps <- gps[weeklength > 6]
 
 
 subset <- gps[winter == "2015-2016"]
+#needs to be run by grid and by winter
 
 
 HR_overlap <- function(DT){
