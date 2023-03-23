@@ -15,6 +15,9 @@ utm <- 'EPSG:32736'
 
 DT[, month := month(datetime)]
 
+
+
+
 areas <- group_polys(
 	DT,
 	area = TRUE,
@@ -33,6 +36,8 @@ areas <- group_polys(
 	splitBy = 'month'
 )
 areas[, proportion := proportion / 10000]
+
+
 
 areas_mcp <- group_polys(
 		DT,

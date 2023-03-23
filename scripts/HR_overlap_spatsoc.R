@@ -2,10 +2,10 @@
 
 #data is GPS
 
-
+test <- gps[, .(id, x_proj, y_proj, winter, weekdate, datetime)]
 
 areas <- group_polys(
-  gps,
+  test,
   area = TRUE,
   hrType = 'mcp',
   hrParams = list(
@@ -21,10 +21,13 @@ areas <- group_polys(
   coords = c('x_proj', 'y_proj'),
   splitBy = 'winter'
 )
+
 areas[, proportion := proportion / 10000]
 
+
+
 areas_mcp <- group_polys(
-  gps,
+  test,
   area = TRUE,
   hrType = 'mcp',
   hrParams = list(percent = 90),
