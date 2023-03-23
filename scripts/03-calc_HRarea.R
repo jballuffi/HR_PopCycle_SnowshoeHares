@@ -86,8 +86,8 @@ ggplot(areas) +
 #plot home range sizes of kernels against MCPS
 ggplot(areas)+
   geom_point(aes(x = M90, y = K90), color = "red")+
-  geom_point(aes(x = M75, y = K75), color = "green")+
-  geom_point(aes(x = M50, y = K50), color = "blue")+
+  #geom_point(aes(x = M75, y = K75), color = "green")+
+  #geom_point(aes(x = M50, y = K50), color = "blue")+
   xlim(0, 40)+
   ylim(0, 40)
 
@@ -96,6 +96,10 @@ ggplot(areas)+
   geom_point(aes(x = M50, y = M90))+
   xlim(0, 20)+
   ylim(0, 20)
+
+
+
+
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
