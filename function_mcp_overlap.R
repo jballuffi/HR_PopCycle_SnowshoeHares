@@ -1,8 +1,4 @@
 
-
-
-
-
 mcp_overlap <- function(gpsdata, x, y, utmzone, vol) {
   #first convert to a spatial points data frame
   spdf <- SpatialPointsDataFrame(gpsdata[, .SD, .SDcols = c(x, y)],
@@ -12,17 +8,59 @@ mcp_overlap <- function(gpsdata, x, y, utmzone, vol) {
   #calculate mcp size
   overlap <- kerneloverlap(spdf[,1], method = "HR", percent = 90)
   
-  return(area)
+  return(overlap)
 }
 
 test <- gps[winter == "2015-2016"]
 
-testout <- test[, mcp_overlap(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = weeksplit]
+
+testout <- test[, mcp_overlap(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90)]
 
 
 
-space <- SpatialPointsDataFrame(gps[, .SD, .SDcols = c("x_proj", "y_proj")], gps, match.ID = TRUE)
 
+
+
+
+
+#this code works on the test data frame to create one home range
+spdf <- SpatialPointsDataFrame(test[, .SD, .SDcols = c("x_proj", "y_proj")],
+                       data = test,
+                       proj4string = CRS(utm7N))
+mcp <- mcp(spdf, percent = 90, unin = "m", unout = "ha")
+
+
+
+
+mcp_fun <- function(gpsdata) {
+  #first convert to a spatial points data frame
+  spdf <- SpatialPointsDataFrame(gpsdata[, .SD, .SDcols = c("x_proj", "y_proj")],
+                                 data = gpsdata,
+                                 proj4string = CRS(utm7N))
+  mcp <- mcp(spdf, percent = 90, unin = "m", unout = "ha")
+  
+  return(mcp)
+}
+mcp <- test[, mcp_fun(.SD)]
+plot(mcp)
+
+
+#create list within test by id
+testlist <- split(test, test$id)
+
+#this will make an MCP of 90, creating a spatialpolygonsdataframe
+#run on each individual separately using lapply
+testout <- lapply(testlist, function(x) {
+  #first convert to a spatial points data frame
+  spdf <- SpatialPointsDataFrame(x[, .SD, .SDcols = c("x_proj", "y_proj")],
+                                 data = x,
+                                 proj4string = CRS(utm7N))
+  mcp <- mcp(spdf, percent = 90, unin = "m", unout = "ha")
+  
+  return(mcp)
+})
+
+plot(testout[[2]])
 
 
 
