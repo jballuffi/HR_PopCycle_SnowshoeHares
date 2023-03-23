@@ -24,6 +24,11 @@ ls.files<-lapply(files, fread)
 #rbind the list of files
 gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 
+#read in trapping data (to get grid)
+trapping <- fread("data/Trapping_data_all_records.csv")
+
+
+
 
 # Reduce and categorize data -----------------------------------------------------
 
@@ -43,6 +48,17 @@ gps <- gps[!is.na(winter)]
 
 #remove any fixes not allocated to a burst
 gps <- gps[!is.na(burst)]
+
+
+
+# merge with trapping data to get grid ------------------------------------
+
+#pull out the grid of every individual using the trapping data
+grids <- trapping[, getmode(grid), Eartag]
+names(grids) <- c("id", "grid")
+
+#merge grids into behaviour data set
+gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 
 
