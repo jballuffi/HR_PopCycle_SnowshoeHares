@@ -36,12 +36,11 @@ setnames(out, "V1", "overlap")
 
 
 
+# clean up out put and merge with sample size -----------------------------
+
+
 #remove cases where overlap is 1.00 because this is a home compared against itself (matrix design)
 out <- out[!overlap == 1.00]
-
-# #take mean overlaps by grid and winter
-# means <- out[, .(mean(overlap), .N), by = .(grid, winter)]
-# setnames(means, c("V1", "N"), c("mean_overlap", "pair_N"))
 
 #get total number of individuals sampled per grid and per winter
 sample <- gps[, length(unique(id)), by = .(grid, winter)]
@@ -51,6 +50,10 @@ sample[, winter_N := sum(gridwinter_N), by = winter]
 #merge mean overlaps and individual sample size by grid and winter. This is the final result
 overlaps <- merge(out, sample, by = c("grid", "winter"), all.x = TRUE)
 overlaps[, overlap := round(overlap, 3)]
+
+
+
+# figures -----------------------------------------------------------------
 
 
 (overlapfig <-
