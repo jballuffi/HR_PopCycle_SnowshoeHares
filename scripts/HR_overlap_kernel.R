@@ -64,6 +64,7 @@ overlaps[, overlap := round(overlap, 3)]
   theme_minimal())
 
 
+ggsave("output/figures/hr_overlap.jpeg", overlapfig, width = 8, height = 4, units = "in")
 
 
 
