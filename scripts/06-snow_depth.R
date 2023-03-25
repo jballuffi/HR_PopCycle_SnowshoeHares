@@ -37,5 +37,18 @@ setnames(snows, "OPEN SD", "SD")
 #cut to just three columns of interest
 snow <- snows[, .(Date, snowgrid, SD)]
 
+#order snow data by grid first, then date
+setorder(snow, snowgrid, Date)
+
+
+
+#categorize fixes into winters
+snow[month(Date) > 10, winter := paste0(year(Date), "-", year(Date) + 1)]
+snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
+
+snow <- snow[!is.na(winter)]
+
+
+
 #save data
 saveRDS(snow, "data/snowgrids.rds")
