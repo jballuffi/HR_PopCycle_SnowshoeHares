@@ -22,7 +22,7 @@ weights <- readRDS("output/results/bodymass.rds")
 foodadd <- readRDS("data/food_adds.rds")
 
 #import snow depth
-snow <- readRDS("data/snowdepthavg.rds")
+snow <- readRDS("data/snowgrids.rds")
 
 
 
@@ -44,9 +44,9 @@ densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
 densities[, ppratio := lynxdensity/haredensity]
 
 #delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
-densities <- densities[winterday >= 32]
 densities[, winterday := winterday - 31]
 
+densities <- densities[winterday > 0]
 
 
 
@@ -86,15 +86,28 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 # merge in snow depth data ------------------------------------------------
 
+#when grid with bunny is one of the snow grids, just copy to new col snowgrid
+DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
+
+#all other grids and their closest snow grid, but where is leroy?
+DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
+DT3[grid == "Chitty", snowgrid := "Agnes"]
+
+#change name of date col in snow data
+setnames(snow, "Date", "date")
+
+#merge snow data with the rest of the data set by date.
+#there are some dates that are missing snow depth.
+### FIGURE OUT HOW TO FILL IN MISSING DATES
+DT4 <- merge(DT3, snow, by = c("date", "snowgrid"), all.x = TRUE)
 
 
 
-
-# Save final datasets -----------------------------------------------------
+# Save final data sets -----------------------------------------------------
 
 
 #save merged data
-saveRDS(DT3, "output/results/compileddata.rds")
+saveRDS(DT4, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
