@@ -86,6 +86,10 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 # merge in snow depth data ------------------------------------------------
 
+#change name of date col in snow data
+setnames(snow, "Date", "date")
+
+
 #when grid with bunny is one of the snow grids, just copy to new col snowgrid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 
@@ -93,8 +97,17 @@ DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
-#change name of date col in snow data
-setnames(snow, "Date", "date")
+
+
+sampled_snowgrids <- DT3[, .N, by = .(winter, snowgrid)]
+sampled_snowgrids[, Status := "Sampled"]
+sampled_snowgrids[, N := NULL]
+
+snow <- merge(snow, sampled_snowgrids, by = c("winter", "snowgrid"), all.x = TRUE)
+
+snow <- snow[!is.na(Status)]
+snow[is.na(SD), SD := shift]
+
 
 #merge snow data with the rest of the data set by date.
 #there are some dates that are missing snow depth.
