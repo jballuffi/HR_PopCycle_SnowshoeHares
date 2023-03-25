@@ -45,9 +45,19 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 (ppwinter <-
   ggplot(densities)+
-  geom_line(aes(x = winterday, y = ppratio, color = winter, group = winter))+
+  geom_line(aes(x = winterday, y = ppratio, color = phase, group = winter), linewidth = .8)+
   labs(y = "Lynx:Hare Ratio", x = "Days into winter")+
   theme_densities)
+
+
+
+
+# weights by phase --------------------------------------------------------
+
+ggplot(DT)+
+  geom_boxplot(aes(x = winter, y = mass, color = phase))+
+  labs(x = "Winter", y = "Body mass (g)")+
+  theme_densities
 
 
 
