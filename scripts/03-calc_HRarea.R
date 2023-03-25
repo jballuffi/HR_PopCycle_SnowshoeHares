@@ -9,7 +9,7 @@ gps <- readRDS("Data/all_gps.rds")
 gps <- gps[weeklength > 6]
 
 #items we will measure home ranges by
-weeksplit <- c("id", "winter", "burst", "week", "weekdate")
+weeksplit <- c("id", "winter", "burst", "week", "weekdate", "grid")
 
 
 
