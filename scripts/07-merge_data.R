@@ -89,30 +89,23 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 #change name of date col in snow data
 setnames(snow, "Date", "date")
 
-
-#when grid with bunny is one of the snow grids, just copy to new col snowgrid
+#when grid with bunny is one of the snow grids, just copy to new col snow grid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 
 #all other grids and their closest snow grid, but where is leroy?
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
+#set order
+setorder(snow, snowgrid, date)
+
+#fill in missing snow depths with the last value (calls backwards in time)
+snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
 
 
-sampled_snowgrids <- DT3[, .N, by = .(winter, snowgrid)]
-sampled_snowgrids[, Status := "Sampled"]
-sampled_snowgrids[, N := NULL]
+#merge snow data with the rest of the data set by date and grid
+DT4 <- merge(DT3, snow, by = c("date", "snowgrid", "winter"), all.x = TRUE)
 
-snow <- merge(snow, sampled_snowgrids, by = c("winter", "snowgrid"), all.x = TRUE)
-
-snow <- snow[!is.na(Status)]
-snow[is.na(SD), SD := shift]
-
-
-#merge snow data with the rest of the data set by date.
-#there are some dates that are missing snow depth.
-### FIGURE OUT HOW TO FILL IN MISSING DATES
-DT4 <- merge(DT3, snow, by = c("date", "snowgrid"), all.x = TRUE)
 
 
 
@@ -124,3 +117,6 @@ saveRDS(DT4, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
+
+
+
