@@ -61,13 +61,7 @@ overlaps <- merge(out, sample, by = c("grid", "winter"), all.x = TRUE)
 overlaps[, overlap := round(overlap, 3)]
 
 
-
 # figures -----------------------------------------------------------------
-
-summary(lm(overlaps$overlap ~ overlaps$winter))
-sumoverlap <- overlaps[, .(round(mean(overlap), 3), round(median(overlap), 3), round(sd(overlap), 3), winter_N), by = winter]
-names(sumoverlap) <- c("Winter", "Mean", "Median", "Standard deviation", "N")
-
 
 (overlapfig <-
   ggplot(overlaps)+
@@ -77,10 +71,29 @@ names(sumoverlap) <- c("Winter", "Mean", "Median", "Standard deviation", "N")
   theme_minimal())
 
 
+# stats -------------------------------------------------------------------
+
+#create table of mean, median, sd
+sumoverlap <- overlaps[, .(round(mean(overlap), 3), round(median(overlap), 3), round(sd(overlap), 3), winter_N), by = winter]
+names(sumoverlap) <- c("Winter", "Mean", "Median", "Standard deviation", "N")
+
+#anova
+mod <- lm(overlaps$overlap ~ overlaps$winter)
+amod <- anova(mod) #take ANOVA table from linear regression
+
+#tukey test on ANOVA
+aov <- aov(mod)
+posthocIR <- TukeyHSD(x = aov, 'overlaps$winter', conf.level = 0.95)
+posthocIR
+
+
+
+
 
 # save things -------------------------------------------------------------
 
 write.csv(sumoverlap, "output/results/overlap_summary.csv")
+saveRDS(sumoverlap, "output/results/overlap_summary.rds")
 
 ggsave("output/figures/hr_overlap.jpeg", overlapfig, width = 8, height = 4, units = "in")
 
