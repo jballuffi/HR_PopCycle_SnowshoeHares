@@ -64,14 +64,23 @@ overlaps[, overlap := round(overlap, 3)]
 
 # figures -----------------------------------------------------------------
 
+summary(lm(overlaps$overlap ~ overlaps$winter))
+sumoverlap <- overlaps[, .(round(mean(overlap), 3), round(median(overlap), 3), round(sd(overlap), 3), winter_N), by = winter]
+names(sumoverlap) <- c("Winter", "Mean", "Median", "Standard deviation", "N")
+
 
 (overlapfig <-
   ggplot(overlaps)+
-  geom_boxplot(aes(x = winter, y = overlap, color = grid), outlier.shape = NA)+
+  geom_boxplot(aes(x = winter, y = overlap), outlier.shape = NA)+
   geom_text(aes(x = winter, y = .9, label = winter_N))+
   labs(y = "Proportion overlap")+
   theme_minimal())
 
+
+
+# save things -------------------------------------------------------------
+
+write.csv(sumoverlap, "output/results/overlap_summary.csv")
 
 ggsave("output/figures/hr_overlap.jpeg", overlapfig, width = 8, height = 4, units = "in")
 
