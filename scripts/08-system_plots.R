@@ -51,6 +51,13 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 
 
+# Densities by phase ------------------------------------------------------
+
+
+ggplot(DT)+
+  geom_boxplot(aes(x = phase, y = ppratio))
+
+
 
 # weights by phase --------------------------------------------------------
 
