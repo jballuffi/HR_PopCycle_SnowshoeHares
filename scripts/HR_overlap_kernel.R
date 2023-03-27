@@ -15,15 +15,24 @@ gps <- gps[weeklength > 6]
 
 #function that calculates the overlap of individuals 
 HR_overlap <- function(DT, x, y, idcol, utmzone){
+  #subset just the x and y coordinates
   data.xy <- DT[, .(x, y)]
+  #convert the x y coordinates to spatial points
   xysp <- SpatialPoints(data.xy)
+  #set projection
   proj4string(xysp) <- CRS(utmzone)
+  #convert back to data frame
   sppt <- data.frame(xysp)
-  idsp <- subset[, .(idcol)]
-  coordinates(idsp)<-sppt
+  #assign ID column from original data
+  idsp <- DT[, .(idcol)]
+  #assign the IDs the coordinates again 
+  coordinates(idsp) <- sppt
+  #create kernel densities
   ud <- kernelUD(idsp[,1])
+  #create home ranges from those kernels 
   kernelUD(idsp[,1], h = "href", grid = 200, same4all = TRUE, hlim = c(0.1, 1.5),
            kern = c("bivnorm"), extent = 2)
+  #measure overlap of home ranges
   overlap <- kerneloverlap(idsp[,1], grid=200, method="HR", percent=90, conditional=TRUE)
   return(overlap)
 }
