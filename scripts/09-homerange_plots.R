@@ -1,6 +1,10 @@
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
+
+
+# preparations ------------------------------------------------------------
+
 #read in data
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
@@ -18,11 +22,14 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 
 
+# Food add and sex --------------------------------------------------------
 
-ggplot(DT[!is.na(sex)])+
+(foodadd <-
+  ggplot(DT[!is.na(sex)])+
   geom_boxplot(aes(x = sex, y = M90, color = Food))+
   labs(y = "90% MCP area (ha)", x = "Sex")+
-  theme_boxplots
+  theme_boxplots)
+
 
 
 # 90% MCP  -------------------------------------------------------
@@ -57,7 +64,10 @@ ggplot(DT[!is.na(sex)])+
                        ncol = 2, nrow = 2))
 
 
+
+# save figures ------------------------------------------------------------
+
 ggsave("output/figures/hrsize_90MCP.jpeg", hrsize90, width = 10, height = 6, units = "in")
 
-
+ggsave("output/figures/foodadd_90MCP.jpeg", foodadd, width = 6, height = 6, units = "in")
 
