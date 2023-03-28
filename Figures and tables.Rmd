@@ -3,8 +3,9 @@ title: "Figures and tables"
 author: "Juliana Balluffi-Fry"
 date: "2023-03-28"
 output:
-  pdf_document: default
   html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
