@@ -54,12 +54,12 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 (mass <- ggplot(DT)+
   geom_boxplot(aes(x = winter, y = mass, color = phase))+
   labs(x = "Winter", y = "Body mass (g)")+
-  theme_densities)
+  theme_boxplots)
 
 (sd <- ggplot(snow)+
   geom_boxplot(aes(x = winter, y = SD, color = phase))+
   labs(x = "Winter", y = "Snow depth (cm)")+
-  theme_densities)
+  theme_boxplots)
 
 (resourceplots <- ggarrange(mass, sd, ncol = 1, nrow = 2))
 
@@ -77,5 +77,5 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 
 ggsave("output/figures/densities.jpeg", densityplots, width = 6, height = 9, units = "in")
-ggsave("output/figures/resource.jpeg", resourceplots, width = 6, height = 8, units = "in")
+ggsave("output/figures/resource.jpeg", resourceplots, width = 7, height = 8, units = "in")
 ggsave("output/figures/ppratios.jpeg", ppwinter, width = 6, height = 4, units = "in")
