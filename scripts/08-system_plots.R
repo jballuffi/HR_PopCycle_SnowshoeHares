@@ -13,7 +13,11 @@ setnames(phases, "V1", "phase")
 snow <- merge(snow, phases, by = "winter", all.x = TRUE)
 snow <- snow[!winter == "2014-2015"]
 
+#reorder phase cycles
+DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
+#set colors for cycle phases
+cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "red3")
 
 # plot showing animal densities by winter ----------------------------------
 
@@ -26,6 +30,7 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 (h <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = haredensity, group = 1))+
   geom_point(aes(x = winter, y = haredensity, color = phase), size = 2)+
+  scale_color_manual(values = cols)+
   labs(x = "", y = "Hares per 100 km2")+
   theme_densities)
 
@@ -33,6 +38,7 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 (l <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = lynxdensity, group = 1))+
   geom_point(aes(x = winter, y = lynxdensity, color = phase), size = 2)+
+  scale_color_manual(values = cols)+
   labs(x = "", y = "Lynx per 100 km2")+
   theme_densities)
 
@@ -40,6 +46,7 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 (pp <- ggplot(wintermeans)+
   geom_path(aes(x = winter, y = ppratio, group = 1))+
   geom_point(aes(x = winter, y = ppratio, color = phase), size = 2)+
+  scale_color_manual(values = cols)+
   labs(x = "Winter", y = "Lynx:Hare Ratio")+
   theme_densities)
 
@@ -53,11 +60,13 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 (mass <- ggplot(DT)+
   geom_boxplot(aes(x = winter, y = mass, color = phase))+
+  scale_color_manual(values = cols)+
   labs(x = "Winter", y = "Body mass (g)")+
   theme_boxplots)
 
 (sd <- ggplot(snow)+
   geom_boxplot(aes(x = winter, y = SD, color = phase))+
+  scale_color_manual(values = cols)+
   labs(x = "Winter", y = "Snow depth (cm)")+
   theme_boxplots)
 
@@ -68,7 +77,8 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 (ppwinter <-
   ggplot(densities)+
-  geom_line(aes(x = winterday, y = ppratio, color = phase, group = winter), linewidth = .8)+
+  geom_line(aes(x = winterday, y = ppratio, color = phase, group = winter), linewidth = .8, alpha = .8)+
+  scale_color_manual(values = cols)+
   labs(y = "Lynx:Hare Ratio", x = "Days into winter")+
   theme_densities)
 
