@@ -89,6 +89,12 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 #change name of date col in snow data
 setnames(snow, "Date", "date")
 
+#set order
+setorder(snow, snowgrid, snowgrid)
+
+#fill in missing snow depths with the last value (calls backwards in time)
+snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
+
 #when grid with bunny is one of the snow grids, just copy to new col snow grid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 
@@ -96,11 +102,8 @@ DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
-#set order
-setorder(snow, snowgrid, date)
 
-#fill in missing snow depths with the last value (calls backwards in time)
-snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
+
 
 
 #merge snow data with the rest of the data set by date and grid
