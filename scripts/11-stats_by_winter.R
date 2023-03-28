@@ -5,7 +5,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
-dat <- dat[!HRninety > 20]
+dat <- dat[!M90 > 20]
 dat <- dat[!winter == "2021-2022"]
 
 # correlation test --------------------------------------------------------
@@ -52,8 +52,8 @@ lm_year <- function(yvar, xvar1, xvar2) {
 
 
 
-mod <- lm(HRninety ~ haredensity + mass + Food, dat)
+mod <- lm(M90 ~ haredensity + mass + Food, dat)
 
-out <- dat[, lm_year(yvar = HRninety, xvar1 = ppratio, xvar2 = mass), by = winter]
+out <- dat[, lm_year(yvar = M90, xvar1 = SD, xvar2 = mass), by = winter]
 
 
