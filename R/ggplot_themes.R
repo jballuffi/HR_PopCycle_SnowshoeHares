@@ -18,7 +18,7 @@ theme_densities <- theme(axis.title = element_text(size=12),
 
 theme_boxplots <- theme(axis.title = element_text(size=12),
                          axis.text = element_text(size=10),
-                         legend.position = "top",
+                         legend.position = "right",
                          legend.key = element_blank(),
                          legend.title = element_blank(),
                          panel.background = element_blank(),
