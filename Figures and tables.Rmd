@@ -1,0 +1,24 @@
+---
+title: "Figures and tables"
+author: "Juliana Balluffi-Fry"
+date: "2023-03-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## System figures
+
+![Summary figures of predator-prey densities over the sampled years.](output/figures/densities.jpeg)
+
+![Summary figures of resource variables over the sampled years.](output/figures/resource.jpeg)
+
+![Changes in predator:prey ratios within winters.](output/figures/ppratios.jpeg)
+
+![90% mcp home range areas in response to predator-prey densities, population cycle and year.](output/figures/HRbycycle.jpeg)
+
+![90% mcp home range areas in response to resource variables.](output/figures/HRbyresource.jpeg)
+
+![Home range overlap (proportion) in response to year.](output/figures/hr_overlap.jpeg)
