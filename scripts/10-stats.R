@@ -6,9 +6,9 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
 dat <- dat[!M90 > 20]
+dat <- dat[!is.na(SD)]
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
-
 
 
 # correlation test --------------------------------------------------------
@@ -24,18 +24,20 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 # AIC for analysis across winters -----------------------------------------
 
 #list models
+yr <- lm(M90 ~ winter, dat)
 cycle <- lm(M90 ~ phase, dat)
 predation <- lm(M90 ~ ppratio, dat)
 competition <- lm(M90 ~ haredensity, dat)
-resource <- lm(M90 ~ mass + SD + Food, dat)
-pred_res <- lm(M90 ~ ppratio + mass + SD + Food, dat)
-comp_res <- lm(M90 ~ haredensity + mass + SD + Food, dat)
-cycle_res <- lm(M90 ~ phase + mass + SD + Food, dat)
+resource <- lm(M90 ~ mass + SD + Food*sex, dat)
+pred_res <- lm(M90 ~ ppratio + mass + SD + Food*sex, dat)
+comp_res <- lm(M90 ~ haredensity + mass + SD + Food*sex, dat)
+cycle_res <- lm(M90 ~ phase + mass + SD + Food*sex, dat)
+yr_res <- lm(M90 ~ winter + mass + SD + Food*sex, dat)
 
 #list models and provide names
-mods <- list(cycle, predation, competition, resource, pred_res, comp_res, cycle_res)
-names <- c("cycle", "predation", "competition", "resource", 
-           "predator and resource", "competition and resource", "cycle and resource")
+mods <- list(yr, cycle, predation, competition, resource, pred_res, comp_res, cycle_res, yr_res)
+names <- c("year", "cycle", "predation", "competition", "resource", 
+           "predator and resource", "competition and resource", "cycle and resource", "year and resource")
 
 #create AIC table on list of models
 AIC<-as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
