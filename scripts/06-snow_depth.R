@@ -119,7 +119,10 @@ snow[month(Date) > 10, winter := paste0(year(Date), "-", year(Date) + 1)]
 snow[month(Date) < 4, winter := paste0(year(Date) - 1, "-", year(Date))]
 snow <- snow[!is.na(winter)]
 
-
+#figure to show snow depth over winter by year and location
+ggplot(snow)+
+  geom_point(aes(x = Date, y = SD, color = snowgrid))+
+  facet_wrap(~winter, scales = "free")
 
 #save data
 saveRDS(snow, "data/snowgrids.rds")
