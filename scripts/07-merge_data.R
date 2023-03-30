@@ -86,30 +86,51 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 # merge in snow depth data ------------------------------------------------
 
+#set order
+setorder(snow, "snowgrid", "Date")
+
 #change name of date col in snow data
 setnames(snow, "Date", "date")
-
-#set order
-setorder(snow, snowgrid, snowgrid)
 
 #fill in missing snow depths with the last value (calls backwards in time)
 snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
 
-#when grid with bunny is one of the snow grids, just copy to new col snow grid
+#for home range data, when grid is one of the snow grids, just copy to new col snow grid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
-
 #all other grids and their closest snow grid, but where is leroy?
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
-
-
-
-
 #merge snow data with the rest of the data set by date and grid
 DT4 <- merge(DT3, snow, by = c("date", "snowgrid", "winter"), all.x = TRUE)
 
+test <- DT3[id == 22113]
 
+weeklysnow <- function(dt, d, g){
+  datelist <- c(dt$d -3, dt$d-2, dt$d-1, dt$d, dt$d+1, dt$d+2, dt$d+3)
+  grid <- dt$g
+  snowdepths <- snow[date %in% datelist & snowgrid %in% grid]
+  #snowdepths <- snowdepths[snowgrid %in% print(grid)]
+  # meanSD <- mean(snowdepths$SD)
+  # dt$test <- meanSD
+  # #return(mean(snowdepths$SD))
+  return(snowdepths)
+}
+
+test$test <- weeklysnow(dt = test, d = test$weekdate, g = test$snowgrid)
+test$test
+
+
+
+funtest <- function(dt, d, g){
+  return(paste0(dt$d, "_", g))
+}
+
+DT3$test <- funtest(DT3, "date"., 
+                    )
+
+DT3$snoweek <- weeklysnow(dt = DT3, d = DT3$weekdate, g = DT3$snowgrid)
+DT3$snoweek
 
 
 # Save final data sets -----------------------------------------------------
