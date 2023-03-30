@@ -4,33 +4,39 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
-#transect snow depth
+#transect snow depth (just track transect data (missing 2017-2019 snow data))
 sd1 <- fread("data/Kluane_PredTrans_SnowDepth.csv")
 
-#data from alice
+#data from alice (includes 2017-2019 when they are not in the track transect database, 
+# and peter was colelcting extra snow measurements)
 sd2 <- fread("data/snowdepthdataentry.csv")
 
 #grid snow depths
-ag <- fread("data/Snow_cam_agnes.csv")
-jo <- fread("data/Snow_cam_jo.csv")
-kl <- fread("data/Snow_cam_kloo.csv")
+ag <- fread("data/Snow_grid_agnes.csv")
+jo <- fread("data/Snow_grid_jo.csv")
+kl <- fread("data/Snow_grid_kloo.csv")
 
 
 
 
-# Prep snow depth data from predator transects (Alice) --------
+# Prep snow depth data from predator transects (but not in the main pred transect database) --------
 
 #rename cols
 names(sd2) <- c("where", "Date", "sdepth", "Comments")
 
 #make date a date
 sd2[, Date := dmy(Date)]
+sd2[, unique(year(Date))]
 
 #clear old data out
-sd2 <- sd2[Date >= "2015-11-01"]
+sd2 <- sd2[Date >= "2015-10-01"]
 
 #remove comments
 sd2[, Comments := NULL]
+
+# remove faulty values (36 where sdepth = -9999)
+sd2<-sd2[!sdepth < 0]
+
 
 #check the years we have left
 sd2[, unique(year(Date))] #ends at 2020
@@ -49,18 +55,30 @@ sd1[, where := Segment]
 sd1[, Date := dmy(DateTrans)]
 
 #remove data from before November 1, 2015 (the cutoff date for HR analysis)
-sd1 <- sd1[Date >= "2015-11-01"]
+sd1 <- sd1[Date >= "2015-10-01"]
 
 #remove NA snow depths 
-sd1[!is.na(SnowDepthStn), unique(year(Date))] #(ask Alice about no data 2017-19) 
+sd1[!is.na(SnowDepthStn), unique(year(Date))] #(ask Alice about no data 2017-19) -it is in the other snowdata from peter
 sd1 <- sd1[!is.na(SnowDepthStn)]
+sd1[, unique(year(Date))]
 
-#remove repeat snow measure per segment
+#remove repeat snow measure per segment (repeated because of animal tracks)
 sd1 <- sd1[, unique(SnowDepthStn), by = .(Date, where)]
 setnames(sd1, "V1", "sdepth")
 
+#check values same
+a<-sd1[year(Date) < 2017 & year(Date) > 2015]
+b<-sd2[year(Date) < 2017 & year(Date) > 2015]
+sd1[year(Date) < 2017 &rbind(sd1, sd2)
+merge(sd2, sd1, by=c("Date", "sdepth"), all=T)
+ggplot() + geom_point(aes(x=sd1$sdepth, y=sd2$sdepth))
+
 #subset to only dates after SD2 ends
-sd1late <- sd1[Date > enddate]
+sd1late <- sd1[Date > enddate] #dont do this!, there is stuff in sd1 not in 2, is 2 the sure thing? need to merg
+#get the number off the end and make that a new column if they match, then plot points where the number number is the same
+# merge or something???? DONT DO IT FOR NOW!!!
+
+#to test if sd2 is a sure thing, see if anything in sd1 is NOT in sd2, ie can I just add sd1 to sd2 for anuthing that doesnt match?
 
 
 # merge SD1 and SD2 -------------------------------------------------------
