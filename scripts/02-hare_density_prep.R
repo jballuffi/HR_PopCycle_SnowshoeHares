@@ -67,6 +67,12 @@ phases <- springs[, .(winter, phase)]
 
 # run linear models of density decrease by winter -------------------------
 
+#summary plot of how we will get daily values by interpolating using the fitted line
+hdensity[, ggplot(.SD, aes(x = winterday, y = haredensity, color = winter) ) +
+           geom_point() +
+           geom_smooth(method = "lm", se = FALSE)]
+
+
 #run predictdens function by winter (lm of density over time, predicts for each day)
 densitypred <- hdensity[, predictdens(yvar = haredensity, xvar = winterday), by = winter]
 
