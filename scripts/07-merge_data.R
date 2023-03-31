@@ -79,6 +79,9 @@ DT2[, Food := as.factor(Food)]
 
 # merge in weights by winter ----------------------------------------------
 
+
+
+
 #merge weights with area
 DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
@@ -86,29 +89,34 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 # merge in snow depth data ------------------------------------------------
 
+#set order
+setorder(snow, "snowgrid", "Date")
 #change name of date col in snow data
 setnames(snow, "Date", "date")
-
-#set order
-setorder(snow, snowgrid, snowgrid)
 
 #fill in missing snow depths with the last value (calls backwards in time)
 snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
 
-#when grid with bunny is one of the snow grids, just copy to new col snow grid
+#for home range data, when grid is one of the snow grids, just copy to new col snow grid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
-
 #all other grids and their closest snow grid, but where is leroy?
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
+#function to pull mean snowdepth from the full week of home range data 
+weeklysnow <- function(dt, d){
+  #take three days before home range date and three days after
+  datelist <- c(dt$d -3, dt$d-2, dt$d-1, dt$d, dt$d+1, dt$d+2, dt$d+3)
+  #pull the snowgrid from the home range paper
+  g <- dt$snowgrid
+  #in the date list and snow grid of the "snow" data, average the snow depth
+  snowdepths <- snow[date %in% datelist & snowgrid %in% g, mean(SD, na.rm = TRUE)]
+  #return only that mean snow depth
+  return(snowdepths)
+}
 
-
-
-
-#merge snow data with the rest of the data set by date and grid
-DT4 <- merge(DT3, snow, by = c("date", "snowgrid", "winter"), all.x = TRUE)
-
+#run the function by id and week date
+DT3[, SD := weeklysnow(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
 
 
@@ -116,7 +124,7 @@ DT4 <- merge(DT3, snow, by = c("date", "snowgrid", "winter"), all.x = TRUE)
 
 
 #save merged data
-saveRDS(DT4, "output/results/compileddata.rds")
+saveRDS(DT3, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
