@@ -24,10 +24,9 @@ hdensity[, mnth := month(Time)]
 hdensity[mnth %in% early, y := tstrsplit(winter, "-", keep = 1)]
 hdensity[mnth %in% late, y := tstrsplit(winter, "-", keep = 2)]
 hdensity[, day := day(Time)]
+
 #remove time col
 hdensity[, Time := NULL]
-
-
 
 #create a date col
 hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
@@ -39,6 +38,11 @@ hdensity[, winterday := as.integer(winterday)]
 #recalculate hare density from hectare to 100km2
 hdensity[, haredensity := haredensity*10000]
 
+
+# get mortality rates by month for predation risk -------------------------
+
+predrisk <- hdensity[, mean(mortality), by = .(mnth, winter)]
+setnames(predrisk, "V1", "mortrate")
 
 
 # Categorize years into cycle phases -------------------------------------
@@ -65,6 +69,8 @@ springs[is.na(phase) & haredensity > 4000, phase := "peak"]
 #pull out just the phases and winters
 phases <- springs[, .(winter, phase)]
 
+
+
 # run linear models of density decrease by winter -------------------------
 
 #summary plot of how we will get daily values by interpolating using the fitted line
@@ -84,4 +90,6 @@ densitypred[, date := mindate + winterday]
 #merge in cycle phases 
 densitypred <- merge(densitypred, phases, by = "winter", all.x = TRUE)
 
+
+saveRDS(predrisk, "output/results/mortalityrates.rds")
 saveRDS(densitypred, "output/results/dailyharedensities.rds")
