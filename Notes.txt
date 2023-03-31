@@ -7,3 +7,4 @@ calculate HR overlap (spatsoc?)
 double check mass data  some might be incorrectly input (RHS where body mass should be)
 make models 
 look at daily movement ~ HR size
+Compare sho cleaned dat to ours
