@@ -12,9 +12,11 @@ areas <- readRDS("output/results/hrareas.rds")
 #import hare densities
 hdensity <- readRDS("output/results/dailyharedensities.rds")
 
+#import mortality rates
+predrisk <- readRDS("output/results/mortalityrates.rds")
 
 #import weight results
-weights <- readRDS("output/results/bodymass.rds")
+
 
 #import food add bunnies
 foodadd <- readRDS("data/food_adds.rds")
@@ -26,12 +28,9 @@ snow <- readRDS("data/snowgrids.rds")
 
 # make just a density data frame -------------------------------------------
 
-
-
-#delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
-densities[, winterday := winterday - 31]
-
-densities <- densities[winterday > 0]
+#merge hare density and predation risk
+hdensity[, mnth := month(date)]
+densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
 
 
 
@@ -47,7 +46,6 @@ DT1 <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
 
 
 
-
 # merge food add -----------------------------------------------------------
 
 foodadd[, id := as.factor(Eartag)]
@@ -57,7 +55,6 @@ foodadd[, Eartag := NULL] #remove extra eartage col from food adds
 DT2 <- merge(DT1, foodadd, by = c("id", "winter"), all.x = TRUE)
 DT2[is.na(Food), Food := 0] #hares with NA in food add get zero to rep control
 DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
-
 DT2[, Food := as.factor(Food)]
 
 
