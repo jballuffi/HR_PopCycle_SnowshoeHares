@@ -8,6 +8,9 @@ hdensity <- fread("data/Hare_density_monthly.csv")
 
 # clean hare density ------------------------------------------------------
 
+#create a mortality rate column
+hdensity[!is.na(survival), mortality := 1-survival]
+
 #classify months as either early or late winter for year stuff
 late <- c(1, 2, 3, 4)
 early <- c(10, 11, 12)
@@ -25,6 +28,7 @@ hdensity[, day := day(Time)]
 hdensity[, Time := NULL]
 
 
+
 #create a date col
 hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
 
@@ -37,7 +41,7 @@ hdensity[, haredensity := haredensity*10000]
 
 
 
-# Categorize years intpo cycle phases -------------------------------------
+# Categorize years into cycle phases -------------------------------------
 
 #categorizing years into cycle phases based on Keith 1990
 #took the information from Mike's oecologia paper
