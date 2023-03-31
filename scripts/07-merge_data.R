@@ -79,6 +79,9 @@ DT2[, Food := as.factor(Food)]
 
 # merge in weights by winter ----------------------------------------------
 
+
+
+
 #merge weights with area
 DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 

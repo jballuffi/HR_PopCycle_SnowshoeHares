@@ -46,8 +46,11 @@ t2[mnth < 4, winter := paste0(year(date)-1, "-", year(date))]
 #remove anything that doesn't fall within winter
 t2 <- t2[!is.na(winter)]
 
+# get avg winter weights by individual, paired with sex
 weightbywinter <- t2[, .(mean(Weight), getmode(Sex)), by = .(id, winter)]
 setnames(weightbywinter, c("V1", "V2"), c("mass", "sex"))
+
+
 
 
 
