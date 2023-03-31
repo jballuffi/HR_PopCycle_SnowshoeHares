@@ -56,11 +56,5 @@ setnames(weightbywinter, c("V1", "V2"), c("mass", "sex"))
 
 
 
-
-# get weight estimates by day ---------------------------------------------
-
-
-
-
-
+saveRDS(t2, "output/results/bodymass_allweights.rds")
 saveRDS(weightbywinter, "output/results/bodymass_bywinter.rds")
