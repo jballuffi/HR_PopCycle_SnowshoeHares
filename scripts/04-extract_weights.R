@@ -44,7 +44,11 @@ t2[mnth > 9, winter := paste0(year(date), "-", year(date)+1)] #grab october beca
 t2[mnth < 4, winter := paste0(year(date)-1, "-", year(date))]
 
 #remove anything that doesn't fall within winter
-weights <- t2[!is.na(winter)]
+t2 <- t2[!is.na(winter)]
+
+weightbywinter <- t2[, .(mean(Weight), getmode(Sex)), by = .(id, winter)]
+setnames(weightbywinter, c("V1", "V2"), c("mass", "sex"))
 
 
-saveRDS(weights, "output/results/bodymass.rds")
+
+saveRDS(weightbywinter, "output/results/bodymass_bywinter.rds")
