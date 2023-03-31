@@ -14,7 +14,7 @@ dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 # correlation test --------------------------------------------------------
 
 #subset data to only variables that we need to test co linearity on (numeric only)
-forcor <- dat[, .(haredensity, lynxdensity, ppratio, mass, SD)]
+forcor <- dat[, .(haredensity, mortrate, mass, SD)]
 
 #run correlation, look at matrix style output
 round(cor(forcor, use = "complete.obs"), digits = 2)
@@ -24,7 +24,6 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 # AIC for analysis across winters -----------------------------------------
 
 #list models
-yr <- lm(M90 ~ winter, dat)
 cycle <- lm(M90 ~ phase, dat)
 predation <- lm(M90 ~ ppratio, dat)
 competition <- lm(M90 ~ haredensity, dat)
