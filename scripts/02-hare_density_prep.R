@@ -90,6 +90,12 @@ densitypred[, date := mindate + winterday]
 #merge in cycle phases 
 densitypred <- merge(densitypred, phases, by = "winter", all.x = TRUE)
 
+#delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
+densitypred[, winterday := winterday - 31]
+
+densitypred <- densitypred[winterday > 0]
+
+
 
 saveRDS(predrisk, "output/results/mortalityrates.rds")
 saveRDS(densitypred, "output/results/dailyharedensities.rds")
