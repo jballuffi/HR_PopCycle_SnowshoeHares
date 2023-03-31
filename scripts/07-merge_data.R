@@ -12,8 +12,6 @@ areas <- readRDS("output/results/hrareas.rds")
 #import hare densities
 hdensity <- readRDS("output/results/dailyharedensities.rds")
 
-#import lynx densities
-ldensity <- fread("data/Lynx Density_simple.csv")
 
 #import weight results
 weights <- readRDS("output/results/bodymass.rds")
@@ -28,20 +26,7 @@ snow <- readRDS("data/snowgrids.rds")
 
 # make just a density data frame -------------------------------------------
 
-#rename lynx data
-names(ldensity) <- c("winter", "ltracks", "ltrack_se", "ltrack_lower", "ltrack_upper", "lynxdensity")
 
-#subset just two columns of interest
-lynx <- ldensity[, .(winter, lynxdensity)]
-
-#cut the hare density data into important cols
-hdensity <- hdensity[, .(winter, date, haredensity, winterday, phase)]
-
-#merge by winter
-densities <- merge(hdensity, ldensity, by = "winter", all.x = TRUE)
-
-#create pred:prey
-densities[, ppratio := lynxdensity/haredensity]
 
 #delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
 densities[, winterday := winterday - 31]
