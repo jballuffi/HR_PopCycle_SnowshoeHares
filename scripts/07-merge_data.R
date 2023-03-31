@@ -88,7 +88,6 @@ DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
 
 #set order
 setorder(snow, "snowgrid", "Date")
-
 #change name of date col in snow data
 setnames(snow, "Date", "date")
 
@@ -101,43 +100,28 @@ DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
-#merge snow data with the rest of the data set by date and grid
-DT4 <- merge(DT3, snow, by = c("date", "snowgrid", "winter"), all.x = TRUE)
-
-test <- DT3[id == 22113]
-
-weeklysnow <- function(dt, d, g){
+#function to pull mean snowdepth from the full week of home range data 
+weeklysnow <- function(dt, d){
+  #take three days before home range date and three days after
   datelist <- c(dt$d -3, dt$d-2, dt$d-1, dt$d, dt$d+1, dt$d+2, dt$d+3)
-  grid <- dt$g
-  snowdepths <- snow[date %in% datelist & snowgrid %in% grid]
-  #snowdepths <- snowdepths[snowgrid %in% print(grid)]
-  # meanSD <- mean(snowdepths$SD)
-  # dt$test <- meanSD
-  # #return(mean(snowdepths$SD))
+  #pull the snowgrid from the home range paper
+  g <- dt$snowgrid
+  #in the date list and snow grid of the "snow" data, average the snow depth
+  snowdepths <- snow[date %in% datelist & snowgrid %in% g, mean(SD, na.rm = TRUE)]
+  #return only that mean snow depth
   return(snowdepths)
 }
 
-test$test <- weeklysnow(dt = test, d = test$weekdate, g = test$snowgrid)
-test$test
+#run the function by id and week date
+DT3[, SD := weeklysnow(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
-
-
-funtest <- function(dt, d, g){
-  return(paste0(dt$d, "_", g))
-}
-
-DT3$test <- funtest(DT3, "date"., 
-                    )
-
-DT3$snoweek <- weeklysnow(dt = DT3, d = DT3$weekdate, g = DT3$snowgrid)
-DT3$snoweek
 
 
 # Save final data sets -----------------------------------------------------
 
 
 #save merged data
-saveRDS(DT4, "output/results/compileddata.rds")
+saveRDS(DT3, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
