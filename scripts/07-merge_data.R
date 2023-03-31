@@ -16,7 +16,8 @@ hdensity <- readRDS("output/results/dailyharedensities.rds")
 predrisk <- readRDS("output/results/mortalityrates.rds")
 
 #import weight results
-
+weights <- readRDS("output/results/bodymass_allweights.rds")
+winterweights <- readRDS("output/results/bodymass_bywinter.rds")
 
 #import food add bunnies
 foodadd <- readRDS("data/food_adds.rds")
@@ -60,12 +61,37 @@ DT2[, Food := as.factor(Food)]
 
 
 # merge in weights by winter ----------------------------------------------
+test <- DT2[id == 22799]
+
+#trying to get weight by the closest date to the home range analysis
+
+getweight <- function(dt, d){
+  #get id from the home range data set
+  idhr <- as.character(dt$id)
+  #subset the weight data to only include that id
+  w <- weights[id %in% idhr]
+  #get date from the home range data set
+  datehr <- dt$d
+  #in weight data, subtract that date from all weight trapping dates
+  w[, datediff := as.numeric(abs(date - datehr))]
+  #calculate the minimum difference in dates (from absolute value)
+  mindatediff <- w[, min(datediff)]
+  #subset the weight data once more to only include the row with the smallest diff date, return weight
+  wmatch <- w[datediff %in% mindatediff, return(Weight)]
+  return(wmatch)
+}
+
+#test works but not with the BY
+test[, mass := getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
+
+
+#cant get this to work
+#DT2[, mass := getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
 
 
-
-#merge weights with area
-DT3 <- merge(DT2, weights, by = c("id", "winter"), all.x = TRUE)
+# for now merge weights by winter
+DT3 <- merge(DT2, winterweights, by = c("id", "winter"), all.x = TRUE)
 
 
 
