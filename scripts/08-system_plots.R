@@ -22,8 +22,8 @@ cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "
 # plot showing animal densities by winter ----------------------------------
 
 #pull means by year
-wintermeans <- densities[, .(mean(haredensity), mean(lynxdensity), mean(ppratio), phase), by = winter]
-names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phase")
+wintermeans <- densities[, .(mean(haredensity), mean(mortrate, na.rm = TRUE), phase), by = winter]
+names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
 
 
 #hare density over time
@@ -34,24 +34,16 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
   labs(x = "", y = "Hares per 100 km2")+
   theme_densities)
 
-#lynx density over time
+#mort rate over time
 (l <- ggplot(wintermeans)+
-  geom_path(aes(x = winter, y = lynxdensity, group = 1))+
-  geom_point(aes(x = winter, y = lynxdensity, color = phase), size = 2)+
+  geom_path(aes(x = winter, y = mortrate, group = 1))+
+  geom_point(aes(x = winter, y = mortrate, color = phase), size = 2)+
   scale_color_manual(values = cols)+
-  labs(x = "", y = "Lynx per 100 km2")+
-  theme_densities)
-
-#pred-prey ratio over time
-(pp <- ggplot(wintermeans)+
-  geom_path(aes(x = winter, y = ppratio, group = 1))+
-  geom_point(aes(x = winter, y = ppratio, color = phase), size = 2)+
-  scale_color_manual(values = cols)+
-  labs(x = "Winter", y = "Lynx:Hare Ratio")+
+  labs(x = "Winter", y = "Mortality rate (unit??)")+
   theme_densities)
 
 #ggarrange all densities
-(densityplots <- ggarrange(h, l, pp, ncol = 1, nrow = 3))
+(densityplots <- ggarrange(h, l, ncol = 1, nrow = 2))
 
 
 
@@ -77,7 +69,7 @@ names(wintermeans) <- c("winter", "haredensity", "lynxdensity", "ppratio", "phas
 
 (ppwinter <-
   ggplot(densities)+
-  geom_line(aes(x = winterday, y = ppratio, color = phase, group = winter), linewidth = .8, alpha = .8)+
+  geom_line(aes(x = winterday, y = mortrate, color = phase, group = winter), linewidth = .8, alpha = .8)+
   scale_color_manual(values = cols)+
   labs(y = "Lynx:Hare Ratio", x = "Days into winter")+
   theme_densities)
