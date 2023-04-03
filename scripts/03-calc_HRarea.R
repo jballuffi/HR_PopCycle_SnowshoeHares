@@ -9,7 +9,7 @@ gps <- readRDS("Data/all_gps.rds")
 gps <- gps[weeklength > 6]
 
 #items we will measure home ranges by
-weeksplit <- c("id", "winter", "burst", "week", "weekdate", "grid")
+weeksplit <- c("id", "winter", "week", "weekdate", "grid")
 
 
 
@@ -61,11 +61,11 @@ mcpkernel <- merge(mcpfull2, kernelfull2, by = weeksplit)
 # Get fix rates for each burst and merge with results ---------------------
 
 #obtain unique info for fix rates
-gps.sub <- gps[, unique(id), by = .(winter, burst, fixrate)]
+gps.sub <- gps[, unique(id), by = .(winter, week, fixrate)]
 setnames(gps.sub, "V1", "id") #change column name
 
 #merge the fix rates with the HR areas
-FRsplit <- c("id", "winter", "burst")
+FRsplit <- c("id", "winter", "week")
 areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 
