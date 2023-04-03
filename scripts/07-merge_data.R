@@ -82,7 +82,7 @@ DT3 <- DT3[datediff == mindiffdate]
 setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 
 #trying to get weight by the closest date to the home range analysis
-test <- DT2[id == 22799]
+test <- DT3[id ==  22137]
 
 getweight <- function(dt, d){
   #get id from the home range data set
@@ -100,10 +100,6 @@ getweight <- function(dt, d){
   #return(wmatch)
 }
 
-#test works but not with the BY
-test[, mass := getweight(dt = .SD, d = weekdate)]
-#cant get this to work
-#DT2[, getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
 
 
@@ -129,20 +125,24 @@ weeklysnow <- function(dt, d){
   #take three days before home range date and three days after
   datelist <- c(dt$d -3, dt$d-2, dt$d-1, dt$d, dt$d+1, dt$d+2, dt$d+3)
   #pull the snowgrid from the home range paper
-  g <- dt$snowgrid
+  #g <- dt$snowgrid
   #in the date list and snow grid of the "snow" data, average the snow depth
-  snowdepths <- snow[date %in% datelist & snowgrid %in% g, mean(SD, na.rm = TRUE)]
+  #snowdepths <- snow[date %in% datelist & snowgrid == g]
   #return only that mean snow depth
-  return(snowdepths)
+  #return(snowdepths)
+  #return(g)
+  return(datelist)
 }
 
 #run the function by id and week date
-DT3[, SD := weeklysnow(dt = .SD, d = weekdate), by = .(id, weekdate)]
+DT3[, SD := weeklysnow(dt = .SD, d = weekdate), by = .(id, date)]
+DT3$SD
+test[, SD := weeklysnow(dt = .SD, d = weekdate)]
+weeklysnow(test, test$weekdate)
 
 
 
 # Save final data sets -----------------------------------------------------
-
 
 #save merged data
 saveRDS(DT3, "output/results/compileddata.rds")
