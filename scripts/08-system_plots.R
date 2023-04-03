@@ -51,7 +51,7 @@ names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
 
 
 (mass <- ggplot(DT)+
-  geom_boxplot(aes(x = winter, y = mass, color = phase))+
+  geom_boxplot(aes(x = winter, y = Weight, color = phase))+
   scale_color_manual(values = cols)+
   labs(x = "Winter", y = "Body mass (g)")+
   theme_boxplots)
@@ -65,19 +65,9 @@ names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
 (resourceplots <- ggarrange(mass, sd, ncol = 1, nrow = 2))
 
 
-# predation risk over winter ---------------------------------------------------
-
-(ppwinter <-
-  ggplot(densities)+
-  geom_line(aes(x = winterday, y = mortrate, color = phase, group = winter), linewidth = .8, alpha = .8)+
-  scale_color_manual(values = cols)+
-  labs(y = "Lynx:Hare Ratio", x = "Days into winter")+
-  theme_densities)
 
 
 
 
-
-ggsave("output/figures/densities.jpeg", densityplots, width = 6, height = 9, units = "in")
-ggsave("output/figures/resource.jpeg", resourceplots, width = 7, height = 8, units = "in")
-ggsave("output/figures/ppratios.jpeg", ppwinter, width = 6, height = 4, units = "in")
+ggsave("output/figures/densities.jpeg", densityplots, width = 8, height = 9, units = "in")
+ggsave("output/figures/resource.jpeg", resourceplots, width = 8, height = 9, units = "in")
