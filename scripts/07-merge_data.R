@@ -77,18 +77,18 @@ getweight <- function(dt, d){
   #calculate the minimum difference in dates (from absolute value)
   mindatediff <- w[, min(datediff)]
   #subset the weight data once more to only include the row with the smallest diff date, return weight
-  wmatch <- w[datediff %in% mindatediff, return(Weight)]
-  return(wmatch)
+  w[datediff %in% mindatediff, return(Weight)]
+  #return(wmatch)
 }
 
 #test works but not with the BY
-test[, mass := getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
+test[, mass := getweight(dt = .SD, d = weekdate)]
 
 
 #cant get this to work
-#DT2[, mass := getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
+#DT2[, getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
-
+#out <- apply(DT2, 1, getweight(dt = DT2, d = weekdate))
 
 # for now merge weights by winter
 DT3 <- merge(DT2, winterweights, by = c("id", "winter"), all.x = TRUE)
