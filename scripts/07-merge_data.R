@@ -61,9 +61,28 @@ DT2[, Food := as.factor(Food)]
 
 
 # merge in weights by winter ----------------------------------------------
-test <- DT2[id == 22799]
+
+#subset weight data
+weightsub <- weights[, .(id, winter, date, Sex, Weight)]
+
+#merge weight with data keeping all weight data
+DT3 <- merge(DT2, weightsub, by = c("id", "winter"), all.y = TRUE)
+
+#cut out individuals with weight data but no home range data
+DT3 <- DT3[!is.na(date.x)]
+
+#subtract weight date from home range date 
+DT3[, datediff := abs(as.integer(date.x - date.y))]
+
+#take minimum difference in date 
+DT3[, mindiffdate := min(datediff), by = .(id, winter, weekdate)]
+DT3 <- DT3[datediff == mindiffdate]
+
+#change name
+setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 
 #trying to get weight by the closest date to the home range analysis
+test <- DT2[id == 22799]
 
 getweight <- function(dt, d){
   #get id from the home range data set
@@ -83,15 +102,9 @@ getweight <- function(dt, d){
 
 #test works but not with the BY
 test[, mass := getweight(dt = .SD, d = weekdate)]
-
-
 #cant get this to work
 #DT2[, getweight(dt = .SD, d = weekdate), by = .(id, weekdate)]
 
-#out <- apply(DT2, 1, getweight(dt = DT2, d = weekdate))
-
-# for now merge weights by winter
-DT3 <- merge(DT2, winterweights, by = c("id", "winter"), all.x = TRUE)
 
 
 
