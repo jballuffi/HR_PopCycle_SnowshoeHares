@@ -16,7 +16,7 @@ DT <- DT[!M90 > 20]
 DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
 #rename some variables for figures
-DT[sex == 1, sex := "Male"][sex == 2, sex := "Female"]
+DT[Sex == 1, Sex := "Male"][Sex == 2, Sex := "Female"]
 DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 
@@ -38,10 +38,10 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
   labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
   theme_densities)
 
-(byldensity <- 
+(bymortrate <- 
   ggplot(DT)+
-  geom_point(aes(x = lynxdensity, y = M90))+
-  labs(y = "90% MCP area (ha)", x = "Lynx Density (Lynx per ha)")+
+  geom_point(aes(x = mortrate, y = M90))+
+  labs(y = "90% MCP area (ha)", x = "Mortality rate")+
   theme_densities)
 
 (byphase <- 
@@ -50,7 +50,7 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
   labs(y = "90% MCP area (ha)", x = "Cycle Phase")+
   theme_boxplots)
 
-(hrcycle <- ggarrange(byyear, byhdensity, byldensity, byphase,
+(hrcycle <- ggarrange(byyear, byhdensity, bymortrate, byphase,
                        ncol = 2, nrow = 2))
 
 
@@ -58,8 +58,8 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 # Home range in response to resource parameters --------------------------------------------------------
 
 (byfood <-
-   ggplot(DT[!is.na(sex)])+
-   geom_boxplot(aes(x = sex, y = M90, color = Food))+
+   ggplot(DT[!is.na(Sex)])+
+   geom_boxplot(aes(x = Sex, y = M90, color = Food))+
    labs(y = "90% MCP area (ha)", x = "Sex")+
    theme_boxplots)
 
