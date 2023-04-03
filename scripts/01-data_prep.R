@@ -47,7 +47,7 @@ gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 gps <- gps[!is.na(winter)]
 
 #remove any fixes not allocated to a burst
-gps <- gps[!is.na(burst)]
+#gps <- gps[!is.na(burst)]
 
 
 
@@ -61,47 +61,54 @@ names(grids) <- c("id", "grid")
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 
-
 # calculate time differences in data and sample periods ------------------------------------------------
 
 #calculate the difference in days from first day of a burst
-gps[, diffday := idate - min(idate), by = splitburst]
+gps[, diffday := idate - min(idate), by = splityear]
 
 #calculate the length of each burst
-gps[, burstlength := max(idate) - min(idate), by = splitburst]
+#gps[, burstlength := max(idate) - min(idate), by = splitburst]
 
 #remove any bursts that are less than a week long
-gps <- gps[burstlength >= 7]
+#gps <- gps[burstlength >= 7]
 
 #cut diffday into weeks
 gps[, week := cut(diffday, breaks = c(-1, 7, 14, 21, 28, 35, 42, 49, 56))]
 
+#calculate how many days are in each week using number of unique dates
+gps[, weeklength := length(unique(idate)), by = .(id, winter, week)]
+
+#take only weeks that have over 6 days of sampling
+gps <- gps[weeklength > 6]
+
 #average the date for each week
-gps[, weekdate := mean(idate), by = c("id", "winter", "burst", "week")]
+gps[, weekdate := mean(idate), by = .(id, winter, week)]
 
 #calculate week length
-gps[, weeklength := max(idate) - min(idate), by = .(id, weekdate)]
+#gps[, weeklength := max(idate) - min(idate), by = .(id, weekdate)]
 
+#create split week
+splitweek <- c("id", "winter", "week")
 
 
 # fix rates, step length and speed ---------------------------------------------------------------
 setorder(gps, datetime)
 
-gps[, prevfix := shift(datetime, n=1, type="lag"), by = splitburst] #take time before , for each fix
-gps[, difffix := as.numeric(round(difftime(datetime, prevfix, units= 'mins')))] #calculate difference between previous time and current time
+gps[, prevfix := shift(datetime, n = 1, type = "lag"), by = splitweek] #take time before , for each fix
+gps[, difffix := as.numeric(round(difftime(datetime, prevfix, units = 'mins')))] #calculate difference between previous time and current time
 gps[difffix < 100, hist(difffix)]
 #a lot of zero fix rates - they should have been removed in prep_locs?
 
 #put previous coordinates in new column
 setorder(gps, datetime)
-gps[, prev_x_proj := shift(x_proj, n=1, type="lag"), by = splitburst]
-gps[, prev_y_proj := shift(y_proj, n=1, type="lag"), by = splitburst]
+gps[, prev_x_proj := shift(x_proj, n = 1, type = "lag"), by = splitweek]
+gps[, prev_y_proj := shift(y_proj, n = 1, type = "lag"), by = splitweek]
 
 #calculate step length
 gps[, sl := sqrt((prev_x_proj - x_proj)^2 + (prev_y_proj - y_proj)^2)] 
 
 #create speed column
-gps[, speed := sl/difffix, by = splitburst]
+gps[, speed := sl/difffix, by = splitweek]
 
 
 # clean out unrealistic movements -----------------------------------------
@@ -124,14 +131,15 @@ gps<- gps[speed <= quant]
 
 
 #add cols for median fixrate, mode fixrate, median steplength, median speed
-gps[, med.fixrate := median(difffix), by = splitburst]
-gps[, modeFR := getmode(difffix), by = splitburst]
-gps[, med.sl := median(sl), by = splitburst]
-gps[, med.speed := median(speed), by = splitburst]
+gps[, med.fixrate := median(difffix), by = splitweek]
+gps[, modeFR := getmode(difffix), by = splitweek]
+gps[, med.sl := median(sl), by = splitweek]
+gps[, med.speed := median(speed), by = splitweek]
 
 
 #Compare median and mode fixdiff to determine real fix rates
-gps[, unique(modeFR), by=med.fixrate]
+gps[, unique(modeFR), by = med.fixrate]
+
 #looked into individual buns, and mode seems to better estimate true fix rate
 #so, resetting fix rate as the mode
 gps[, fixrate := modeFR]
