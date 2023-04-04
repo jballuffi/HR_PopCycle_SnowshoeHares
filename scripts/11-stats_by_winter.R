@@ -6,13 +6,14 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
 dat <- dat[!M90 > 20]
-dat <- dat[!winter == "2021-2022"]
+#FOR NOW...
+dat <- dat[!phase == "low"]
 
 
 
 # Run AIC by phase of cycle -----------------------------------------------
 
-
+#make dat into a list by phase, lapply this function? 
 
 makeAIC <- function(hr, p, c, w, s, f){ 
   
@@ -38,11 +39,10 @@ makeAIC <- function(hr, p, c, w, s, f){
 
   }
 
-makeAIC(dt = dat)
+dat[, makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food), by = phase]
 
-dat[, makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food), by = as.factor(phase)]
 
-class(dat$phase)
+
 
 
 
