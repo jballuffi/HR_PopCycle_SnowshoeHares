@@ -14,7 +14,7 @@ dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 # correlation test --------------------------------------------------------
 
 #subset data to only variables that we need to test co linearity on (numeric only)
-forcor <- dat[, .(haredensity, mortrate, mass, SD)]
+forcor <- dat[, .(haredensity, mortrate, Weight, SD, year(date))]
 
 #run correlation, look at matrix style output
 round(cor(forcor, use = "complete.obs"), digits = 2)
@@ -24,19 +24,32 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 # AIC for analysis across winters -----------------------------------------
 
 #list models
+
+#null
+
+#basic models for variables alone
 cycle <- lm(M90 ~ phase, dat)
-predation <- lm(M90 ~ ppratio, dat)
-competition <- lm(M90 ~ haredensity, dat)
-resource <- lm(M90 ~ mass + SD + Food*sex, dat)
-pred_res <- lm(M90 ~ ppratio + mass + SD + Food*sex, dat)
-comp_res <- lm(M90 ~ haredensity + mass + SD + Food*sex, dat)
-cycle_res <- lm(M90 ~ phase + mass + SD + Food*sex, dat)
-yr_res <- lm(M90 ~ winter + mass + SD + Food*sex, dat)
+pred <- lm(M90 ~ mortrate, dat)
+comp <- lm(M90 ~ haredensity, dat)
+
+bodysize <- lm(M90 ~ Weight, dat)
+snow <- lm(M90 ~ SD, dat)
+food <- lm(M90 ~ Food, dat)
+
+#all resources plus demographic data
+res <- lm(M90 ~ Weight + SD + Food, dat)
+pred_res <- lm(M90 ~ mortrate + Weight + SD + Food, dat)
+comp_res <- lm(M90 ~ haredensity + Weight + SD + Food, dat)
+cycle_res <- lm(M90 ~ phase + Weight + SD + Food, dat)
+
 
 #list models and provide names
-mods <- list(yr, cycle, predation, competition, resource, pred_res, comp_res, cycle_res, yr_res)
-names <- c("year", "cycle", "predation", "competition", "resource", 
-           "predator and resource", "competition and resource", "cycle and resource", "year and resource")
+mods <- list(cycle, pred, comp, bodysize, snow, food, res, pred_res, comp_res, cycle_res)
+names <- c("cycle", "predation", "competition", 
+           "body size", "snow", "food",
+          "resource",  "predator and resource", "competition and resource", "cycle and resource")
+
+
 
 #create AIC table on list of models
 AIC<-as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
