@@ -23,33 +23,19 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 
 # AIC for analysis across winters -----------------------------------------
 
+#I am thinking we run three models with all variables, split by the demographic variable
+#this tests each prediction across all winters, shows which is the most explanatory 
+# not an AIC
+
 #list models
-
-#null
-
-#basic models for variables alone
-cycle <- lm(M90 ~ phase, dat)
-pred <- lm(M90 ~ mortrate, dat)
-comp <- lm(M90 ~ haredensity, dat)
-
-bodysize <- lm(M90 ~ Weight, dat)
-snow <- lm(M90 ~ SD, dat)
-food <- lm(M90 ~ Food, dat)
-
-#all resources plus demographic data
-res <- lm(M90 ~ Weight + SD + Food, dat)
-pred_res <- lm(M90 ~ mortrate + Weight + SD + Food, dat)
-comp_res <- lm(M90 ~ haredensity + Weight + SD + Food, dat)
-cycle_res <- lm(M90 ~ phase + Weight + SD + Food, dat)
-
+cycle <- lm(M90 ~ phase + Weight + SD + Food, dat)
+pred <- lm(M90 ~ mortrate + Weight + SD + Food, dat)
+comp <- lm(M90 ~ haredensity + Weight + SD + Food, dat)
+null <- lm(M90 ~ 1, dat)
 
 #list models and provide names
-mods <- list(cycle, pred, comp, bodysize, snow, food, res, pred_res, comp_res, cycle_res)
-names <- c("cycle", "predation", "competition", 
-           "body size", "snow", "food",
-          "resource",  "predator and resource", "competition and resource", "cycle and resource")
-
-
+mods <- list(cycle, pred, comp, null)
+names <- c("Cycle", "Predation", "Competition", "Null")
 
 #create AIC table on list of models
 AIC<-as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
@@ -61,13 +47,19 @@ AIC <- AIC %>% mutate_if(is.numeric, round, digits=3) #round whole table to 3 di
 topmods <- AIC[Delta_AICc < 2, return((Modnames))]
 
 
+
+
+# Table with coef outputs -------------------------------------------------
+
+
 #apply the lm_out function to the top to same list of models as in AIC
 outall <- lapply(mods, lm_out)
 outall <- rbindlist(outall, fill = TRUE)
 outall$Model <- names
 outall[, `(Intercept)` := NULL]
 
-
+outall <- outall[!Model == "Null"]
+outall[, V1 := NULL]
 
 #function to swap out specific words in column names for new ones
 nameswap <- function(old, new, Data) {
@@ -79,7 +71,9 @@ nameswap <- function(old, new, Data) {
 #change names of columns in output table
 nameswap("Food1", "Food add", outall)
 nameswap("winterday", "Day", outall)
-nameswap("mass", "Body mass", outall)
+nameswap("Wass", "Body mass", outall)
 nameswap("haredensity", "Hare density", outall)
-nameswap("ppratio", "Lynx:hare ratio", outall)
+nameswap("mortrate", "Mortality Rate", outall)
 nameswap("rsq", "R2", outall)
+
+setcolorder(outall, c("Model", ))
