@@ -56,6 +56,7 @@ names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
   labs(x = "Winter", y = "Body mass (g)")+
   theme_boxplots)
 
+###2020-2021 onward is from transect data. Will be replaced with camera trap data
 (sd <- ggplot(snow)+
   geom_boxplot(aes(x = winter, y = SD, color = phase))+
   scale_color_manual(values = cols)+
