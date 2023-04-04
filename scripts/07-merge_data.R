@@ -123,20 +123,24 @@ snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
 
 
 #function to pull mean snowdepth from the full week of home range data 
-weeklysnow <- function(dt, d){
+weeklysnow <- function(weekdate, grid) {
   #take three days before home range date and three days after
-  datelist <- c(dt$d -3, dt$d-2, dt$d-1, dt$d, dt$d+1, dt$d+2, dt$d+3)
-  #pull the snowgrid from the home range paper
-  g <- dt$snowgrid
+  datelist <- c(
+    weekdate - 3,
+    weekdate - 2,
+    weekdate - 1,
+    weekdate,
+    weekdate + 1,
+    weekdate + 2,
+    weekdate + 3
+  )
+  
   #in the date list and snow grid of the "snow" data, average the snow depth
-  snowdepth <- snow[snowdate %in% datelist & snowgrid == g, mean(SD)]
-  #return only that mean snow depth
-  return(snowdepth)
-  #return(g)
-  #return(datelist)
+  snow[snowdate %in% datelist & snowgrid == grid, mean(SD)]
 }
-test <- DT3[id ==  22137]
-test[, weeklysnow(dt = .SD, d = weekdate), by = weekdate]
+DT3[, snow := weeklysnow(weekdate = .BY[[1]], grid = snowgrid), by = .(date, id)]
+
+# DT3[, .N, .(date, id)][N > 1]
 
 
 # #run the function by id and week date
