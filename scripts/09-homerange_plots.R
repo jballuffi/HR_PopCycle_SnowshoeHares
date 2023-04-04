@@ -71,7 +71,7 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 (bymass <- 
   ggplot(DT)+
-  geom_point(aes(x = mass, y = M90, color = phase))+
+  geom_point(aes(x = Weight, y = M90, color = phase))+
   labs(y = "90% MCP area (ha)", x = "Body mass (g)")+
   theme_densities)
 
