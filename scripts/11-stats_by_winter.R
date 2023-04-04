@@ -8,16 +8,41 @@ dat <- readRDS("output/results/compileddata.rds")
 dat <- dat[!M90 > 20]
 dat <- dat[!winter == "2021-2022"]
 
-# correlation test --------------------------------------------------------
 
-#subset data to only variables that we need to test co linearity on (numeric only)
-forcor <- dat[, .(haredensity, lynxdensity, ppratio, mass, winterday)]
 
-#run correlation, look at matrix style output
-round(cor(forcor, use = "complete.obs"), digits = 2)
+# Run AIC by phase of cycle -----------------------------------------------
 
-#winter day correlates with hare density 
-#hare density correlates with lynx density
+
+
+makeAIC <- function(hr, p, c, w, s, f){ 
+  
+  #list models
+  pred <- lm(hr ~ p)
+  comp <- lm(hr ~ c)
+  res <- lm(hr ~ w + s + f)
+  pred_res <- lm(hr ~ p + w + s + f)
+  comp_res <- lm(hr ~ c + w + s + f)
+  null <- lm(hr ~ 1)
+  
+  #list models and provide names
+  mods <- list(pred, comp, res, pred_res, comp_res, null)
+  names <- c("Predation", "Competition", "Resource", "Predation+Resource", "Competition+Resource", "Null")
+  
+  AIC <- as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
+  AIC[, ModelLik := NULL]
+  AIC[, Cum.Wt := NULL]
+  AIC <- AIC %>% mutate_if(is.numeric, round, digits=3) #round whole table to 3 digits
+  
+  #which models are less than 2 delta AIC? 
+  topmods <- AIC[Delta_AICc < 2, return((Modnames))]
+
+  }
+
+makeAIC(dt = dat)
+
+dat[, makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food), by = as.factor(phase)]
+
+class(dat$phase)
 
 
 
