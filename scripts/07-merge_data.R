@@ -66,43 +66,25 @@ DT2[, Food := as.factor(Food)]
 weightsub <- weights[, .(id, winter, date, Sex, Weight)]
 
 #merge weight with data keeping all weight data
-DT3 <- merge(DT2, weightsub, by = c("id", "winter"), allow.cartesian=TRUE, all.y = TRUE)
+DT3 <- merge(DT2, weightsub, by = c("id", "winter"), allow.cartesian = TRUE, all = TRUE)
 
 #cut out individuals with weight data but no home range data
-DT3 <- DT3[!is.na(date.x)]
+DT3 <- DT3[!is.na(M90)]
 
 #subtract weight date from home range date 
 DT3[, datediff := abs(as.integer(date.x - date.y))]
 
 #take minimum difference in date 
 DT3[, mindiffdate := min(datediff), by = .(id, winter, weekdate)]
+
 DT3 <- DT3[datediff == mindiffdate]
 
 #change name
 setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 
-# #trying to get weight by the closest date to the home range analysis
-# test <- DT3[id ==  22137]
-# 
-# getweight <- function(dt, d){
-#   #get id from the home range data set
-#   idhr <- as.character(dt$id)
-#   #subset the weight data to only include that id
-#   w <- weights[id %in% idhr]
-#   #get date from the home range data set
-#   datehr <- dt$d
-#   #in weight data, subtract that date from all weight trapping dates
-#   w[, datediff := as.numeric(abs(date - datehr))]
-#   #calculate the minimum difference in dates (from absolute value)
-#   mindatediff <- w[, min(datediff)]
-#   #subset the weight data once more to only include the row with the smallest diff date, return weight
-#   w[datediff %in% mindatediff, return(Weight)]
-#   #return(wmatch)
-# }
-
-
-
-
+#remove some duplicates from this merge. Not sure how they happened
+DT3[, dup := duplicated(date), id]
+DT3 <- DT3[dup == FALSE]
 
 # merge in snow depth data ------------------------------------------------
 
@@ -124,6 +106,7 @@ snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
 
 #function to pull mean snowdepth from the full week of home range data 
 weeklysnow <- function(weekdate, grid) {
+  
   #take three days before home range date and three days after
   datelist <- c(
     weekdate - 3,
@@ -136,32 +119,19 @@ weeklysnow <- function(weekdate, grid) {
   )
   
   #in the date list and snow grid of the "snow" data, average the snow depth
-  snow[snowdate %in% datelist & snowgrid == grid, mean(SD)]
+  snow[snowdate %in% datelist & snowgrid %in% grid, mean(SD)]
 }
-DT3[, snow := weeklysnow(weekdate = .BY[[1]], grid = snowgrid), by = .(date, id)]
-
-# DT3[, .N, .(date, id)][N > 1]
 
 
-# #run the function by id and week date
-# DT3[, SD := weeklysnow(dt = .SD, d = weekdate), by = .(id, date)]
-# DT3$SD
-# test[, SD := weeklysnow(dt = .SD, d = weekdate)]
-# weeklysnow(test, test$weekdate)
+DT3[, SD := weeklysnow(weekdate = .BY[[1]], grid = snowgrid), by = .(date, id)]
 
 
-#for new merge snow data by winter, month and grid
-snow[, mnth := month(snowdate)]
 
-snowmeans <- snow[, mean(SD), by = .(winter, mnth, snowgrid)]
-setnames(snowmeans, "V1", "SD")
-
-DT4 <- merge(DT3, snowmeans, by = c("winter", "mnth", "snowgrid"), all.x = TRUE)
 
 # Save final data sets -----------------------------------------------------
 
 #save merged data
-saveRDS(DT4, "output/results/compileddata.rds")
+saveRDS(DT3, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
