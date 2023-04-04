@@ -150,13 +150,14 @@ test[, weeklysnow(dt = .SD, d = weekdate), by = weekdate]
 snow[, mnth := month(snowdate)]
 
 snowmeans <- snow[, mean(SD), by = .(winter, mnth, snowgrid)]
+setnames(snowmeans, "V1", "SD")
 
-DT4 <- merge(DT3, snow, by = c("winter", "mnth", "snowgrid"), all.x = TRUE)
+DT4 <- merge(DT3, snowmeans, by = c("winter", "mnth", "snowgrid"), all.x = TRUE)
 
 # Save final data sets -----------------------------------------------------
 
 #save merged data
-saveRDS(DT3, "output/results/compileddata.rds")
+saveRDS(DT4, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
