@@ -100,7 +100,14 @@ download.images<- function(dat, file.path) {
 # download.images(dat=sd3r, file.path = "Data/liam_test_data/snow depth camera downloads/")
 download.images(dat=test, file.path = "Data/liam_test_data/test_func/")
 #run the function again but just with b11_1 to get all the photos, and will then just ignore the 17 wrong ones
-di.b11<-sd3r[location=="B11_1"]
+"%notin%" <- Negate("%in%")
+b11<-sd3r[location=="B11_1" & yr <= 2019 & jday < 291]
+b11[, addon := rep(1:2, length.out=.N)]
+b11[, image_id := paste0(image_id, "_", addon)]
+sb11<-sd3r[location=="B11_1"]
+sb11<- sb11[date_detected %notin% b11$date_detected]
+di.b11 <-rbind(sb11, b11, fill=T)
+
 download.images(dat=di.b11, file.path = "Data/liam_test_data/snow depth camera downloads/")
 
 
