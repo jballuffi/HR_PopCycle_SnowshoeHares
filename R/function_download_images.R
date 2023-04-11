@@ -1,10 +1,11 @@
-#Function to download images from wildtrax
-# 'dat' argument is the 'image_report' excel sheet from the data download on Wildtrax
-# 'file.path' argument is the primary folder within your R Project where you want everything to be saved (e.g., "Data/test_data/test_func/")
-      # Separate folders will be automatically made for each camera location
+#Function to download images from Wildtrax
+# 'dat' argument is the 'image_report' excel sheet from a data download on Wildtrax (need admin priveleges to access image URLs)
+# 'file.path' argument is the primary folder within your R Project where you want the images to be saved 
+    # (e.g., "Data/cameras/" - make sure it ends with a "/")
+    # Separate folders will be automatically made for each camera location
 
 
-#IMPORTANT NOTE: You need to have the package "data.table" for this function to work. Code for this below.
+#IMPORTANT NOTE: You need to have the package "data.table" for this function to work.
 # install.packages("data.table")
 # library(data.table)
 
