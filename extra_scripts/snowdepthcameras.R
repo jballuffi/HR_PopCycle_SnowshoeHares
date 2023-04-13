@@ -33,17 +33,8 @@ sd3r<- sd3[location %in% locs]
 #check whether only 1 image per date
 a<-sd3r[, .N, .(date, location)]
 b<-a[N >1] #get the locs where there were mlutiple images 
-b[, .N, location] #only 4 locations had multi images per day- CH and SU were taking pics at 1100 and 1200
-t<-sd3r[location=="B8_1"]
-t[, N:=.N, date]
-setorder(t, -N, date)
-b81<-t[1:10]
-setnames(b81, "image_url(admin only)", "image_url")
-setnames(b81, "date", "image_id")
-b81[, addon := rep(1:2, length.out=.N)] 
-b81[, image_id := paste0(image_id, "_", addon)]
-download.images(b81, file.path = "../../../Desktop/jules test/")
-b81[1:2, .(image_url)]
+b[, .N, location] #only 4 locations had multi images per day- CH and SU were taking pics at 1100 and 1200,
+#B8_1 has true duplicate images, but only on the csv not wildtrax, and B11_1 see below
 
 #there are pics from 2 different locations at start of B11_1 (oct 1-17 2019)!
 b11<-sd3r[location=="B11_1" & yr <= 2019 & jday < 291] #17 *2 pics =34
