@@ -13,14 +13,20 @@ lm_out <- function(model) {
   seOut <- data.table(t(out$coefficients[, 2]))
   seOut<-round(seOut, 3)
   
+  #collect p-values
+  pvals <- data.table(t(out$coefficients[, 4]))
+  pvals <- round(pvals, 2)
+  
   #Paste coef and standard errors together, rename cols
-  coefse<-data.table(t(paste(coefOut, seOut, sep=" ± ")))
+  coefse<-data.table(t(paste0(coefOut, " ± ", seOut, " (", pvals, ")")))
   setnames(coefse, paste0(colnames(coefOut)))
   
   #collect R2s and change column name
   rsqOut <- data.table(rsq(model))
   names(rsqOut)<-c("rsq")
   rsqOut <- round(rsqOut, 3)
+  
+
   
   #return each datatable binded together by row
   return(data.table(coefse, rsqOut))

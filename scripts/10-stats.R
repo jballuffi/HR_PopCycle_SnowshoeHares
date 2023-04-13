@@ -61,19 +61,9 @@ outall[, `(Intercept)` := NULL]
 outall <- outall[!Model == "Null"]
 outall[, V1 := NULL]
 
-#function to swap out specific words in column names for new ones
-nameswap <- function(old, new, Data) {
-  older<-colnames(Data)[grep(old, colnames(Data))]
-  newer <- gsub(old, new, older)
-  setnames(Data, older, newer)
-}
 
-#change names of columns in output table
-nameswap("Food1", "Food add", outall)
-nameswap("winterday", "Day", outall)
-nameswap("Wass", "Body mass", outall)
-nameswap("haredensity", "Hare density", outall)
-nameswap("mortrate", "Mortality Rate", outall)
-nameswap("rsq", "R2", outall)
+setcolorder(outall, c("Model", "phasepeak", "phasedecrease", "haredensity", "mortrate", "Weight", "Food1", "SD", "rsq"))
+names(outall) <- c("Model", "Phase peak", "Phase decrease", "Hare density", "Mortality rate", 
+                   "Weight", "Food add", "Snow depth", "R2")
 
-setcolorder(outall, c("Model", ))
+
