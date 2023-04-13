@@ -2,7 +2,8 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
-#read in cam snow data
+#Prep---------------------------------------------------------------
+#read in snow camera data
 sd<-fread("Data/liam_test_data/BOUTIN_Kluane_image_report.csv")
 #only keep timelapse photos
 sd<-sd[trigger == "Time Lapse"]
@@ -23,6 +24,8 @@ sd3<-rbind(sd1, sd2)
 sd3[, date := tstrsplit(date_detected, " ", keep=1)]
 sd3[, time := tstrsplit(date_detected, " ", keep=2)]
 
+#Investigate data per location--------------------------------------------------
+
 #get unique locations and years for timelapse data
 un<-sd3[, unique(location), by=yr]
 #check whether only 1 image per date
@@ -41,8 +44,8 @@ sd3<-sd3[dup == FALSE | is.na(dup)]
 locs<-c("CH", "C10_6", "B11_1", "A10_4", "A9_3", "B9", "SU", "B8_1", "A7_5")
 sd3r<- sd3[location %in% locs]
 
-# test<-sd3r[c(1, 236:239, 340:342)]
-# dat<-sd3r[c(1, 236:239, 340:342)]
+test<-sd3r[c(1, 236:239, 340:342)]
+
 # l="B9"
 # loc.col<-"location"
 # url.col = "image_url(admin only)"
@@ -50,7 +53,10 @@ sd3r<- sd3[location %in% locs]
 #get identifier column for each image (e.g., date or datetime)
 setnames(sd3r, "location", "location")
 setnames(sd3r, "image_url(admin only)", "image_url")
+sd3r[, date := ymd(date)]
 setnames(sd3r, "date", "image_id")
+test<-sd3r[c(1, 236:239, 340:342)]
+
 
 
 download.images<- function(dat, file.path) {
@@ -95,6 +101,10 @@ download.images<- function(dat, file.path) {
     }
   }
 }
+
+# cant have \ / : * ? " < > |
+
+download.images(dat=test, file.path = "../../../Desktop/jules test/")
 
 #run the functino for each folder you want downloaded
 # download.images(dat=sd3r, file.path = "Data/liam_test_data/snow depth camera downloads/")
