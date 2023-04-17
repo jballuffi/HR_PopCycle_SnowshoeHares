@@ -1,4 +1,4 @@
-snow_grid,location,date_detected,snow_depth_cm,Observer,Comments
+snowgrid,location,date_detected,snow_depth_cm,Observer,Comments
 Agnes,A10_4,10/1/2019 11:00,0,LGH,
 Agnes,A10_4,10/2/2019 11:00,0,LGH,
 Agnes,A10_4,10/3/2019 11:00,0,LGH,
