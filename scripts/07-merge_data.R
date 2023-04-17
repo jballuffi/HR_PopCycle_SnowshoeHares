@@ -86,6 +86,8 @@ setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 DT3[, dup := duplicated(date), id]
 DT3 <- DT3[dup == FALSE]
 
+
+
 # merge in snow depth data ------------------------------------------------
 
 #for home range data, when grid is one of the snow grids, just copy to new col snow grid
