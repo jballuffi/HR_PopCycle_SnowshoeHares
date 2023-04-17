@@ -102,9 +102,6 @@ setorder(snow, "snowgrid", "Date")
 setnames(snow, "Date", "snowdate")
 #setnames(snow, "snowgrid", "grid")
 
-#fill in missing snow depths with the last value (calls backwards in time)
-snow[, SD := nafill(SD, "locf"), by = c("winter", "snowgrid")]
-
 
 #function to pull mean snowdepth from the full week of home range data 
 weeklysnow <- function(weekdate, grid) {
