@@ -6,7 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #import trapping data
 trapping <- fread("data/Trapping_data_all_records.csv")
-#for sex column, 1 = male, 2 = female, 0 = no data
+#for sex column, 1 = male, 2 = female, 0 = no data #these are correct codes; LGH checked Apr26/2023
 
 #read in HR areas
 areas <- readRDS("output/results/hrareas.rds")
@@ -17,10 +17,9 @@ areas <- readRDS("output/results/hrareas.rds")
 #make eartag a factor
 trapping[, id := as.factor(Eartag)]
 
-#for sex: 0 = no data, 1 = female, 2 = male 
 #turn 0s to NAs
 trapping[Sex == 0, Sex := NA]
-#get mode by ID, this function doesnt account for NAs
+#get mode of sex by id to remove any erroenous sex, this function doesnt account for NAs
 trapping[, Sex := getmode(Sex), by = id]
 #change to factor
 trapping[, Sex := as.factor(Sex)]
