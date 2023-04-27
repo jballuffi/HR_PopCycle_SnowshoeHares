@@ -2,11 +2,16 @@
 # script that prepares the *already cleaned* gps data for all aspects of analysis
 
 #THINGS TO CHECK ON ALEC'S CLEANING SCRIPT:
+#before clean anything, is it possible to see if we even have  some of the data we're missing at the start?
+#how does the mean_n_locs function fit into the check locs script?
 #satellite threshold should be 3, not 2?
-#why so many 'locs outside of deployment'?
+#why so many 'locs outside of deployment'?, 'and what is within depoloyment is NA'
 #removing if less than 4 locs in 2 mins should be after DOP removal, b/c DOP removal 
-             #could drop number of locs below 4? 
+             #could drop number of locs below 4? not really sure how remove less than 4 code wortks
+# the burst is by 1 day, but it doesnt remove any points?
+#in flag counts does NA flag mean data is good, or it was a generic NA flag?
 #remove points after mortality - use axy data from Emily??
+#obvi numbers inflated because of the 10 fixes for every fix system, but still a lot
 
 
 #source the R folder to load any packages and functions
