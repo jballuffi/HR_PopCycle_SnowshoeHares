@@ -10,12 +10,14 @@ source("scripts/04-extract_weights.R")
 
 source("scripts/05-food_adds.R")
 
-source("scripts/06-merge_data.R")
+source("scripts/06-snow_depth.R")
 
-source("scripts/07-system_plots.R")
+source("scripts/07-merge_data.R")
 
-source("scripts/08-homerange_plots.R")
+source("scripts/08-system_plots.R")
 
-source("scripts/09-stats.R")
+source("scripts/09-homerange_plots.R")
+
+source("scripts/10-stats.R")
 
 source("scripts/10-stats_by_winter.R")
