@@ -4,6 +4,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in prepped GPS data
 ours <- fread("data/compiled 2015-22_collarmastersheet.csv")
+ours[, source := "us"]
 sm1518 <- fread("data/liam_test_data/Sho2015-18_Mikesheet.csv")
 sm1518[, source:="mike"]
 sy1518 <- fread("data/liam_test_data/Sho2015-18_Yassheet.csv")
@@ -15,62 +16,62 @@ s1819 <- fread("data/liam_test_data/Sho2018-19.csv")
 s1819[, source := "sho"]
 
 
-#convert to date
-ours[, Date := lubridate::dmy(`Date Off Bunny`)]
+#convert to date based on Date GPS On
+ours[, Date := lubridate::dmy(`Date GPS On`)]
 ours[, yr := lubridate::year(Date)]
 ours[, mnth := lubridate::month(Date)]
-ours<-ours[yr <=2019 ]
-ours[, source := "us"]
+#keep 3 NAs bc maybe just the metadata missing
+ours19<-ours[yr < 2020 | is.na(yr)] #remove after 2019
+ours19<-ours19[!(yr == 2019 & mnth >9) | is.na(yr)]
 
 
-
-#just trying to get sho's data because there were multiple sheets
+#compiling sho's data because there were multiple sheets
 smy1518<-rbind(sm1518, sy1518)
 all<-rbind(smy1518, s1819)
 
 mys<-all[, .(`Bunny ID`, GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`, source)]
-mys[, dup:=duplicated(`Bunny ID`), by=.(GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`)]
-mys <- mys[!is.na(`Bunny ID`)]
-mys[, unique(dup)]
-
 #remove non deployed collars
 mys[, unique(`Bunny ID`)]
+mys <- mys[!is.na(`Bunny ID`)]
 mys<-mys[`Bunny ID` != "Not Deployed"]
+
+#check for duplicates
+mys[, dup:=duplicated(`Bunny ID`), by=.(GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`)]
+mys[, unique(dup)] # no duplicates
+
 
 #remove rows with no GPS
 mys<-mys[`Date GPS On` != "-"] #some say AUDIO as the GPS ID but have a Date GPS On
-mys<-mys[`Date GPS On` != ""]
-mys[, dup2:=duplicated(`Bunny ID`), by=.(GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`)]
-mys[, unique(dup2)]
-mys[is.na(GPS), GPS := "NoID"]
+mys<-mys[!(`Date GPS On` == "" & GPS=="")]
+mys[is.na(GPS), GPS := "NoIDListed"] #no GPS ID, but has a date gps on
 mys<-mys[, .(`Bunny ID`, GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`, source)] #remove dup cols
 setnames(mys, "Bunny ID", "id")
 
-mys[, unique(GRID)]
-ours[, unique(GRID)]
-
-sub.ours<-ours[, .(`Bunny ID`, GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`, source)]
-sub.ours[is.na(GPS), GPS := "NoID"]
+o19<-ours19[, .(`Bunny ID`, GRID, GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`, source)]
+o19[is.na(GPS), GPS := "NoIDListed"]#no GPS ID, but has a date gps on
+setnames(o19, "Bunny ID", "id")
 
 #make data formats consistent
-sub.ours[, id := gsub('B', '2', `Bunny ID`)]
-sub.ours[, start.date := lubridate::dmy(`Date on Bunny`)]
-sub.ours[, end.date := lubridate::dmy(`Date Off Bunny`)]
-sub.ours[, date.gps.on := lubridate::dmy(`Date GPS On`)]
-sub.ours<-sub.ours[, .(id, GRID, GPS, start.date, end.date, date.gps.on, source)]
+o19[, id := gsub('B', '2', id)]
+o19[, start.date := lubridate::dmy(`Date on Bunny`)]
+o19[, end.date := lubridate::dmy(`Date Off Bunny`)]
+o19[, date.gps.on := lubridate::dmy(`Date GPS On`)]
+o19<-o19[, .(id, GRID, GPS, start.date, end.date, date.gps.on, source)] #get renamed cols
 
 
 mys[, start.date := lubridate::dmy(`Date on Bunny`)]
 mys[, end.date := lubridate::dmy(`Date Off Bunny`)]
 mys[, date.gps.on := lubridate::dmy(`Date GPS On`)]
-mys<-mys[, .(id, GRID, GPS, start.date, end.date, date.gps.on, source)]
+mys<-mys[, .(id, GRID, GPS, start.date, end.date, date.gps.on, source)] #get renamed cols
 
 
 #test if our and theirs line up
-com<-rbind(sub.ours, mys)
-com[, dup:=duplicated(`Bunny ID`), by=.(GPS, `Date GPS On`, `Date on Bunny`, `Date Off Bunny`)]
+com2<-merge(o19, mys, by=c("id", "start.date", "end.date", "date.gps.on", "GPS", "GRID"), all=T)
+good<-com2[!is.na(source.x) & !is.na(source.y)]
+bad<-com2[is.na(source.x) | is.na(source.y)]
 
-com2<-merge(sub.ours, mys, by=c("id", "start.date", "end.date", "date.gps.on", "GPS", "GRID"), all=T)
-op<-com2[is.na(source.x) | is.na(source.y)]
-com2[is.na(source.x)]
-com2[is.na(source.y)]
+
+#all this really means is that the metadata sho just gave us isn't quite the same as what mike and emily gave us.
+#and for any slight discrepancies in the "bad", we probably side with sho's data bc it's published? 
+#We can also cross reference with the actual data when there is a big discrepancy like 1 month,
+#it could be that our data acknowledges a mortality for the end data or something that sho was unaware of
