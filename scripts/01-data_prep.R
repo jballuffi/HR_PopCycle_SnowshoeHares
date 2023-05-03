@@ -52,20 +52,26 @@ names(grids) <- c("id", "grid")
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 
-
 # calculate time differences in data and sample periods ------------------------------------------------
 
 #calculate the difference in days from first day of a winter
-gps[, diffday := idate - min(idate), by = splityear]
+gps[, diffday := idate - min(idate), by = deploy_id]
+gps[, max(diffday)]
 
 #cut diffday into weeks
-gps[, week := cut(diffday, breaks = c(-1, 6, 13, 20, 27, 34, 41, 48, 55, 62))]
+gps[, week := cut(diffday, breaks = seq(-1, 200, by = 7))] #use 200 bc far above max diff day w/ or w/o deployID
 
 #calculate how many days are in each week using number of unique dates
-gps[, weeklength := length(unique(idate)), by = .(id, winter, week)]
+gps[, weeklength := length(unique(idate)), by = .(deploy_id, week)]
 
 #take only weeks that have over 6 days of sampling
-gps <- gps[weeklength > 6]
+gps <- gps[weeklength > 6] #174496 w/o deployid; 181676 w deployid
+
+#get number of full weeks per deployid
+gps[, n.hare.weeks := uniqueN(week), by=deploy_id]
+#how many full weeks total
+nw<- gps[, unique(n.hare.weeks), by=deploy_id]
+nw[, sum(V1)] #637 hare weeks w/o deployid; 654 hare weeks w/ deployid
 
 #average the date for each week
 gps[, weekdate := mean(idate), by = .(id, winter, week)]
