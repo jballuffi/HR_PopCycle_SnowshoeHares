@@ -1,17 +1,6 @@
 
-# script that prepares the *already cleaned* gps data for all aspects of analysis
-
-#THINGS TO CHECK ON ALEC'S CLEANING SCRIPT:
-#before clean anything, is it possible to see if we even have  some of the data we're missing at the start?
-#how does the mean_n_locs function fit into the check locs script?
-#satellite threshold should be 3, not 2?
-#why so many 'locs outside of deployment'?, 'and what is within depoloyment is NA'
-#removing if less than 4 locs in 2 mins should be after DOP removal, b/c DOP removal 
-             #could drop number of locs below 4? not really sure how remove less than 4 code wortks
-#is the burst threshold  1 day? Does itremove any points?
-#in flag counts does NA flag mean data is good, or it was a generic NA flag?
-#remove points after mortality - use axy data from Emily??
-#obvi numbers inflated because of the 10 fixes for every fix system, but still a lot
+# script that imports cleaned GPS data from the prepare-locs scripted (Authored by Alec Robitaille)
+# and prepares data for home range size analysis
 
 
 #source the R folder to load any packages and functions
@@ -51,9 +40,6 @@ gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 #grab only winter
 gps <- gps[!is.na(winter)]
 
-#remove any fixes not allocated to a burst (not doing this anymore)
-#gps <- gps[!is.na(burst)]
-
 
 
 # merge with trapping data to get grid ------------------------------------
@@ -66,20 +52,14 @@ names(grids) <- c("id", "grid")
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 
+
 # calculate time differences in data and sample periods ------------------------------------------------
 
 #calculate the difference in days from first day of a winter
 gps[, diffday := idate - min(idate), by = splityear]
 
-#calculate the length of each burst
-#gps[, burstlength := max(idate) - min(idate), by = splitburst]
-
-#remove any bursts that are less than a week long
-#gps <- gps[burstlength >= 7]
-
 #cut diffday into weeks
-gps[, weekl := cut(diffday, breaks = c(-1, 6, 13, 20, 27, 34, 41, 48, 55, 62))]
-
+gps[, week := cut(diffday, breaks = c(-1, 6, 13, 20, 27, 34, 41, 48, 55, 62))]
 
 #calculate how many days are in each week using number of unique dates
 gps[, weeklength := length(unique(idate)), by = .(id, winter, week)]
@@ -89,9 +69,6 @@ gps <- gps[weeklength > 6]
 
 #average the date for each week
 gps[, weekdate := mean(idate), by = .(id, winter, week)]
-
-#calculate week length
-#gps[, weeklength := max(idate) - min(idate), by = .(id, weekdate)]
 
 #create split week
 splitweek <- c("id", "winter", "week")
