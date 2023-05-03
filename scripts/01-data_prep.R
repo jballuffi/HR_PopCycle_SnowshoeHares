@@ -99,30 +99,25 @@ gps[, prev_y_proj := shift(y_proj, n = 1, type = "lag"), by = splitweek]
 gps[, sl := sqrt((prev_x_proj - x_proj)^2 + (prev_y_proj - y_proj)^2)] 
 
 #create speed column
-gps[, speed := sl/difffix, by = splitweek]
+gps[, speed := sl/difffix]
 
 
 # clean out unrealistic movements -----------------------------------------
 
-181676-179658
+#flag cases where fix rate is zero minutes
+# gps <- gps[difffix != 0 | is.na(difffix)]
+# gps[difffix ==0]
 
 
-#remove cases where fix rate is zero minutes
-gps1 <- gps[difffix != 0 | is.na(difffix)]
-te <- gps[difffix ==0]
-
-
-#define the upper quantile of speed
-quant <- quantile(gps$speed, probs = 0.995, na.rm = TRUE)
-#remove remove speeds greater than the 99.5% percentile
-gps<- gps[speed <= quant]
+#remove remove speeds greater than 750 meter/min (top speed is 45kph)
+gps<- gps[speed <= 750 | is.na(speed) | speed == Inf]
 
 
 #add cols for median fixrate, mode fixrate, median steplength, median speed
-gps[, med.fixrate := median(difffix), by = splitweek]
-gps[, modeFR := getmode(difffix), by = splitweek]
-gps[, med.sl := median(sl), by = splitweek]
-gps[, med.speed := median(speed), by = splitweek]
+gps[!is.na(difffix), med.fixrate := median(difffix), by = splitweek]
+gps[!is.na(difffix), modeFR := getmode(difffix), by = splitweek]
+gps[!is.na(sl), med.sl := median(sl), by = splitweek]
+gps[!is.na(speed) & speed != Inf, med.speed := median(speed), by = splitweek]
 
 
 #Compare median and mode fixdiff to determine real fix rates
