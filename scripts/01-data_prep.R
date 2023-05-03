@@ -77,7 +77,7 @@ nw[, sum(V1)] #637 hare weeks w/o deployid; 654 hare weeks w/ deployid
 gps[, weekdate := mean(idate), by = .(id, winter, week)]
 
 #create split week
-splitweek <- c("id", "winter", "week")
+splitweek <- c("deploy_id", "week")
 
 
 # fix rates, step length and speed ---------------------------------------------------------------
@@ -86,6 +86,8 @@ setorder(gps, datetime)
 gps[, prevfix := shift(datetime, n = 1, type = "lag"), by = splitweek] #take time before , for each fix
 gps[, difffix := as.numeric(round(difftime(datetime, prevfix, units = 'mins')))] #calculate difference between previous time and current time
 gps[difffix < 100, hist(difffix)]
+gps[, n.fixes := nrow(.SD), .(week, deploy_id)]
+gps[, hist(n.fixes)]
 #a lot of zero fix rates - they should have been removed in prep_locs?
 
 #put previous coordinates in new column
@@ -102,16 +104,13 @@ gps[, speed := sl/difffix, by = splitweek]
 
 # clean out unrealistic movements -----------------------------------------
 
-#remove outlier fixes based on distribution of easting and northings
-#eastings
-gps <- gps[x_proj > 300000 & x_proj < 342000] #removed 10
-#northings
-gps <- gps[y_proj > 6750000 & y_proj < 6770000] #removed 2 more
-#check why one mean y_lat became 0 when just y_lat was non-zero???
+181676-179658
 
 
 #remove cases where fix rate is zero minutes
-gps <- gps[!difffix == 0]
+gps1 <- gps[difffix != 0 | is.na(difffix)]
+te <- gps[difffix ==0]
+
 
 #define the upper quantile of speed
 quant <- quantile(gps$speed, probs = 0.995, na.rm = TRUE)
