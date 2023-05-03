@@ -8,7 +8,7 @@
 #why so many 'locs outside of deployment'?, 'and what is within depoloyment is NA'
 #removing if less than 4 locs in 2 mins should be after DOP removal, b/c DOP removal 
              #could drop number of locs below 4? not really sure how remove less than 4 code wortks
-# the burst is by 1 day, but it doesnt remove any points?
+#is the burst threshold  1 day? Does itremove any points?
 #in flag counts does NA flag mean data is good, or it was a generic NA flag?
 #remove points after mortality - use axy data from Emily??
 #obvi numbers inflated because of the 10 fixes for every fix system, but still a lot
@@ -51,7 +51,7 @@ gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 #grab only winter
 gps <- gps[!is.na(winter)]
 
-#remove any fixes not allocated to a burst
+#remove any fixes not allocated to a burst (not doing this anymore)
 #gps <- gps[!is.na(burst)]
 
 
@@ -68,7 +68,7 @@ gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
-#calculate the difference in days from first day of a burst
+#calculate the difference in days from first day of a winter
 gps[, diffday := idate - min(idate), by = splityear]
 
 #calculate the length of each burst
@@ -78,7 +78,8 @@ gps[, diffday := idate - min(idate), by = splityear]
 #gps <- gps[burstlength >= 7]
 
 #cut diffday into weeks
-gps[, week := cut(diffday, breaks = c(-1, 7, 14, 21, 28, 35, 42, 49, 56))]
+gps[, weekl := cut(diffday, breaks = c(-1, 6, 13, 20, 27, 34, 41, 48, 55, 62))]
+
 
 #calculate how many days are in each week using number of unique dates
 gps[, weeklength := length(unique(idate)), by = .(id, winter, week)]
