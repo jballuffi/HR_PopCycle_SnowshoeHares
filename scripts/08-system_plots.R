@@ -11,7 +11,9 @@ snow <- readRDS("data/snowgrids.rds")
 phases <- DT[, getmode(phase), winter]
 setnames(phases, "V1", "phase")
 snow <- merge(snow, phases, by = "winter", all.x = TRUE)
-snow <- snow[!winter == "2014-2015"]
+
+#remove winter with no collar data from snow data
+snow <- snow[!winter == "2014-2015" & !winter == "2021-2022"]
 
 #reorder phase cycles
 DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
@@ -19,12 +21,15 @@ DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 #set colors for cycle phases
 cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "red3")
 
+
+
 # plot showing animal densities by winter ----------------------------------
 
 #pull means by year
 wintermeans <- densities[, .(mean(haredensity), mean(mortrate, na.rm = TRUE), phase), by = winter]
 names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
-
+#remove winter with no collar data
+wintermeans <- wintermeans[!winter == "2021-2022"]
 
 #hare density over time
 (h <- ggplot(wintermeans)+
@@ -56,7 +61,6 @@ names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
   labs(x = "Winter", y = "Body mass (g)")+
   theme_boxplots)
 
-###2020-2021 onward is from transect data. Will be replaced with camera trap data
 (sd <- ggplot(snow)+
   geom_boxplot(aes(x = winter, y = SD, color = phase))+
   scale_color_manual(values = cols)+
