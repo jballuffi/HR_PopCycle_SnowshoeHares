@@ -65,7 +65,7 @@ gps.sub <- gps[, unique(deploy_id), by = .(id, winter, week, fixrate, n.fixes)]
 setnames(gps.sub, "V1", "deploy_id") #change column name
 
 #merge the fix rates with the HR areas
-FRsplit <- c("deploy_id", "week")
+FRsplit <- c("deploy_id", "week", "id", "winter")
 areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 
