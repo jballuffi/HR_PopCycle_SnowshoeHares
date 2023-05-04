@@ -1,5 +1,6 @@
 
 #script to collect snow data that was measured by the team every day on agnes, jo, and kloo
+#and fill in later years with camera data
 
 
 #source the R folder to load any packages and functions
@@ -64,7 +65,7 @@ setnames(snowgrids, "OPEN SD", "SD")
 #cut to just three columns of interest
 gsnow <- snowgrids[, .(Date, snowgrid, SD)]
 gsnow[, source := "ground"]
-
+gsnow<-gsnow[!is.na(SD)] #remove no data from grids
 
 
 # clean up camera trap data --------------------------------------------------
