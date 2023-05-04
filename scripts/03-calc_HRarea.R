@@ -61,11 +61,11 @@ mcpkernel <- merge(mcpfull2, kernelfull2, by = weeksplit)
 # Get fix rates for each burst and merge with results ---------------------
 
 #obtain unique info for fix rates
-gps.sub <- gps[, unique(id), by = .(winter, week, fixrate)]
-setnames(gps.sub, "V1", "id") #change column name
+gps.sub <- gps[, unique(deploy_id), by = .(id, winter, week, fixrate, n.fixes)]
+setnames(gps.sub, "V1", "deploy_id") #change column name
 
 #merge the fix rates with the HR areas
-FRsplit <- c("id", "winter", "week")
+FRsplit <- c("deploy_id", "week")
 areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 
@@ -80,8 +80,14 @@ ggplot(areas) +
   geom_jitter(aes(x= fixrate, y = K90), colour="red", width = 0.5) +
   geom_jitter(aes(x= fixrate, y = K75), colour="green", width = 0.5) +
   geom_jitter(aes(x= fixrate, y = K50), colour="blue", width = 0.5) 
+
 #look into whether smaller HRs for 5 min FR is just because of smaller total 
 #number of fixes???
+ggplot(areas) +
+  geom_jitter(aes(x= n.fixes, y = M90), colour="red", width = 0.5) +
+  geom_jitter(aes(x= n.fixes, y = M75), colour="green", width = 0.5) +
+  geom_jitter(aes(x= n.fixes, y = M50), colour="blue", width = 0.5) +
+  coord_cartesian(ylim = c(0, 100))
 
 #plot home range sizes of kernels against MCPS
 ggplot(areas)+
