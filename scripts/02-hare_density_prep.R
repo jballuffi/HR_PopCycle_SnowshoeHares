@@ -35,9 +35,6 @@ hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
 hdensity[, winterday := date - min(date), winter]
 hdensity[, winterday := as.integer(winterday)]
 
-#recalculate hare density from hectare to 100km2
-hdensity[, haredensity := haredensity*10000]
-
 
 # get mortality rates by month for predation risk -------------------------
 
