@@ -107,8 +107,9 @@ snowfull[is.na(SD), .N, by = .(snowgrid, winter)]
 #fill in missing snow depths with the last value (calls backwards in time)
 snowfull[, SD := nafill(SD, "locf"), by = c("snowgrid", "winter")]
 
-#in Jo november of 2018, make snow depth 0
-snowfull[snowgrid == "Jo" & month(Date) == 11 & winter == "2018-2019", SD := 0]
+#in november of 2018, make snow depth 0.
+#this month was empty but there was very little snow at the start of that december
+snowfull[month(Date) == 11 & winter == "2018-2019", SD := 0]
 
 
 
