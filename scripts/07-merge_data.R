@@ -83,7 +83,7 @@ setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 
 #remove some duplicates from this merge. Not sure how they happened
 DT3[, dup := duplicated(date), id]
-DT3 <- DT3[dup == FALSE]
+DT3 <- DT3[dup == FALSE] # are HRs are removed that had no weight data
 
 
 
