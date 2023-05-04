@@ -2,14 +2,33 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
-#read in prepped GPS data
-gps <- readRDS("Data/all_gps.rds")
+#read in prepped GPS data (just from prep locs)
+#create file path to cleaned gps data from the prepare locs project
+files <- dir("../prepare-locs-kluane-hares/output/", full.names = TRUE)
+
+#fread the list of files using lapply
+ls.files<-lapply(files, fread)
+
+#rbind the list of files
+gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
+
+#overwrite id column with animal
+gps[, id := animal]
+
+#categorize fixes into winters
+gps[mnth > 10, winter := paste0(yr, "-", yr+1)]
+gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
+
+#grab only winter
+gps <- gps[!is.na(winter)]
+
+
 #read in sho data
 shogps<-fread("Data/liam_test_data/Female Hare GPS locations for Chapter 1.csv")
 #convert to date
 shogps[, Date := lubridate::mdy_hm(datetime)]
 shogps[, mnth := lubridate::month(Date)]
-#categorize fixes into winters
+#clip sho's to our winter
 shogps<-shogps[mnth > 10 | mnth <4]
 
 # look into IDs
@@ -55,6 +74,7 @@ pid<- c(shogps[ID %in% u108 == FALSE, unique(ID)], idbw[gps %in% u110 == FALSE, 
 #subet our data to shotaro's winters
 showinters<-c("2015-2016", "2016-2017", "2017-2018", "2018-2019")
 us<-gps[winter %in% showinters]
+us[, uniqueN(id), winter]
 us[id %in% pid == TRUE, unique(id)] #missing 30341, 25689, and 2847 (last one probably meant to be 22847)
 
 
@@ -76,16 +96,18 @@ dr<-shogps[, .(min(Date), max(Date), .N), by=.(ID, winter)]
 setnames(dr, c("ID", "V1", "V2", "N"), c("id", "sho.min.dt", "sho.max.dt", "sho.N.fixes"))
 mdr<-merge(usid, dr, by=c("id", "winter"), all=T )
 
-mdr[is.na(us.min.dt), uniqueN(id), by=winter] #82 IDs by winter sho has that we dont?
-mdr[is.na(sho.min.dt), uniqueN(id), by=winter] #18 IDs by winter we have that sho doesn't
-mdr[!is.na(sho.min.dt) & !is.na(us.min.dt), uniqueN(id), by=winter] #65 IDs by winter we both have
+#updated may 4
+mdr[is.na(us.min.dt), uniqueN(id), by=winter] #30 (used to be 82) IDs by winter sho has that we dont?
+mdr[is.na(sho.min.dt), uniqueN(id), by=winter] #39 (used to be 18) IDs by winter we have that sho doesn't
+mdr[!is.na(sho.min.dt) & !is.na(us.min.dt), uniqueN(id), by=winter] #117 (used to be 65) IDs by winter we both have
 mdr[!is.na(sho.min.dt) & !is.na(us.min.dt), fix.diff.N := abs(us.N.fixes - sho.N.fixes), by=winter] 
+
+us[, uniqueN(id), winter] #but the mtching is stil not great for 2018-2019 (45 for sho vs 28 for us)
+shogps[, uniqueN(ID), winter]
+
 #but when we share IDs in a winter, the number of fixes are usually very different
 # export this
 write.csv(mdr, "data/liam_test_data/haregps_comparingtoSho.csv")
-
-
-
 
 
 
