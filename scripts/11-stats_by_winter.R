@@ -6,8 +6,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
 dat <- dat[!M90 > 20]
-#FOR NOW...
-dat <- dat[!phase == "low"]
+#dat <- dat[!phase == "low"]
+
 
 
 
@@ -35,14 +35,23 @@ makeAIC <- function(hr, p, c, w, s, f){
   AIC <- AIC %>% mutate_if(is.numeric, round, digits=3) #round whole table to 3 digits
   
   #which models are less than 2 delta AIC? 
-  topmods <- AIC[Delta_AICc < 2, return((Modnames))]
+  #topmods <- AIC[Delta_AICc < 2, return((Modnames))]
+  
+  return(AIC)
 
   }
 
-dat[, makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food), by = phase]
+increase <- dat[phase == "increase", makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food)]
 
 
 
+
+dat[phase == "peak", makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food)]
+
+dat[phase == "decrease", makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD, f = Food)]
+
+#in order to run the models in the low you must remove food add as a factor
+#dat[phase == "low", makeAIC(hr = M90, p = mortrate, c = haredensity, w = Weight, s = SD)]
 
 
 
