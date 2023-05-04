@@ -24,10 +24,12 @@ Collar deployment began in November of 2015 and occurred every winter until Marc
 
 Home range results across all cycle phases
 
-Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 3). The AIC comparison ranked the competition-resource model to be the most parsimonious for explaining cross-phase home range sizes.
+Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 3). The AIC comparison ranked the competition-resource model to be the most parsimonious for explaining cross-phase home range sizes. All other models had delta-AICs \> 2 (Table 1). The top model, competition-resource, had an R2 of `r round((rsq(comp_res), 2)` . In this model, home range size had a negative relationship to hare density (insert stat) in addition to snow depth (Figure 4). Neither body weight, food add, nor their interaction had an effect on home range size (Table 2).
 
 ![Figure 1. Summary figures of predator-prey densities over the sampled years.](output/figures/densities.jpeg)
 
-![Figure 2. Summary figures of resource variables over the sampled years.](output/figures/resource.jpeg)
+![Figure 2. Resource variables over the sampled years.](output/figures/resource.jpeg)
 
 ![Figure 3. Home range by year.](output/figures/HRbyyear.jpeg)
+
+![Figure 4. Trends for home range size across the cycle](output/figures/HRcrosscycle.jpeg)
