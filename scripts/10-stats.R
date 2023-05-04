@@ -14,7 +14,7 @@ dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 # correlation test --------------------------------------------------------
 
 #subset data to only variables that we need to test co linearity on (numeric only)
-forcor <- dat[, .(haredensity, mortrate, Weight, SD, year(date))]
+forcor <- dat[, .(haredensity, mortrate, Weight, SD)]
 
 #run correlation, look at matrix style output
 round(cor(forcor, use = "complete.obs"), digits = 2)
@@ -62,8 +62,8 @@ outall <- outall[!Model == "Null"]
 outall[, V1 := NULL]
 
 
-setcolorder(outall, c("Model", "phasepeak", "phasedecrease", "haredensity", "mortrate", "Weight", "Food1", "SD", "rsq"))
-names(outall) <- c("Model", "Phase peak", "Phase decrease", "Hare density", "Mortality rate", 
+setcolorder(outall, c("Model", "phasepeak", "phasedecrease", "phaselow", "haredensity", "mortrate", "Weight", "Food1", "SD", "rsq"))
+names(outall) <- c("Model", "Phase peak", "Phase decrease", "Phase low", "Hare density", "Mortality rate", 
                    "Weight", "Food add", "Snow depth", "R2")
 
 
