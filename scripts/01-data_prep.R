@@ -1,7 +1,7 @@
 
 # script that imports cleaned GPS data from the prepare-locs scripted (Authored by Alec Robitaille)
 # and prepares data for home range size analysis
-
+#authors: Juliana Balluffi-Fry and Liam Horne
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -26,8 +26,7 @@ trapping <- fread("data/Trapping_data_all_records.csv")
 
 # Reduce and categorize data -----------------------------------------------------
 
-#variables that we are splitting calculations by
-splitburst <- c("id", "winter", "burst")
+#If we want to run something by id and winter only. We use to use this but switched to using deploy_id
 splityear <- c("id", "winter")
 
 #overwrite id column with animal
@@ -54,9 +53,9 @@ gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
-#calculate the difference in days from first day of a winter
+#calculate the difference in days from first day of a deployment
 gps[, diffday := idate - min(idate), by = deploy_id]
-gps[, max(diffday)]
+gps[, maxdiffday := max(diffday), by = deploy_id]
 
 #cut diffday into weeks
 gps[, week := cut(diffday, breaks = seq(-1, 200, by = 7))] #use 200 bc far above max diff day w/ or w/o deployID
@@ -68,19 +67,20 @@ gps[, weeklength := length(unique(idate)), by = .(deploy_id, week)]
 gps <- gps[weeklength > 6] #174496 w/o deployid; 181676 w deployid
 
 #get number of full weeks per deployid
-gps[, n.hare.weeks := uniqueN(week), by=deploy_id]
+gps[, n.hare.weeks := uniqueN(week), by = deploy_id]
+
 #how many full weeks total
-nw<- gps[, unique(n.hare.weeks), by=deploy_id]
+nw <- gps[, unique(n.hare.weeks), by = deploy_id]
 nw[, sum(V1)] #637 hare weeks w/o deployid; 654 hare weeks w/ deployid
 
 #average the date for each week
-gps[, weekdate := mean(idate), by = .(id, winter, week)]
+gps[, weekdate := mean(idate), by = .(deploy_id, week)]
 
 #create split week
-splitweek <- c("deploy_id", "week")
+splitweek <- c("id", "winter", "weekdate")
 
 
-# fix rates, step length and speed ---------------------------------------------------------------
+# calculate fix rates, step length and speed ---------------------------------------------------------------
 setorder(gps, datetime)
 
 gps[, prevfix := shift(datetime, n = 1, type = "lag"), by = splitweek] #take time before , for each fix
@@ -104,14 +104,8 @@ gps[, speed := sl/difffix]
 
 # clean out unrealistic movements -----------------------------------------
 
-#flag cases where fix rate is zero minutes
-# gps <- gps[difffix != 0 | is.na(difffix)]
-# gps[difffix ==0]
-
-
 #remove remove speeds greater than 750 meter/min (top speed is 45kph)
-gps<- gps[speed <= 750 | is.na(speed) | speed == Inf]
-
+gps <- gps[speed <= 750 | is.na(speed) | speed == Inf]
 
 #add cols for median fixrate, mode fixrate, median steplength, median speed
 gps[!is.na(difffix), med.fixrate := median(difffix), by = splitweek]
