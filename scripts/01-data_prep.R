@@ -76,14 +76,49 @@ nw[, sum(V1)] #637 hare weeks w/o deployid; 654 hare weeks w/ deployid
 #average the date for each week
 gps[, weekdate := mean(idate), by = .(deploy_id, week)]
 
+#Correct deploy_ids that are clearly two collars ------------------------
+#get list of days per deploy_id
+s<-gps[, unique(idate), deploy_id]
+setnames(s, "V1", "u.idate")
+
+#check for large gaps between days
+setorder(s, u.idate)
+s[, prev.date := shift(u.idate, n = 1, type = "lag"), by = deploy_id] 
+s[, dd := u.idate-prev.date]
+ss<-s[dd>1] #get gaps larger than 1 day
+di<-s[dd>1, deploy_id] #get deploy ids for these gaps
+dd<-s[dd>1, u.idate] #get the first date after a large gap
+
+qw<-gps[deploy_id %in% di] #get  deploy ids that have large gaps
+gps<-gps[deploy_id %notin% di] #temporarily remove these fixes with these deploy ids from gps
+q<-merge(qw, ss, by="deploy_id") #add the post-gap date to main data
+q[idate >= u.idate, deploy_id := paste0(id,"_",u.idate)] #make new deployment id when date is after the gap
+q2<-q[, c("u.idate", "dd", "prev.date") := NULL] #reduce cols for rbind
+gps<-rbind(gps, q2) #added 4 deploy IDs
+
+
+#RE-CALCULATE the difference in days from first day of a deployment
+gps[, diffday := idate - min(idate), by = deploy_id]
+#cut diffday into weeks
+gps[, week := cut(diffday, breaks = seq(-1, 200, by = 7))] 
+#calculate how many days are in each week using number of unique dates
+gps[, weeklength := length(unique(idate)), by = .(deploy_id, week)]
+#take only weeks that have over 6 days of sampling
+gps <- gps[weeklength > 6] #No change
+#get number of full weeks per deployid
+gps[, n.hare.weeks := uniqueN(week), by = deploy_id]
+#how many full weeks total
+nw <- gps[, unique(n.hare.weeks), by = deploy_id]
+nw[, sum(V1)] #No Change
+
+
+# calculate fix rates, step length and speed ---------------------------------------------------------
 #create split week
 splitweek <- c("id", "winter", "weekdate")
 
-
-# calculate fix rates, step length and speed ---------------------------------------------------------------
 setorder(gps, datetime)
 
-gps[, prevfix := shift(datetime, n = 1, type = "lag"), by = splitweek] #take time before , for each fix
+gps[, prevfix := shift(datetime, n = 1, type = "lag"), by = deploy_id] #take time before , for each fix
 gps[, difffix := as.numeric(round(difftime(datetime, prevfix, units = 'mins')))] #calculate difference between previous time and current time
 gps[difffix < 100, hist(difffix)]
 gps[, n.fixes := nrow(.SD), .(week, deploy_id)]
@@ -92,8 +127,8 @@ gps[, hist(n.fixes)]
 
 #put previous coordinates in new column
 setorder(gps, datetime)
-gps[, prev_x_proj := shift(x_proj, n = 1, type = "lag"), by = splitweek]
-gps[, prev_y_proj := shift(y_proj, n = 1, type = "lag"), by = splitweek]
+gps[, prev_x_proj := shift(x_proj, n = 1, type = "lag"), by = deploy_id]
+gps[, prev_y_proj := shift(y_proj, n = 1, type = "lag"), by = deploy_id]
 
 #calculate step length
 gps[, sl := sqrt((prev_x_proj - x_proj)^2 + (prev_y_proj - y_proj)^2)] 
@@ -108,10 +143,10 @@ gps[, speed := sl/difffix]
 gps <- gps[speed <= 750 | is.na(speed) | speed == Inf]
 
 #add cols for median fixrate, mode fixrate, median steplength, median speed
-gps[!is.na(difffix), med.fixrate := median(difffix), by = splitweek]
-gps[!is.na(difffix), modeFR := getmode(difffix), by = splitweek]
-gps[!is.na(sl), med.sl := median(sl), by = splitweek]
-gps[!is.na(speed) & speed != Inf, med.speed := median(speed), by = splitweek]
+gps[!is.na(difffix), med.fixrate := median(difffix), by = deploy_id]
+gps[!is.na(difffix), modeFR := getmode(difffix), by = deploy_id]
+gps[!is.na(sl), med.sl := median(sl), by = deploy_id]
+gps[!is.na(speed) & speed != Inf, med.speed := median(speed), by = deploy_id]
 
 
 #Compare median and mode fixdiff to determine real fix rates
@@ -121,6 +156,11 @@ gps[, unique(modeFR), by = med.fixrate]
 #so, resetting fix rate as the mode
 gps[, fixrate := modeFR]
 
+#fill in fixrate NAs by deploy_id (fix rate should be constant per deploy id)
+fr<-gps[!is.na(fixrate), unique(fixrate), deploy_id]
+c<-merge(gps, fr, by="deploy_id", all.x=T)
+gps<-c[, fixrate := V1]
+gps[, V1 := NULL]
 
 # Save compiled gps data --------------------------------------------------
 saveRDS(gps, "Data/all_gps.rds")
