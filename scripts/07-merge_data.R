@@ -92,7 +92,7 @@ DT3 <- DT3[dup == FALSE]
 
 #for home range data, when grid is one of the snow grids, just copy to new col snow grid
 DT3[grid == "Agnes" | grid == "Kloo" | grid == "Jo", snowgrid := grid]
-#all other grids and their closest snow grid, but where is leroy?
+#all other grids and their closest snow grid, but where is leroy (Mike said its closest to Kloo)
 DT3[grid == "Sulphur" | grid == "Rolo" | grid == "Chadbear" | grid == "Leroy", snowgrid := "Kloo"]
 DT3[grid == "Chitty", snowgrid := "Agnes"]
 
@@ -123,7 +123,6 @@ weeklysnow <- function(weekdate, grid) {
 
 
 DT3[, SD := weeklysnow(weekdate = .BY[[1]], grid = snowgrid), by = .(date, id)]
-
 
 
 
