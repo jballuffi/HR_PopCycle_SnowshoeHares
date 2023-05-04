@@ -19,6 +19,8 @@ DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 DT[Sex == 1, Sex := "Male"][Sex == 2, Sex := "Female"]
 DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
+#set colors for cycle phases
+cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "red3")
 
 
 
@@ -78,9 +80,24 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 (hrresource <- ggarrange(byfood, bysnow, bymass, ncol = 1, nrow = 3))
 
 
+
+
+# By year only ------------------------------------------------------------
+
+(byyear <- 
+   ggplot(DT)+
+   geom_boxplot(aes(x = winter, y = M90, color = phase))+
+   labs(y = "90% MCP area (ha)", x = "Winter")+
+   scale_color_manual(values = cols)+
+   theme_boxplots+
+   theme(axis.text.x.bottom = element_text(size = 8)))
+
+
+
 # save figures ------------------------------------------------------------
 
 ggsave("output/figures/HRbycycle.jpeg", hrcycle, width = 10, height = 6, units = "in")
 
 ggsave("output/figures/HRbyresource.jpeg", hrresource, width = 5, height = 8, units = "in")
 
+ggsave("Output/figures/HRbyyear.jpeg", byyear, width = 6, height = 4, units = "in")
