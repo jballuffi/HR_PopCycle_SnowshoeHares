@@ -36,7 +36,7 @@ wintermeans <- wintermeans[!winter == "2021-2022"]
   geom_path(aes(x = winter, y = haredensity, group = 1))+
   geom_point(aes(x = winter, y = haredensity, color = phase), size = 2)+
   scale_color_manual(values = cols)+
-  labs(x = "", y = "Hares per 100 km2")+
+  labs(x = "", y = "Hares per ha")+
   theme_densities)
 
 #mort rate over time
