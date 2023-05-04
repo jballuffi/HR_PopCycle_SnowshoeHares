@@ -59,7 +59,6 @@ DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn'
 DT2[, Food := as.factor(Food)]
 
 
-
 # merge in weights by winter ----------------------------------------------
 
 #subset weight data
