@@ -7,15 +7,15 @@ lm_out <- function(model) {
   
   #collect coef values
   coefOut <- data.table(t(out$coefficients[, 1]))
-  coefOut<-round(coefOut, 3)
+  coefOut<-round(coefOut, 5)
   
   #collect standard errors
   seOut <- data.table(t(out$coefficients[, 2]))
-  seOut<-round(seOut, 3)
+  seOut<-round(seOut, 5)
   
   #collect p-values
   pvals <- data.table(t(out$coefficients[, 4]))
-  pvals <- round(pvals, 2)
+  pvals <- round(pvals, 3)
   
   #Paste coef and standard errors together, rename cols
   coefse<-data.table(t(paste0(coefOut, " ± ", seOut, " (", pvals, ")")))
