@@ -24,36 +24,15 @@ cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "
 
 
 
-# Home range in response to density parameters  -------------------------------------------------------
+# By year only ------------------------------------------------------------
 
 (byyear <- 
-  ggplot(DT)+
-  geom_boxplot(aes(x = winter, y = M90))+
-  #geom_jitter(aes(x = winter, y = HRninety), alpha = .7, width = .3)+
-  labs(y = "90% MCP area (ha)", x = "Winter")+
-  theme_boxplots+
+   ggplot(DT)+
+   geom_boxplot(aes(x = winter, y = M90, color = phase))+
+   labs(y = "90% MCP area (ha)", x = "Winter")+
+   scale_color_manual(values = cols)+
+   theme_boxplots+
    theme(axis.text.x.bottom = element_text(size = 8)))
-
-(byhdensity <- 
-  ggplot(DT)+
-  geom_point(aes(x = haredensity/10000, y = M90))+
-  labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
-  theme_densities)
-
-(bymortrate <- 
-  ggplot(DT)+
-  geom_point(aes(x = mortrate, y = M90))+
-  labs(y = "90% MCP area (ha)", x = "Mortality rate")+
-  theme_densities)
-
-(byphase <- 
-  ggplot(DT)+
-  geom_boxplot(aes(x = phase, y = M90))+
-  labs(y = "90% MCP area (ha)", x = "Cycle Phase")+
-  theme_boxplots)
-
-(hrcycle <- ggarrange(byyear, byhdensity, bymortrate, byphase,
-                       ncol = 2, nrow = 2))
 
 
 
@@ -82,21 +61,10 @@ cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "
 
 
 
-# By year only ------------------------------------------------------------
-
-(byyear <- 
-   ggplot(DT)+
-   geom_boxplot(aes(x = winter, y = M90, color = phase))+
-   labs(y = "90% MCP area (ha)", x = "Winter")+
-   scale_color_manual(values = cols)+
-   theme_boxplots+
-   theme(axis.text.x.bottom = element_text(size = 8)))
-
 
 
 # save figures ------------------------------------------------------------
 
-ggsave("output/figures/HRbycycle.jpeg", hrcycle, width = 10, height = 6, units = "in")
 
 ggsave("output/figures/HRbyresource.jpeg", hrresource, width = 5, height = 8, units = "in")
 
