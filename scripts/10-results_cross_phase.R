@@ -14,6 +14,11 @@ dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 #convert weight to kg for ease of coefficient rounding
 dat[, Weight := Weight/1000]
 
+#read in snow for markdown doc
+snow <- readRDS("data/snowgrids.rds")
+#remove winter with no collar data from snow data
+snow <- snow[!winter == "2014-2015" & !winter == "2021-2022"]
+
 
 # home range covariate correlation test -----------------------------------
 
