@@ -60,8 +60,8 @@ springs[, change := nextdens/haredensity]
 springs[change > 1.89, phase := "increase"]
 springs[change < 0.44, phase := "decrease"]
 # and population dens for low vs high
-springs[is.na(phase) & haredensity < 1000, phase := "low"]
-springs[is.na(phase) & haredensity > 4000, phase := "peak"]
+springs[is.na(phase) & haredensity < .1, phase := "low"]
+springs[is.na(phase) & haredensity > .4, phase := "peak"]
 
 #pull out just the phases and winters
 phases <- springs[, .(winter, phase)]
