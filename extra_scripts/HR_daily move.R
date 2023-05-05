@@ -129,17 +129,17 @@ wbsl[sl_>22500] #nothing unrealistic 45kph=45000mph=22500m/30mins
 mpd<-wbsl[, sum(sl_), .(idate, deploy_id, week, prop.steps, n.steps)]
 setnames(mpd, "V1", "meter_day")
 #avg meter per day per week
-ampd<-mpd[, mean(meter_day), .(deploy_id, week, prop.steps, n.steps)]
+ampd<-mpd[, median(meter_day), .(deploy_id, week, prop.steps, n.steps)]
 setnames(ampd, "V1", "avg_meter_day")
 #overall avg
-ampd[, mean(avg_meter_day)] #nearly 1 km /day
+ampd[, median(avg_meter_day)] 
 
 ggplot(ampd)+
   geom_point(aes(x=prop.steps, y=avg_meter_day)) +
   coord_cartesian(ylim=c(0,9000))
 
 #lets just arbiitrailry remove below .5 success for now (could do sensitivty analyssi later)
-cl.am<-ampd[prop.steps>=0.5]
+cl.am<-ampd[prop.steps>=0]
 cl.am[, hist(avg_meter_day)]
 
 
@@ -147,6 +147,8 @@ cl.am[, hist(avg_meter_day)]
 sub.dat<-dat[, .(deploy_id, week, M90, M75, M50, K90, K75, K50)]
 
 hrm<-merge(cl.am, sub.dat, by=c("deploy_id", "week"), all.x=T)
+#remove buns with no HRs
+hrm<-hrm[!is.na(M90)]
 
 #plot areas against fix rate
 ggplot(hrm) +
@@ -156,53 +158,6 @@ ggplot(hrm) +
   coord_cartesian(xlim=c(0,2500), ylim=c(0,20)) # zoom in on bulk of data
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#below doesnt work bc the min date here wont always line up with gps
-
-#calculate the difference in days from first day of a deployment 
-bsl[, date:= as.character((t1_))]
-bsl[, date:=tstrsplit(date, " ", keep = 1)]
-bsl[, date:=lubridate::ymd(date)]
-bsl[, idate:=as.IDate(date)]
-
-bsl[, diffday := idate - min(idate), by = deploy_id]
-bsl[, maxdiffday := max(diffday), by = deploy_id]
-
-#cut diffday into weeks
-bsl[, week := cut(diffday, breaks = seq(-1, 200, by = 7))] #use 200 bc far above max diff day w/ or w/o deployID
-
-#calculate how many days are in each week using number of unique dates
-bsl[, weeklength := length(unique(idate)), by = .(deploy_id, week)]
-
-#take only weeks that have over 6 days of sampling
-bsl <- bsl[weeklength > 6] #82858
-
-#get number of full weeks per deployid
-bsl[, n.hare.weeks := uniqueN(week), by = deploy_id]
-
-#how many full weeks total
-nw <- bsl[, unique(n.hare.weeks), by = deploy_id]
-nw[, sum(V1)] #586 hare weeks
-
-#NOT DOING delpoy id cleaning because the deploy ids now have gaps from the sl resample
 
 
 
