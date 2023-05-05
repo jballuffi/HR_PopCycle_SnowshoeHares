@@ -7,9 +7,12 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 dat <- readRDS("output/results/compileddata.rds")
 dat <- dat[!M90 > 20]
 dat <- dat[!is.na(SD)]
+
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
+#convert weight to kg for ease of coefficient rounding
+dat[, Weight := Weight/1000]
 
 
 # home range covariate correlation test -----------------------------------
