@@ -7,7 +7,7 @@ lm_out <- function(model) {
   
   #collect coef values
   coefOut <- data.table(t(out$coefficients[, 1]))
-  coefOut<-round(coefOut, 2)
+  coefOut<-round(coefOut, 3)
   
   #collect standard errors
   seOut <- data.table(t(out$coefficients[, 2]))
