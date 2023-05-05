@@ -76,7 +76,8 @@ outall[, `(Intercept)` := NULL]
 
 outall <- outall[!Model == "Null"]
 outall[, V1 := NULL]
-  
+
+
 
 setcolorder(outall, c("Model", "phasepeak", "phasedecrease", "phaselow", "haredensity", "mortrate",
                       "Weight", "Food1", "Weight:Food1", "SD", "rsq"))
@@ -130,7 +131,12 @@ int_p <- coef(pred_res)["(Intercept)"]
 
 
 
+# save results ------------------------------------------------------------
+
+
+
 ggsave("output/figures/HRcrosscycle.jpeg", hrcrosscycle, width = 12, height = 11, units = "in")
 
+fwrite(AIC, "Output/results/AIC_cross_cycle.csv")
 
-
+fwrite(outall, "Output/results/models_cross_cycle.csv")
