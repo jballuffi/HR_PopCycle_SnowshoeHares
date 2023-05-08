@@ -62,12 +62,15 @@ buns.unnest30[is.na(burst_)] #no NAs for burst_
 
 bsl<-copy(buns.unnest30)
 
+
+#SHOULD START NEW SCRIPT-----------------------------------------
+
 # saveRDS(bsl, "data/liam_test_data/SL_gps_30min_LGH.rds")
 lapply(dir('R', '*.R', full.names = TRUE), source)
 bsl<-readRDS("data/liam_test_data/SL_gps_30min_LGH.rds")
+dat <- readRDS("output/results/compileddata.rds")
+gps <- readRDS("Data/all_gps.rds")
 
-# reset gps names from start
-setnames(gps, c("x", "y", "t"), c("x_proj", "y_proj", "datetime")) 
 
 #get date range for eacvh week and deployid in gps
 gps[, mindate := min(idate), by=.(week, deploy_id)]
@@ -106,7 +109,7 @@ wbsl[, n.hare.weeks := uniqueN(week), by = deploy_id]
 
 #how many full weeks total
 nw <- wbsl[, unique(n.hare.weeks), by = deploy_id]
-nw[, sum(V1)] #586 hare weeks
+nw[, sum(V1)] #586 hare weeks (down from 654  bc some weeks dont have 7 days now bc of resample)
 
 wbsl[, weekdate := mean(unique(idate)), by = .(deploy_id, week)]
 
@@ -138,11 +141,11 @@ ampd[, median(avg_meter_day)]
 
 
 ggplot(ampd)+
-  geom_point(aes(x=prop.steps, y=avg_meter_day)) #+
-  # coord_cartesian(ylim=c(0,9000))
+  geom_point(aes(x=prop.steps, y=avg_meter_day)) +
+   coord_cartesian(ylim=c(0,9000))
 
 #lets just arbiitrailry remove below .5 success for now (could do sensitivty analyssi later)
-cl.am<-ampd[prop.steps>=.5] #REMEMBER THAT THIS %FIXES DOESNT REPRESETN OUR ACTUAL DATA
+cl.am<-ampd[prop.steps>=0.5] #REMEMBER THAT THIS %FIXES DOESNT REPRESETN OUR ACTUAL DATA
 #WE CANT USE SINGLE FIXES BC NO STEP, AND CANT COMPARE DISTANCES OVER VARIABLE TIMES aSSUMING STRAIGHT LINE MOVEMENT
 cl.am[, hist(avg_meter_day)]
 
@@ -190,12 +193,16 @@ wz<-ggplot(mhr, aes(x=avg_meter_day, y=MCP_area, colour=MCP_percentile)) +
 
 ggsave("output/figures/HR_dailymovement.jpeg", HRmoveplots, width = 17, height = 9, units = "in")
 
+
+ggplot(mhr, aes(x=prop.steps, y=MCP_area, colour=MCP_percentile)) +
+  geom_point() +
+  # geom_smooth(method='lm', formula= y~x) +
+  labs(x="Fix Success", y="MCP Area (Ha)", 
+       title="Fix Success after 30 min resample")
   
+#START NEW SCRIPT---------------------------------------------- 
   
-  
-  
-  
-#Outliers seems to be an individual that did large DAILY movements back and forth betwn two areas
+#movement Outliers seems to be an individual that did large DAILY movements back and forth betwn two areas
   
   #look into ouitliers by redoing plots by id 
   ##UTM PROJECTION DOESNT SEEM TO BE IN RIGHT LOCATION (POINTS ARE IN ALASKA)?!?!
@@ -213,10 +220,10 @@ ggsave("output/figures/HR_dailymovement.jpeg", HRmoveplots, width = 17, height =
     do(plots = p %+% . + facet_wrap(~deploy_id + weekdate))
   plots$plots[[91]]
   
-  pdf("output/figures/GPSfixes_each_weekly_HR.pdf",
-      width = 10, height = 7)
-  plots$plots
-  dev.off()
+  # pdf("output/figures/GPSfixes_each_weekly_HR.pdf",
+  #     width = 10, height = 7)
+  # plots$plots
+  # dev.off()
 
 
 
