@@ -116,9 +116,13 @@ snowfull[month(Date) == 11 & winter == "2018-2019", SD := 0]
 # figure and save ---------------------------------------------------------
 
 #figure to show snow depth over winter by year and location
-ggplot(snowfull)+
+(splot <- ggplot(snowfull)+
   geom_point(aes(x = Date, y = SD, color = snowgrid))+
-  facet_wrap(~winter, scales = "free")
+  facet_wrap(~winter, scales = "free"))
 
 #save data
 saveRDS(snowfull, "data/snowgrids.rds")
+
+#save figure
+ggsave("Output/figures/snowdepth_summary.jpeg", splot, width = 11, height = 8.5, units = "in")
+
