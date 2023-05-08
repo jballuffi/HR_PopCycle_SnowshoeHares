@@ -9,7 +9,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
 
-#Need to figure out these outliers!
+#Need to figure out these outliers! -Liam looked into them, summary in email
+incl.out <- copy(DT)
 DT <- DT[!M90 > 20] 
 
 #reorder phase cycles
@@ -59,6 +60,13 @@ cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "
 (hrresource <- ggarrange(byfood, bysnow, bymass, ncol = 1, nrow = 3))
 
 
+# Distribution of home range sizes by year
+(hr_distrn <- ggplot(incl.out, aes(x = M90)) + 
+    geom_histogram(binwidth=1, color="black", fill="grey") +
+    labs(x="90% MCP area (Ha) - bins are 1 Ha each", y="Count") + 
+    facet_wrap(~phase))
+    
+
 
 
 
@@ -69,3 +77,6 @@ cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "
 ggsave("output/figures/HRbyresource.jpeg", hrresource, width = 5, height = 8, units = "in")
 
 ggsave("Output/figures/HRbyyear.jpeg", byyear, width = 6, height = 4, units = "in")
+
+ggsave("Output/figures/HR_distribution.jpeg", hr_distrn, width = 11, height = 8.5, units = "in")
+
