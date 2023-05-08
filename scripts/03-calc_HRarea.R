@@ -1,4 +1,6 @@
 
+#TO DO: look at areas against actual FIX SUCCESS NOT JUST NUMBER OF FIXES
+
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
@@ -74,15 +76,13 @@ areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 # explore data basics -----------------------------------------------------
 
-
 #plot areas against fix rate
 ggplot(areas) +
   geom_jitter(aes(x= fixrate, y = K90), colour="red", width = 0.5) +
   geom_jitter(aes(x= fixrate, y = K75), colour="green", width = 0.5) +
   geom_jitter(aes(x= fixrate, y = K50), colour="blue", width = 0.5) 
 
-#look into whether smaller HRs for 5 min FR is just because of smaller total 
-#number of fixes???
+#plot areas against number of fixes
 ggplot(areas) +
   geom_jitter(aes(x= n.fixes, y = M90), colour="red", width = 0.5) +
   geom_jitter(aes(x= n.fixes, y = M75), colour="green", width = 0.5) +
