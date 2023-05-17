@@ -124,14 +124,15 @@ wbsl[, weekdate := mean(unique(idate)), by = .(deploy_id, week)]
 
 
 #we have 7 days, but want a certain % of possible steps
-wbsl[, n.steps:=.N, .(deploy_id, week)] # n steps
+wbsl[, n.steps:=.N, .(deploy_id, week)] # n steps per week
+wbsl[, n.steps.day:=.N, .(deploy_id, idate)] # n steps per day
 wbsl[, prop.steps := n.steps/((48*7)-1)]  #max fixes are 48 per day x 7 days, but minus 1 for n steps
 wbsl[, hist(prop.steps)]
 wbsl[sl_>22500] #nothing unrealistic 45kph=45000mph=22500m/30mins
 
 #lets calc mean movement  per day before we clean based on prop.steps
 
-mpd<-wbsl[, sum(sl_), .(idate, deploy_id, week, weekdate, prop.steps, n.steps)]
+mpd<-wbsl[, sum(sl_), .(idate, deploy_id, week, weekdate, prop.steps, n.steps, n.steps.day)]
 setnames(mpd, "V1", "meter_day")
 #avg meter per day per week
 ampd<-mpd[, median(meter_day), .(deploy_id, week, weekdate, prop.steps, n.steps)]
@@ -151,7 +152,7 @@ cl.am[, hist(avg_meter_day)]
 
 
 #merge with HR data
-sub.dat<-dat[, .(deploy_id, week, M90, M75, M50, K90, K75, K50)]
+sub.dat<-dat[, .(deploy_id, week, M90, M75, M50, K90, K75, K50, SD)]
 
 hrm<-merge(cl.am, sub.dat, by=c("deploy_id", "week"), all.x=T)
 #remove buns with no HRs
@@ -171,11 +172,11 @@ mhr<-melt(hrm, na.rm = FALSE, measure.vars = c("M90", "M75", "M50"),
 #   geom_jitter(aes(x= avg_meter_day, y = M50), colour="blue", width = 0.5) +
 #   geom_smooth(aes(x= avg_meter_day, y = M50), colour="blue", method='lm', formula= y~x) 
 
-noz<-ggplot(mhr, aes(x=avg_meter_day, y=MCP_area, colour=MCP_percentile)) +
+(noz<-ggplot(mhr, aes(x=avg_meter_day, y=MCP_area, colour=MCP_percentile)) +
     geom_jitter() +
     geom_smooth(method='lm', formula= y~x) +
   labs(x="Weekly Avg Movement Rate (meters/day)", y="MCP Area (Ha)", 
-       title="30 min fixes, minimum of 50% fix success per week")
+       title="30 min fixes, minimum of 50% fix success per week"))
 
 # submhr<-  mhr[avg_meter_day<10000]
 # submhr[MCP_area>20] #The HR outlier is less likely due to daily movements and more likely shifted areas
@@ -191,7 +192,7 @@ wz<-ggplot(mhr, aes(x=avg_meter_day, y=MCP_area, colour=MCP_percentile)) +
 (HRmoveplots <- ggarrange(noz, wz, ncol = 2, nrow = 1))
 
 
-ggsave("output/figures/HR_dailymovement.jpeg", HRmoveplots, width = 17, height = 9, units = "in")
+# ggsave("output/figures/HR_dailymovement.jpeg", HRmoveplots, width = 17, height = 9, units = "in")
 
 
 ggplot(mhr, aes(x=prop.steps, y=MCP_area, colour=MCP_percentile)) +
@@ -199,6 +200,24 @@ ggplot(mhr, aes(x=prop.steps, y=MCP_area, colour=MCP_percentile)) +
   # geom_smooth(method='lm', formula= y~x) +
   labs(x="Fix Success", y="MCP Area (Ha)", 
        title="Fix Success after 30 min resample")
+
+
+#ROUGH look at movement vs snow depth ------------------------------
+#avg weekly movement
+ggplot(mhr[avg_meter_day<10000], aes(x=SD, y=avg_meter_day)) +
+    geom_jitter() +
+    geom_smooth(method='lm', formula= y~x) +
+  labs(x="snow depth (m)", y="Weekly Avg Movement Rate (meters/day)")
+
+#daily movement
+# sdm<-mpd[n.steps.day >= 24] #arbitrarily 50% fix success, just half decent good data
+# sdm[, hist(meter_day)]
+# sdm[, date := lubridate::ymd(idate)]
+# #merge with snow data
+# sddat<-dat[, .(deploy_id, date, SD)]
+# mgsd<-merge(sdm, sddat, by=c("deploy_id", "date"), all.x=T)
+
+
   
 #START NEW SCRIPT---------------------------------------------- 
   
