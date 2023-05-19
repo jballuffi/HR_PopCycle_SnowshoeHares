@@ -53,6 +53,10 @@ gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
+#calculate winter day, which is how many days since Nov 1 (doy = 305)
+gps[doy > 304, winterday := doy - 305] #if between nov 1 and dec 31, just subtract from nov 1
+gps[doy < 304, winterday := doy + 61] #if after jan 1, add doy to 61 (dec 31 - nov 1)
+
 #calculate the difference in days from first day of a deployment
 gps[, diffday := idate - min(idate), by = deploy_id]
 gps[, maxdiffday := max(diffday), by = deploy_id]
