@@ -18,6 +18,4 @@ source("scripts/08-system_plots.R")
 
 source("scripts/09-homerange_plots.R")
 
-source("scripts/10-stats.R")
-
-source("scripts/10-stats_by_winter.R")
+source("scripts/10-final_models_figures.R")
