@@ -80,6 +80,9 @@ nw[, sum(V1)] #637 hare weeks w/o deployid; 654 hare weeks w/ deployid
 #average the date for each week
 gps[, weekdate := mean(idate), by = .(deploy_id, week)]
 
+#average the winter day for each week
+gps[, weekwinterday := mean(winterday), by = .(deploy_id, week)]
+
 #Correct deploy_ids that are clearly two collars ------------------------
 #get list of days per deploy_id
 s<-gps[, unique(idate), deploy_id]
