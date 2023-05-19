@@ -51,28 +51,4 @@ wintermeans <- wintermeans[!winter == "2021-2022"]
 (densityplots <- ggarrange(h, l, ncol = 1, nrow = 2))
 
 
-
-# Plot resource variables by winter ---------------------------------------
-
-
-(mass <- ggplot(DT)+
-  geom_boxplot(aes(x = winter, y = Weight, color = phase))+
-  scale_color_manual(values = cols)+
-  labs(x = "Winter", y = "Body mass (g)")+
-  theme_boxplots)
-
-(sd <- ggplot(snow)+
-  geom_boxplot(aes(x = winter, y = SD, color = phase))+
-  scale_color_manual(values = cols)+
-  labs(x = "Winter", y = "Snow depth (cm)")+
-  theme_boxplots)
-
-(resourceplots <- ggarrange(mass, sd, ncol = 1, nrow = 2))
-
-
-
-
-
-
 ggsave("output/figures/densities.jpeg", densityplots, width = 8, height = 9, units = "in")
-ggsave("output/figures/resource.jpeg", resourceplots, width = 8, height = 9, units = "in")
