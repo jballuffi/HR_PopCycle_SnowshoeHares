@@ -119,13 +119,8 @@ int_p <- coef(pred_res)["(Intercept)"]
     labs(y = "90% MCP area (ha)", x = "Mortality rate")+
     theme_densities)
 
-(bycycle <- 
-    ggplot(dat)+
-    geom_boxplot(aes(x = phase, y = M90))+
-    labs(y = "", x = "Cycle phase")+
-    theme_boxplots)
     
-(hrcrosscycle <- ggarrange(byhdensity, bysnow, bymort, bycycle,
+(hrcrosscycle <- ggarrange(byhdensity, bysnow, bymort, 
                       ncol = 2, nrow = 2))
 
 
