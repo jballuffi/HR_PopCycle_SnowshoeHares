@@ -10,8 +10,11 @@ gps <- readRDS("Data/all_gps.rds")
 #remove any data that is in a week that didn't hit 7 days
 gps <- gps[weeklength > 6]
 
+#round winter day 
+gps[, weekwinterday := round(weekwinterday)]
+
 #items we will measure home ranges by
-weeksplit <- c("id", "winter", "deploy_id", "week", "weekdate", "grid")
+weeksplit <- c("id", "winter", "deploy_id", "week", "weekdate", "weekwinterday", "grid")
 
 
 
