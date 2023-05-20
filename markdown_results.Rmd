@@ -1,0 +1,35 @@
+---
+title: "Figures and tables"
+author: "Juliana Balluffi-Fry"
+date: "2023-03-28"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r sourcing, include=FALSE}
+source("scripts/10-final_models_figures.R")
+```
+
+## Results
+
+General summary
+
+Collar deployment began in November of 2015 and occurred every winter until March of 2021. During this period, the hare cycle was in its increase phase in 2015, peaked during the 2016-2017 winter, crashed from 2017 to 2019, after which it remained in the low until 2021 (Figure 1). Mortality rates changed with the population cycle; hare mortality was lowest in 2016-2017 (cycle peak; `r dat[winter == "2016-2017", round(mean(mortrate), 2)]` and highest in 2019-2020 (cycle low; `r dat[winter == "2019-2020", round(mean(mortrate), 2)]` ; Figure 1). After initial data cleaning was complete, we analysed gps data from `r dat[, length(unique(id))]` individuals, totaling `r dat[, .N]` weekly home ranges. Of these individuals, `r dat[Sex == 1, .N]` were male, `r dat[Sex == 2, .N]` were female, and of the females `r dat[Food == 1, .N]` were given food add treatments while collared. The mean areas of 90%, 75%, and 50% weekly home ranges (MCPs) were `r dat[, round(mean(M90), 2)]` ha, `r dat[, round(mean(M75), 2)]` ha, and `r dat[, round(mean(M50), 2)]` ha respectively. Results from 90%, 75%, and 50% MCPs were highly correlated (r \> 0.78), and we completed all home range size analyses with the 90% MCP results.
+
+Home range size model results
+
+Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 3).
+
+![Figure 1. Snowshoe hare densities and mortality rates of each year in this study, which are categorized into cycle phases.](output/figures/densities.jpeg)
+
+![Figure 2. Snowshoe hare home range sizes (90% MCP) by year of the study. Each year's data is colored according to cycle phase.](output/figures/HRbyyear.jpeg)
+
+![Figure 3. Home range size in response to hare density and mortality rates for control (food add) snowshoe hares only.](output/figures/HRnofood.jpeg)
+
+![Figure 4. Home range size in response to hare density and mortality rate for food add treated hares and control hares. Data only includes years of food add experiments.](output/figures/HRwithfood.jpeg)
