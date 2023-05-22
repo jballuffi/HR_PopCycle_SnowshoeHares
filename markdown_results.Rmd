@@ -24,7 +24,7 @@ Collar deployment began in November of 2015 and occurred every winter until Marc
 
 Home range size model results
 
-Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 3).
+Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 2). We found no effect of sex on home range size excluding food add females (p = `round(Psex), 2` ).
 
 ![Figure 1. Snowshoe hare densities and mortality rates of each year in this study, which are categorized into cycle phases.](output/figures/densities.jpeg)
 

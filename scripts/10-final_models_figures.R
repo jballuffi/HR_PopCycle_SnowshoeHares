@@ -41,6 +41,10 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 
 # Create models -----------------------------------------------------------
 
+# test if sex has an effect on home range
+HRsex <- anova(lm(M90 ~ Sex, data = nofood))
+Psex <- HRsex$`Pr(>F)`[1]
+
 # NO FOOD mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
@@ -125,7 +129,7 @@ WFint <- coef(WFlinear)["(Intercept)"]
 # Create model outputs ----------------------------------------------------
 
 #list models and provide names
-mods <- list(NFlinear, WFlinear)
+mods <- list(NFmixed)
 names <- c("Without treatment", "With treatment")
 
 
