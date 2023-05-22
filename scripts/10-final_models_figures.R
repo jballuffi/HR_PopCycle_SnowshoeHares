@@ -54,10 +54,15 @@ NFlinear <- lm(M90 ~ mortrate + haredensity , data = nofood)
 # YES FOOD linear model for mort rate and hare density
 WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food , data = yesfood)
 
-#to get effects for the coat colour in the energetics model
+# YES FOOD linear model for mort rate and hare density
+WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
+
+
+#to get effects for the interactions in the food add model
 effsP <- ggpredict(WFlinear, terms = c("mortrate", "Food"))
 
 effsD <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
+
 
 
 # Figures with NO FOOD ------------------------------------------------------------------
@@ -126,30 +131,52 @@ WFint <- coef(WFlinear)["(Intercept)"]
 
 
 
-# Create model outputs ----------------------------------------------------
+
+# Liner model outputs -----------------------------------------------------
 
 #list models and provide names
-mods <- list(NFmixed)
+mods <- list(NFlinear, WFlinear)
 names <- c("Without treatment", "With treatment")
 
 
 #apply the lm_out function to the top to same list of models as in AIC
-outall <- lapply(mods, lm_out)
-outall <- rbindlist(outall, fill = TRUE)
-outall$Model <- names
-outall[, `(Intercept)` := NULL]
-
-outall <- outall[!Model == "Null"]
+Lout <- lapply(mods, lm_out)
+Lout <- rbindlist(Lout, fill = TRUE)
+Lout$Model <- names
 
 
-
-setcolorder(outall, c("Model", "haredensity", "mortrate", "FoodControl", 
+setcolorder(Lout, c("Model", "(Intercept)", "haredensity", "mortrate", "FoodControl", 
                       "FoodControl:haredensity", "mortrate:FoodControl", 
                       "rsq"))
 
-names(outall) <- c("Model", "Density", "Mortality", "Treatment",
+names(Lout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
                    "Treatment*Density", "Treatment*Mortality",
-                   "R2")
+                   "rsq")
+
+
+
+
+
+# Create mixed model outputs ----------------------------------------------------
+
+#list models and provide names
+mods <- list(NFmixed, WFmixed)
+names <- c("Without treatment", "With treatment")
+
+
+#apply the lm_out function to the top to same list of models as in AIC
+Mout <- lapply(mods, lmer_out)
+Mout <- rbindlist(Mout, fill = TRUE)
+Mout$Model <- names
+
+
+setcolorder(Mout, c("Model", "(Intercept)", "haredensity", "mortrate", "FoodControl", 
+                      "FoodControl:haredensity", "mortrate:FoodControl", 
+                      "R2m", "R2c"))
+
+names(Mout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
+                   "Treatment*Density", "Treatment*Mortality",
+                   "R2m", "R2c")
 
 
 
