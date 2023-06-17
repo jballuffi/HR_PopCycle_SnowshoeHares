@@ -110,9 +110,10 @@ WFint <- coef(WFlinear)["(Intercept)"]
     geom_line(aes(x = x, y = predicted, group = group, color = group),
               size = 1, data = effsD)+
     scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
-    theme_densities)
+    theme_densities+
+    theme(legend.position = "top"))
 
 
 (WFmort <- 
@@ -125,7 +126,8 @@ WFint <- coef(WFlinear)["(Intercept)"]
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
     labs(y = "", x = "Mortality rate")+
-    theme_densities)
+    theme_densities+
+    theme(legend.position = "top"))
 
 (hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 2, nrow = 1))
 
@@ -192,4 +194,4 @@ ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 12, height = 6, units =
 ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 12, height = 6, units = "in")
 
 
-fwrite(outall, "Output/results/model_outputs.csv")
+fwrite(Lout, "Output/results/model_outputs.csv")
