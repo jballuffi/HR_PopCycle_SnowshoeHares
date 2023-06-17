@@ -17,15 +17,14 @@ dat[, Weight := Weight/1000]
 #rename food categories
 dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
-#make a dataframe with only control hares. This will be all years
+#make a data frame with only control hares. This will be all years
 nofood <- dat[Food == "Control"]
 
 #pull out the years with food add
 foodyears <- dat[Food == "Food add", unique(winter)]
 
-#make a dataframe to only include the winters with food add 
+#make a data frame to only include the winters with food add 
 yesfood <- dat[winter %in% foodyears]
-
 
 
 
@@ -39,28 +38,37 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 
 
 
-# Create models -----------------------------------------------------------
+# basic tests and stats ---------------------------------------------------
 
 # test if sex has an effect on home range
 HRsex <- anova(lm(M90 ~ Sex, data = nofood))
 Psex <- HRsex$`Pr(>F)`[1]
 
-# NO FOOD mixed model for mort rate and hare density
+#how many fixes in a home range on avg
+nfix <- dat[, mean(n.fixes)]
+
+
+
+# models without food add -----------------------------------------------------------
+
+# mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
-# NO FOOD linear model for mort rate and hare density
+# linear model for mort rate and hare density
 NFlinear <- lm(M90 ~ mortrate + haredensity , data = nofood)
 
-# YES FOOD linear model for mort rate and hare density
+
+
+# models with food add ----------------------------------------------------
+
+# inear model for mort rate and hare density
 WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food , data = yesfood)
 
-# YES FOOD linear model for mort rate and hare density
+# linear model for mort rate and hare density
 WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
-
 
 #to get effects for the interactions in the food add model
 effsP <- ggpredict(WFlinear, terms = c("mortrate", "Food"))
-
 effsD <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
 
 
@@ -192,6 +200,5 @@ names(Mout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
 ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 12, height = 6, units = "in")
 
 ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 12, height = 6, units = "in")
-
 
 fwrite(Lout, "Output/results/model_outputs.csv")
