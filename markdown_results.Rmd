@@ -30,6 +30,6 @@ Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and s
 
 ![Figure 2. Average snowshoe hare home range sizes (90% MCP) by winter, excluding food-add individiuals. Each year's data is colored according to cycle phase.](output/figures/HRbyyear.jpeg)
 
-![Figure 3. Snowshoe hare home range size (90% MCP) in response to hare density and mortality rates, excluding food-add individuals. Significant trend lines are shown. ](output/figures/HRnofood.jpeg)
+![Figure 3. Snowshoe hare home range size (90% MCP) in response to hare density and mortality rates, excluding food-add individuals. Significant trend lines are shown.](output/figures/HRnofood.jpeg)
 
 ![Figure 4. Snowshoe hare home range size (90% MCP) in response to hare density and mortality rate for food add treated hares and control hares. Data only includes years of food add experiments.](output/figures/HRwithfood.jpeg)
