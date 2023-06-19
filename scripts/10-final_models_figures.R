@@ -171,7 +171,7 @@ names(Lout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
 
 #list models and provide names
 mods <- list(NFmixed, WFmixed)
-names <- c("Without treatment", "With treatment")
+names <- c("Control-only", "With treatment")
 
 
 #apply the lm_out function to the top to same list of models as in AIC
