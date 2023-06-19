@@ -6,6 +6,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 # preparations ------------------------------------------------------------
 
 #read in data
+densities <- readRDS("output/results/densities.rds")
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
 
@@ -14,7 +15,7 @@ incl.out <- copy(DT)
 DT <- DT[!M90 > 20] 
 
 #reorder phase cycles
-DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
+#DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
 #rename sex categories
 DT[Sex == 1, Sex := "Male"][Sex == 2, Sex := "Female"]
@@ -25,13 +26,45 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 DTnofood <- DT[Food == "Control"]
 
 #set colors for cycle phases
-cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "red3")
+cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "red3")
 
 #pull out the years with food add
 foodyears <- DT[Food == "Food add", unique(winter)]
 
 #make a data frame to only include the winters with food add 
 yesfood <- DT[winter %in% foodyears]
+
+
+
+# Density over time --------------------------------------------------------
+
+#pull means by year
+wintermeans <- densities[, .(mean(haredensity), mean(mortrate, na.rm = TRUE), phase), by = winter]
+names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
+#remove winter with no collar data
+wintermeans <- wintermeans[!winter == "2021-2022"]
+
+#hare density over time
+(h <- ggplot(wintermeans)+
+    geom_path(aes(x = winter, y = haredensity, group = 1))+
+    geom_point(aes(x = winter, y = haredensity, color = phase), size = 2)+
+    scale_color_manual(values = cols)+
+    labs(x = "", y = "Hares per ha")+
+    theme_boxplots+
+    theme(axis.text.x.bottom = element_text(size = 8)))
+
+
+
+# mortality rate over time ------------------------------------------------
+
+#mort rate over time
+(l <- ggplot(wintermeans)+
+    geom_path(aes(x = winter, y = mortrate, group = 1))+
+    geom_point(aes(x = winter, y = mortrate, color = phase), size = 2)+
+    scale_color_manual(values = cols)+
+    labs(x = "", y = "Mortality rate (unit??)")+
+    theme_boxplots+
+    theme(axis.text.x.bottom = element_text(size = 8)))
 
 
 
@@ -58,8 +91,10 @@ yesfood <- DT[winter %in% foodyears]
 
 
 
+# Merge figures into one and save -----------------------------------------
+
+fullbyyear <- ggarrange(h, l, byyear, ncol = 1, nrow = 3)
 
 
-
-ggsave("Output/figures/HRbyyear.jpeg", byyear, width = 7, height = 6, units = "in")
+ggsave("Output/figures/sumfigure.jpeg", fullbyyear, width = 6, height = 9, units = "in")
 ggsave("Output/figures/HRbytreatment.jpeg", bytreatment, width = 4, height = 5, units = "in")

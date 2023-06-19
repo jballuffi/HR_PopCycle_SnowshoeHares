@@ -5,21 +5,16 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 DT <- readRDS("output/results/compileddata.rds")
 densities <- readRDS("output/results/densities.rds")
-snow <- readRDS("data/snowgrids.rds")
 
 #get phase from DT and merge into snow data
 phases <- DT[, getmode(phase), winter]
 setnames(phases, "V1", "phase")
-snow <- merge(snow, phases, by = "winter", all.x = TRUE)
-
-#remove winter with no collar data from snow data
-snow <- snow[!winter == "2014-2015" & !winter == "2021-2022"]
 
 #reorder phase cycles
 DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
-#set colors for cycle phases
-cols <- c("increase" = "purple", "peak" = "green4", decrease = "orange", low = "red3")
+#set colors for cycle phases'
+cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", low = "red3")
 
 
 
