@@ -26,10 +26,10 @@ Home range size predictors
 
 Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and smallest in the peak of the cycle (2016-2017; Figure 2). We found no effect of sex on home range size excluding food add females (p = `round(Psex, 2)`) and therefor did not include sex in our models. Our control-only model (all years; no food add individuals) found that hares increased their home ranges with mortality rate and hare density did not significantly affect home range area. Our treatment-included model (years with food add; all individuals), conversely, found no effect of mortality rate on home range area. Instead, this model found that hares decreased their home ranges with hare density. Further, we found that food add treatment significantly interacted with both hare density and mortality rate to influence home range areas. Hares with food add decreased their home ranges in response hare density, while controls slightly increased their home ranges. Hares with food add did not alter their home ranges with mortality rate while controls increased their home ranges.
 
-![Figure 1. Snowshoe hare densities and mortality rates of each year in this study, which are categorized into cycle phases.](output/figures/densities.jpeg)
+![Figure 1.](output/figures/sumfigure.jpeg)
 
-![Figure 2. Average snowshoe hare home range sizes (90% MCP) by winter, excluding food-add individiuals. Each year's data is colored according to cycle phase.](output/figures/HRbyyear.jpeg)
+![]()
 
-![Figure 3. Snowshoe hare home range size (90% MCP) in response to hare density and mortality rates, excluding food-add individuals. Significant trend lines are shown.](output/figures/HRnofood.jpeg)
+![Figure 2](output/figures/HRnofood.jpeg)
 
-![Figure 4. Snowshoe hare home range size (90% MCP) in response to hare density and mortality rate for food add treated hares and control hares. Data only includes years of food add experiments.](output/figures/HRwithfood.jpeg)
+![Figure 3](output/figures/HRwithfood.jpeg)
