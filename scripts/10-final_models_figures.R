@@ -47,6 +47,8 @@ Psex <- HRsex$`Pr(>F)`[1]
 #how many fixes in a home range on avg
 nfix <- dat[, mean(n.fixes)]
 
+#did treatment have a significant effect on home ranges alone
+summary(lm(M90 ~ Food, data = yesfood))
 
 
 # models without food add -----------------------------------------------------------
