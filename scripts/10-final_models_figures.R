@@ -90,19 +90,19 @@ NFint <- coef(NFlinear)["(Intercept)"]
     ggplot(nofood)+
     geom_point(aes(x = mortrate, y = M90))+
     geom_abline(aes(intercept = NFint, slope = NFp))+
-    labs(y = "", x = "Mortality rate")+
+    labs(y = "90% MCP area (ha)", x = "Mortality rate")+
     theme_densities)
 
     
 (hrNOFOOD <- ggarrange(NFdensity, NFmort, 
-                      ncol = 2, nrow = 1))
+                      ncol = 1, nrow = 2))
 
 
 
 
 # Figures from food add years  --------------------------------------------
 
-foodcols <- c("Food add" = "blue3", "Control" = "grey40")
+foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 #these are coefficients from the No food linear model
 WFd <- coef(WFlinear)["haredensity"]
@@ -120,8 +120,7 @@ WFint <- coef(WFlinear)["(Intercept)"]
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
-    theme_densities+
-    theme(legend.position = "top"))
+    theme_densities)
 
 
 (WFmort <- 
@@ -133,11 +132,10 @@ WFint <- coef(WFlinear)["(Intercept)"]
             size = 1, data = effsP)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
-    labs(y = "", x = "Mortality rate")+
-    theme_densities+
-    theme(legend.position = "top"))
+    labs(y = "90% MCP area (ha)", x = "Mortality rate")+
+    theme_densities)
 
-(hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 2, nrow = 1))
+(hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
 
 
 
@@ -197,8 +195,8 @@ names(Mout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
 
 
 
-ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 12, height = 6, units = "in")
+ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 6, height = 8, units = "in")
 
-ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 12, height = 6, units = "in")
+ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 6, height = 8, units = "in")
 
 fwrite(Lout, "Output/results/model_outputs.csv")
