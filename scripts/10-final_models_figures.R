@@ -51,6 +51,7 @@ nfix <- dat[, mean(n.fixes)]
 summary(lm(M90 ~ Food, data = yesfood))
 
 
+
 # models without food add -----------------------------------------------------------
 
 # mixed model for mort rate and hare density
@@ -58,6 +59,10 @@ NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
 # linear model for mort rate and hare density
 NFlinear <- lm(M90 ~ mortrate + haredensity , data = nofood)
+
+#to get line predictions for both variables
+effsP_NF <- ggpredict(NFlinear, terms = c("mortrate"))
+effsD_NF <- ggpredict(NFlinear, terms = c("haredensity"))
 
 
 
@@ -77,21 +82,20 @@ effsD <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
 
 # Figures with NO FOOD ------------------------------------------------------------------
 
-#these are coefficients from the No food linear model
-NFd <- coef(NFlinear)["haredensity"]
-NFp <- coef(NFlinear)["mortrate"]
-NFint <- coef(NFlinear)["(Intercept)"]
-
 (NFdensity <- 
-   ggplot(nofood)+
-   geom_point(aes(x = haredensity, y = M90))+
+   ggplot()+
+   geom_point(aes(x = haredensity, y = M90), data = nofood)+
+   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsD_NF)+
+   geom_line(aes(x = x, y = predicted), size = 1, data = effsD_NF)+
    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
    theme_densities)
 
 (NFmort <- 
-    ggplot(nofood)+
-    geom_point(aes(x = mortrate, y = M90))+
-    geom_abline(aes(intercept = NFint, slope = NFp))+
+    ggplot()+
+    geom_point(aes(x = mortrate, y = M90), data = nofood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsP_NF)+
+    geom_line(aes(x = x, y = predicted), size = 1, data = effsP_NF)+
+    #geom_abline(aes(intercept = NFint, slope = NFp))+
     labs(y = "90% MCP area (ha)", x = "Mortality rate")+
     theme_densities)
 
@@ -105,12 +109,6 @@ NFint <- coef(NFlinear)["(Intercept)"]
 # Figures from food add years  --------------------------------------------
 
 foodcols <- c("Food add" = "red3", "Control" = "grey30")
-
-#these are coefficients from the No food linear model
-WFd <- coef(WFlinear)["haredensity"]
-WFp <- coef(WFlinear)["mortrate"]
-WFint <- coef(WFlinear)["(Intercept)"]
-
 
 (WFdensity <- 
    ggplot()+

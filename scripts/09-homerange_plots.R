@@ -10,6 +10,9 @@ densities <- readRDS("output/results/densities.rds")
 DT <- readRDS("output/results/compileddata.rds")
 DT[, Food := as.factor(Food)]
 
+#remove winter with no data in densities
+densities <- densities[!winter == "2021-2022"]
+
 #Need to figure out these outliers! -Liam looked into them, summary in email
 incl.out <- copy(DT)
 DT <- DT[!M90 > 20] 
@@ -42,8 +45,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 #pull means by year
 wintermeans <- densities[, .(mean(haredensity), mean(mortrate, na.rm = TRUE), phase), by = winter]
 names(wintermeans) <- c("winter", "haredensity", "mortrate", "phase")
-#remove winter with no collar data
-wintermeans <- wintermeans[!winter == "2021-2022"]
+
 
 (ggplot(wintermeans)+
     geom_path(aes(x = winter, y = haredensity, group = 1))+
