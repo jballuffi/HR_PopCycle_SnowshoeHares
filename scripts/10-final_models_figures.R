@@ -31,7 +31,7 @@ yesfood <- dat[winter %in% foodyears]
 # covariate correlation test --------------------------------------------------------
 
 #subset data to only variables that we need to test co linearity on (numeric only)
-forcor <- nofood[, .(haredensity, mortrate, weekwinterday)]
+forcor <- nofood[, .(haredensity, mortrate, SD)]
 
 #run correlation, look at matrix style output
 round(cor(forcor, use = "complete.obs"), digits = 2)
@@ -54,11 +54,14 @@ summary(lm(M90 ~ Food, data = yesfood))
 
 # models without food add -----------------------------------------------------------
 
-# mixed model for mort rate and hare density
+# linear model for mort rate and hare density
+NFlinear <- lm(M90 ~ mortrate + haredensity, data = nofood)
+
+# linear mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
-# linear model for mort rate and hare density
-NFlinear <- lm(M90 ~ mortrate + haredensity , data = nofood)
+#HR by just phase
+NFphase <- lm(M90 ~ phase, data = nofood)
 
 #to get line predictions for both variables
 effsP_NF <- ggpredict(NFlinear, terms = c("mortrate"))
@@ -68,15 +71,17 @@ effsD_NF <- ggpredict(NFlinear, terms = c("haredensity"))
 
 # models with food add ----------------------------------------------------
 
-# inear model for mort rate and hare density
-WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food , data = yesfood)
-
 # linear model for mort rate and hare density
+WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food, data = yesfood)
+
+# linear mixed model for mort rate and hare density
 WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
 
+WFphase <- lm(M90 ~ phase*Food, data = yesfood)
+
 #to get effects for the interactions in the food add model
-effsP <- ggpredict(WFlinear, terms = c("mortrate", "Food"))
-effsD <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
+effsP_WF <- ggpredict(WFlinear, terms = c("mortrate", "Food"))
+effsD_WF <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
 
 
 
@@ -114,7 +119,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
    ggplot()+
     geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-              colour = "grey80", alpha = .3, data = effsD)+
+              colour = "grey80", alpha = .3, data = effsD_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
               size = 1, data = effsD)+
     scale_color_manual(values = foodcols, guide = NULL)+
@@ -127,7 +132,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     ggplot()+
     geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-            colour = "grey80", alpha = .3, data = effsP)+
+            colour = "grey80", alpha = .3, data = effsP_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
             size = 1, data = effsP)+
     scale_color_manual(values = foodcols, guide = NULL)+
@@ -136,7 +141,6 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     theme_densities)
 
 (hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
-
 
 
 
