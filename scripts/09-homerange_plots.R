@@ -26,8 +26,8 @@ DT[Sex == 1, Sex := "Male"][Sex == 2, Sex := "Female"]
 DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 #set colors for cycle phases
-cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "red3")
-foodcols <- c("Food add" = "red3", "Control" = "grey30")
+cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
+foodcols <- c("Food add" = "red4", "Control" = "grey40")
 
 
 
@@ -37,7 +37,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 (h <- ggplot(densities)+
   geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
   scale_color_manual(values = cols)+
-  labs(x = "", y = "Hares per ha")+
+  labs(x = "", y = "Hares per ha", subtitle = "A")+
   theme_boxplots+
   theme(axis.text.x.bottom = element_text(size = 8)))
 
@@ -71,7 +71,7 @@ setorder(morts, date)
 (l <- ggplot(morts)+
   geom_path(aes(x = date, y = mortrate, group = winter, color = phase))+
   scale_color_manual(values = cols)+
-  labs(x = "", y = "Probability of mortality")+
+  labs(x = "", y = "Probability of mortality", subtitle = "B")+
   theme_boxplots+
   theme(axis.text.x.bottom = element_text(size = 8)))
 
@@ -80,7 +80,7 @@ setorder(morts, date)
     geom_path(aes(x = winter, y = mortrate, group = 1))+
     geom_point(aes(x = winter, y = mortrate, color = phase), size = 2)+
     scale_color_manual(values = cols)+
-    labs(x = "", y = "Mortality rate (unit??)")+
+    labs(x = "", y = "Mortality rate")+
     theme_boxplots+
     theme(axis.text.x.bottom = element_text(size = 8)))
 
@@ -91,7 +91,7 @@ setorder(morts, date)
 (byyear <- 
    ggplot(DT)+
    geom_boxplot(aes(x = winter, y = M90, color = Food))+
-   labs(y = "90% MCP area (ha)", x = "Winter")+
+   labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C")+
    scale_color_manual(values = foodcols)+
    theme_boxplots+
    theme(axis.text.x.bottom = element_text(size = 8)))
@@ -103,4 +103,4 @@ setorder(morts, date)
 fullbyyear <- ggarrange(h, l, byyear, ncol = 1, nrow = 3)
 
 
-ggsave("Output/figures/sumfigure.jpeg", fullbyyear, width = 6, height = 9, units = "in")
+ggsave("Output/figures/sumfigure.jpeg", fullbyyear, width = 6, height = 9.5, units = "in")
