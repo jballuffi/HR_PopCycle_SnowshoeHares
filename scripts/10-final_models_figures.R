@@ -43,6 +43,8 @@ round(cor(forcor, use = "complete.obs"), digits = 2)
 # test if sex has an effect on home range
 HRsex <- anova(lm(M90 ~ Sex, data = nofood))
 Psex <- HRsex$`Pr(>F)`[1]
+DFsex <- HRsex$`Df`[2]
+Fsex <- HRsex$`F value`[1]
 
 #how many fixes in a home range on avg
 nfix <- dat[, mean(n.fixes)]
@@ -66,6 +68,14 @@ NFphase <- lm(M90 ~ phase, data = nofood)
 #to get line predictions for both variables
 effsP_NF <- ggpredict(NFlinear, terms = c("mortrate"))
 effsD_NF <- ggpredict(NFlinear, terms = c("haredensity"))
+
+#coefficients for density
+NFdcoef <- coef(NFlinear)["haredensity"]
+NFdse <- se.coef(NFlinear)["haredensity"]
+
+#coefficients for predation
+NFpcoef <- coef(NFlinear)["mortrate"]
+NFpse <- se.coef(NFlinear)["mortrate"]
 
 
 
@@ -121,7 +131,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
               colour = "grey80", alpha = .3, data = effsD_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsD)+
+              size = 1, data = effsD_WF)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
@@ -134,7 +144,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
             colour = "grey80", alpha = .3, data = effsP_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
-            size = 1, data = effsP)+
+            size = 1, data = effsP_WF)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Mortality rate")+
