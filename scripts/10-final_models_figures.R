@@ -90,8 +90,8 @@ WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
 WFphase <- lm(M90 ~ phase*Food, data = yesfood)
 
 #to get effects for the interactions in the food add model
-effsP_WF <- ggpredict(WFlinear, terms = c("mortrate", "Food"))
-effsD_WF <- ggpredict(WFlinear, terms = c("haredensity", "Food"))
+effsP_WF <- as.data.table(ggpredict(WFlinear, terms = c("mortrate", "Food")))
+effsD_WF <- as.data.table(ggpredict(WFlinear, terms = c("haredensity", "Food")))
 
 
 
