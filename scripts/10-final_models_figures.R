@@ -111,7 +111,7 @@ effsD_WF <- as.data.table(ggpredict(WFlinear, terms = c("haredensity", "Food")))
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsP_NF)+
     geom_line(aes(x = x, y = predicted), size = 1, data = effsP_NF)+
     #geom_abline(aes(intercept = NFint, slope = NFp))+
-    labs(y = "90% MCP area (ha)", x = "Mortality rate")+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality")+
     theme_densities)
 
     
@@ -147,7 +147,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
             size = 1, data = effsP_WF)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Mortality rate")+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality")+
     theme_densities)
 
 (hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
