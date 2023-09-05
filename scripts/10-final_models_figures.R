@@ -63,16 +63,16 @@ NFlinear <- lm(M90 ~ mortrate + haredensity, data = nofood)
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
 #to get line predictions for both variables
-effsP_NF2 <- ggpredict(NFmixed, terms = c("mortrate"))
+effsP_NF <- ggpredict(NFmixed, terms = c("mortrate"))
 effsD_NF <- ggpredict(NFmixed, terms = c("haredensity"))
 
 #coefficients for density
-NFdcoef <- coef(NFlinear)["haredensity"]
-NFdse <- se.coef(NFlinear)["haredensity"]
+NFdcoef <- fixef(NFmixed)["haredensity"]
+NFdse <- se.fixef(NFmixed)["haredensity"]
 
 #coefficients for predation
-NFpcoef <- coef(NFlinear)["mortrate"]
-NFpse <- se.coef(NFlinear)["mortrate"]
+NFpcoef <- fixef(NFmixed)["mortrate"]
+NFpse <- se.fixef(NFmixed)["mortrate"]
 
 
 
@@ -208,4 +208,4 @@ ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 6, height = 8, units = 
 
 ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 6, height = 8, units = "in")
 
-fwrite(Lout, "Output/results/model_outputs.csv")
+fwrite(Mout, "Output/results/model_outputs.csv")
