@@ -27,7 +27,7 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 #set colors for cycle phases
 cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
-foodcols <- c("Food add" = "red4", "Control" = "grey40")
+foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
 
 
