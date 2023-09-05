@@ -62,12 +62,9 @@ NFlinear <- lm(M90 ~ mortrate + haredensity, data = nofood)
 # linear mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
 
-#HR by just phase
-NFphase <- lm(M90 ~ phase, data = nofood)
-
 #to get line predictions for both variables
-effsP_NF <- ggpredict(NFlinear, terms = c("mortrate"))
-effsD_NF <- ggpredict(NFlinear, terms = c("haredensity"))
+effsP_NF2 <- ggpredict(NFmixed, terms = c("mortrate"))
+effsD_NF <- ggpredict(NFmixed, terms = c("haredensity"))
 
 #coefficients for density
 NFdcoef <- coef(NFlinear)["haredensity"]
@@ -87,11 +84,9 @@ WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food, data = yesfood)
 # linear mixed model for mort rate and hare density
 WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
 
-WFphase <- lm(M90 ~ phase*Food, data = yesfood)
-
 #to get effects for the interactions in the food add model
-effsP_WF <- as.data.table(ggpredict(WFlinear, terms = c("mortrate", "Food")))
-effsD_WF <- as.data.table(ggpredict(WFlinear, terms = c("haredensity", "Food")))
+effsP_WF <- as.data.table(ggpredict(WFmixed, terms = c("mortrate", "Food")))
+effsD_WF <- as.data.table(ggpredict(WFmixed, terms = c("haredensity", "Food")))
 
 
 
