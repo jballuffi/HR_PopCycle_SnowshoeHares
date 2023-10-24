@@ -28,7 +28,6 @@ Snowshoe hare home ranges were largest in the low of the cycle (2019-2020) and s
 
 Our treatment-included model (years with food-add experiments; all individuals), found that as hare density increased from `r effsD_WF[, min(x)]` to `r effsD_WF[, max(x)]` hares/ha, controls slightly increased their home ranges from `r effsD_WF[group == "Control" & x == min(x), round(predicted, 2)]` ha to `r effsD_WF[group == "Control" & x == max(x), round(predicted, 2)]` ha, while food-adds substantially decreased their home ranges from `r effsD_WF[group == "Food add" & x == min(x), round(predicted, 2)]` ha to `r effsD_WF[group == "Food add" & x == max(x), round(predicted, 2)]` ha. Both groups increased their home ranges as mortality rates increased from `r effsP_WF[, min(x)]` (unit) to `r effsP_WF[, max(x)]` (unit), but that increase was much greater for controls (`r effsP_WF[group == "Control", round(max(predicted)-min(predicted), 2)]` ha increase) than food-adds (`r effsP_WF[group == "Food add", round(max(predicted)-min(predicted), 2)]` ha increase).
 
-
 ![Figure 1.](output/figures/sumfigure.jpeg)
 
 ![Figure 2](output/figures/HRnofood.jpeg)
