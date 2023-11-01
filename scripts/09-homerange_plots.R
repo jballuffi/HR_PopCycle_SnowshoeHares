@@ -31,6 +31,15 @@ foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
 
 
+# exploring home range distributions --------------------------------------
+
+(histo <- 
+  ggplot(DT)+
+  geom_histogram(aes(M90, fill = winter), color = "grey30", alpha = .6)+
+  facet_wrap(~Food)+
+  theme_minimal())
+
+
 
 # Density over time --------------------------------------------------------
 
@@ -104,3 +113,4 @@ fullbyyear <- ggarrange(h, l, byyear, ncol = 1, nrow = 3)
 
 
 ggsave("Output/figures/sumfigure.jpeg", fullbyyear, width = 6, height = 9.5, units = "in")
+ggsave("Output/figures/foodadd_histogram.jpeg", histo, width = 8, height = 5, units = "in")
