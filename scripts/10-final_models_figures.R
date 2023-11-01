@@ -56,8 +56,6 @@ summary(lm(M90 ~ Food, data = yesfood))
 
 # models without food add -----------------------------------------------------------
 
-# linear model for mort rate and hare density
-NFlinear <- lm(M90 ~ mortrate + haredensity, data = nofood)
 
 # linear mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
@@ -77,9 +75,6 @@ NFpse <- se.fixef(NFmixed)["mortrate"]
 
 
 # models with food add ----------------------------------------------------
-
-# linear model for mort rate and hare density
-WFlinear <- lm(M90 ~ mortrate*Food + haredensity*Food, data = yesfood)
 
 # linear mixed model for mort rate and hare density
 WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
@@ -146,31 +141,6 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     theme_densities)
 
 (hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
-
-
-
-# Liner model outputs -----------------------------------------------------
-
-#list models and provide names
-mods <- list(NFlinear, WFlinear)
-names <- c("Without treatment", "With treatment")
-
-
-#apply the lm_out function to the top to same list of models as in AIC
-Lout <- lapply(mods, lm_out)
-Lout <- rbindlist(Lout, fill = TRUE)
-Lout$Model <- names
-
-
-setcolorder(Lout, c("Model", "(Intercept)", "haredensity", "mortrate", "FoodControl", 
-                      "FoodControl:haredensity", "mortrate:FoodControl", 
-                      "rsq"))
-
-names(Lout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
-                   "Treatment*Density", "Treatment*Mortality",
-                   "rsq")
-
-
 
 
 
