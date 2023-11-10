@@ -109,6 +109,12 @@ ggplot(areas)+
 
 
 
+# Investigate the home range overlaps -------------------------------------
+
+spdf <- SpatialPointsDataFrame(gps[, .SD, .SDcols = c("x_proj", "y_proj")], proj4string = CRS(utm7N))
+
+
+
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
