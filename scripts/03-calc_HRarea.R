@@ -111,7 +111,36 @@ ggplot(areas)+
 
 # Investigate the home range overlaps -------------------------------------
 
-spdf <- SpatialPointsDataFrame(gps[, .SD, .SDcols = c("x_proj", "y_proj")], proj4string = CRS(utm7N))
+
+
+cp <- mcp(puechabonsp$relocs[, 1], percent=95, unin = c("m"), unout = c("m2"))
+
+st_as_sf(cp) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
+  scale_fill_discrete(name = "Animal id")
+
+
+
+#randomly select 10 individuals from GPS data
+overlapsample <- gps[id %in% sample(gps$id, 10, replace = FALSE)]
+
+
+
+
+
+gpssample <- gps[id == 23942, .(x_proj, y_proj)]
+
+gpssample <- SpatialPointsDataFrame(gpssample,
+                       data = gpssample,
+                       proj4string = CRS(utm7N))
+
+samplemcp <- mcp(gpssample, percent = 90)
+
+st_as_sf(samplemcp) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
+  scale_fill_discrete(name = "Deploy ID")
+
+
+
+shapes <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = weeksplit]
 
 
 
