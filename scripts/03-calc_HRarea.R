@@ -1,5 +1,4 @@
 
-#TO DO: look at areas against actual FIX SUCCESS NOT JUST NUMBER OF FIXES
 
 #source the R folder to load any packages and functions
 lapply(dir('R', '*.R', full.names = TRUE), source)
@@ -111,36 +110,39 @@ ggplot(areas)+
 
 # Investigate the home range overlaps -------------------------------------
 
-
-
-cp <- mcp(puechabonsp$relocs[, 1], percent=95, unin = c("m"), unout = c("m2"))
-
-st_as_sf(cp) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
-  scale_fill_discrete(name = "Animal id")
-
-
-
 #randomly select 10 individuals from GPS data
-overlapsample <- gps[id %in% sample(gps$id, 10, replace = FALSE)]
+sample <- gps[id %in% sample(gps$id, 1, replace = FALSE), 
+                     .(id, deploy_id, x_proj, y_proj)]
+
+sample[, length(unique(deploy_id)), id]
+
+sample[, id := NULL]
+ 
+setnames(sample, "deploy_id", "id")
 
 
 
-
-
-gpssample <- gps[id == 23942, .(x_proj, y_proj)]
-
-gpssample <- SpatialPointsDataFrame(gpssample,
-                       data = gpssample,
+sampleSP <- SpatialPointsDataFrame(sample[, .SD, .SDcols = c("x_proj", "y_proj")],
+                       data = sample,
                        proj4string = CRS(utm7N))
 
-samplemcp <- mcp(gpssample, percent = 90)
+sampleSP
 
-st_as_sf(samplemcp) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
+
+sampleMCP <- mcp(sampleSP[,1], percent = 90)
+
+plot(sampleMCP)
+
+st_as_sf(sampleMCP) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
   scale_fill_discrete(name = "Deploy ID")
 
 
 
-shapes <- gps[, mcp_area(.SD, x = "x_proj", y = "y_proj", utmzone = utm7N, vol = 90), by = weeksplit]
+## the above works for one individual
+
+
+
+
 
 
 
