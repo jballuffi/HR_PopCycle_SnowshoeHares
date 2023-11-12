@@ -131,8 +131,6 @@ sampleSP
 
 sampleMCP <- mcp(sampleSP[,1], percent = 90)
 
-plot(sampleMCP)
-
 st_as_sf(sampleMCP) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
   scale_fill_discrete(name = "Deploy ID")
 
