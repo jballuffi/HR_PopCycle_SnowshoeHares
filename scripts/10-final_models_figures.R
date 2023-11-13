@@ -17,6 +17,9 @@ dat[, Weight := Weight/1000]
 #rename food categories
 dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
+#remove last homeranges by ID
+dat <- dat[lastHR == "no"]
+
 #make a data frame with only control hares. This will be all years
 nofood <- dat[Food == "Control"]
 
