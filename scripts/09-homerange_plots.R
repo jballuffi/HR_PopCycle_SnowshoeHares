@@ -76,18 +76,20 @@ morts <- densities[date %in% minmonths$V1]
 #remove NAs 
 morts <- morts[!is.na(mortrate)]
 setorder(morts, date)
+setorder(densities, date)
 
-(l <- ggplot(morts)+
-  geom_path(aes(x = date, y = mortrate, group = winter, color = phase))+
+#point version
+(ggplot(morts)+
+  geom_point(aes(x = date, y = mortrate, color = phase))+
+  geom_text(aes(x = date, y = mortrate, label = mnth, color = phase), size = 3, nudge_y = .02)+
   scale_color_manual(values = cols)+
   labs(x = "", y = "Probability of mortality", subtitle = "B")+
   theme_boxplots+
   theme(axis.text.x.bottom = element_text(size = 8)))
 
-#other version
-(ggplot(wintermeans)+
-    geom_path(aes(x = winter, y = mortrate, group = 1))+
-    geom_point(aes(x = winter, y = mortrate, color = phase), size = 2)+
+#line version
+(l <- ggplot(densities)+
+    geom_path(aes(x = date, y = mortrate, group = winter, color = phase))+
     scale_color_manual(values = cols)+
     labs(x = "", y = "Mortality rate")+
     theme_boxplots+
