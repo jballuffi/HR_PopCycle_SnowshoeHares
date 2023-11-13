@@ -19,10 +19,13 @@ weeksplit <- c("id", "winter", "deploy_id", "week", "weekdate", "weekwinterday",
 
 # grab 15 random individuals and run the mcp function  --------------------
 
+#create a unique week ID
+gps[, id_week := paste0(id, "_", weekdate)]
+
 #randomly select 10 individuals from GPS data
-sample <- gps[id %in% sample(gps$id, 5, replace = FALSE), 
-              .(id, deploy_id, x_proj, y_proj)]
+sample <- gps[id %in% sample(gps$id, 15, replace = FALSE), 
+              .(id, id_week, x_proj, y_proj)]
+
 
 sample[, plot_mcp(dt = .SD), id]
-
 
