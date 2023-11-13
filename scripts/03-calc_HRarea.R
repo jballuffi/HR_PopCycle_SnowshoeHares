@@ -74,8 +74,6 @@ areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 
 
-
-
 # explore data basics -----------------------------------------------------
 
 #plot areas against fix rate
@@ -107,43 +105,7 @@ ggplot(areas)+
 
 
 
-
-# Investigate the home range overlaps -------------------------------------
-
-#randomly select 10 individuals from GPS data
-sample <- gps[id %in% sample(gps$id, 1, replace = FALSE), 
-                     .(id, deploy_id, x_proj, y_proj)]
-
-sample[, length(unique(deploy_id)), id]
-
-sample[, id := NULL]
- 
-setnames(sample, "deploy_id", "id")
-
-
-
-sampleSP <- SpatialPointsDataFrame(sample[, .SD, .SDcols = c("x_proj", "y_proj")],
-                       data = sample,
-                       proj4string = CRS(utm7N))
-
-sampleSP
-
-
-sampleMCP <- mcp(sampleSP[,1], percent = 90)
-
-st_as_sf(sampleMCP) %>% ggplot(., aes(fill = id)) + geom_sf(alpha = 0.5) +
-  scale_fill_discrete(name = "Deploy ID")
-
-
-
-## the above works for one individual
-
-
-
-
-
-
-
+# save figures ------------------------------------------------------------
 
 #save HR areas as an RDS file in the output folder
 saveRDS(areas, "output/results/hrareas.rds")
