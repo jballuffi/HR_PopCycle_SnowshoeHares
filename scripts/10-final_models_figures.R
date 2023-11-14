@@ -313,4 +313,8 @@ ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 6, height = 8, units = 
 
 ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 6, height = 8, units = "in")
 
+ggsave("output/figures/HRnofoodseasons.jpeg", NOFOODseason, width = 10, height = 8, units = "in")
+
+ggsave("output/figures/HRwithfoodseasons.jpeg", YESFOODseason, width = 10, height = 8, unit = "in")
+
 fwrite(Mout, "Output/results/model_outputs.csv")
