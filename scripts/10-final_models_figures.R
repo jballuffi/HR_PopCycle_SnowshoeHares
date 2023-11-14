@@ -18,16 +18,28 @@ dat[, Weight := Weight/1000]
 dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
 #remove last homeranges by ID
-dat <- dat[lastHR == "no"]
-
-#make a data frame with only control hares. This will be all years
-nofood <- dat[Food == "Control"]
+#dat <- dat[lastHR == "no"]
 
 #pull out the years with food add
 foodyears <- dat[Food == "Food add", unique(winter)]
 
+#make a data frame with only control hares. This will be all years
+nofood <- dat[Food == "Control"]
+
 #make a data frame to only include the winters with food add 
 yesfood <- dat[winter %in% foodyears]
+
+#make a data frame for no food in early season
+nofood_early <- nofood[season == "early"]
+
+#make a dataframe for no food late season
+nofood_late <- nofood[season == "late"]
+
+#make a data fram for with food early season 
+yesfood_early <- yesfood[season == "early"]
+
+#makes a data frame for with food late season
+yesfood_late <- yesfood[season == "late"]
 
 
 
@@ -57,8 +69,7 @@ summary(lm(M90 ~ Food, data = yesfood))
 
 
 
-# models without food add -----------------------------------------------------------
-
+# no food combined seasons -----------------------------------------------------------
 
 # linear mixed model for mort rate and hare density
 NFmixed <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood)
@@ -76,8 +87,21 @@ NFpcoef <- fixef(NFmixed)["mortrate"]
 NFpse <- se.fixef(NFmixed)["mortrate"]
 
 
+# no food separate seasons -------------------------------------------
 
-# models with food add ----------------------------------------------------
+# early winter only
+NFearly <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood_early)
+effsP_NFearly <- ggpredict(NFearly, terms = c("mortrate"))
+effsD_NFearly <- ggpredict(NFearly, terms = c("haredensity"))
+
+#late winter only
+NFlate <- lmer(M90 ~ mortrate + haredensity + (1|id), data = nofood_late)
+effsP_NFlate <- ggpredict(NFlate, terms = c("mortrate"))
+effsD_NFlate <- ggpredict(NFlate, terms = c("haredensity"))
+
+
+
+# with food combined seasons ----------------------------------------------------
 
 # linear mixed model for mort rate and hare density
 WFmixed <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood)
@@ -88,7 +112,23 @@ effsD_WF <- as.data.table(ggpredict(WFmixed, terms = c("haredensity", "Food")))
 
 
 
-# Figures with NO FOOD ------------------------------------------------------------------
+# with food separate seasons ----------------------------------------------
+
+WFearly <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood_early)
+
+#to get effects for the interactions in the food add model
+effsP_WFearly <- as.data.table(ggpredict(WFearly, terms = c("mortrate", "Food")))
+effsD_WFearly <- as.data.table(ggpredict(WFearly, terms = c("haredensity", "Food")))
+
+WFlate <- lmer(M90 ~ mortrate*Food + haredensity*Food + (1|id), data = yesfood_late)
+
+#to get effects for the interactions in the food add model
+effsP_WFlate <- as.data.table(ggpredict(WFlate, terms = c("mortrate", "Food")))
+effsD_WFlate <- as.data.table(ggpredict(WFlate, terms = c("haredensity", "Food")))
+
+
+
+# Figures with NO FOOD combined seasons ------------------------------------------------------------------
 
 (NFdensity <- 
    ggplot()+
@@ -108,13 +148,51 @@ effsD_WF <- as.data.table(ggpredict(WFmixed, terms = c("haredensity", "Food")))
     theme_densities)
 
     
-(hrNOFOOD <- ggarrange(NFdensity, NFmort, 
-                      ncol = 1, nrow = 2))
+(hrNOFOOD <- ggarrange(NFdensity, NFmort, ncol = 1, nrow = 2))
 
 
 
+# Figures no food separate seasons  ---------------------------------------
 
-# Figures from food add years  --------------------------------------------
+(NFdensity_early <- 
+   ggplot()+
+   geom_point(aes(x = haredensity, y = M90), data = nofood_early)+
+   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsD_NFearly)+
+   geom_line(aes(x = x, y = predicted), size = 1, data = effsD_NFearly)+
+   labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Early winter")+
+   theme_densities)
+
+(NFmort_early <- 
+    ggplot()+
+    geom_point(aes(x = mortrate, y = M90), data = nofood_early)+
+    #geom_smooth(aes(x = mortrate, y = M90), data = nofood_early, method = "lm")+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsP_NFearly)+
+    geom_line(aes(x = x, y = predicted), size = 1, data = effsP_NFearly)+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Early winter")+
+    theme_densities)
+
+(NFdensity_late <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90), data = nofood_late)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsD_NFlate)+
+    geom_line(aes(x = x, y = predicted), size = 1, data = effsD_NFlate)+
+    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Late winter")+
+    theme_densities)
+
+(NFmort_late <- 
+    ggplot()+
+    geom_point(aes(x = mortrate, y = M90), data = nofood_late)+
+    #geom_smooth(aes(x = mortrate, y = M90), data = nofood_early, method = "lm")+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effsP_NFlate)+
+    geom_line(aes(x = x, y = predicted), size = 1, data = effsP_NFlate)+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Late winter")+
+    theme_densities)
+
+NOFOODseason <- ggarrange(NFdensity_early, NFdensity_late, NFmort_early, NFmort_late, ncol = 2, nrow = 2)
+
+
+
+# Figures with food combined seasons --------------------------------------------
 
 foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
@@ -147,7 +225,61 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 
 
-# Create mixed model outputs ----------------------------------------------------
+# figures with food separate seasons --------------------------------------
+
+(WFdensity_early <- 
+   ggplot()+
+   geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_early)+
+   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+               colour = "grey80", alpha = .3, data = effsD_WFearly)+
+   geom_line(aes(x = x, y = predicted, group = group, color = group),
+             size = 1, data = effsD_WFearly)+
+   scale_color_manual(values = foodcols, guide = NULL)+
+   scale_fill_manual(values = foodcols)+
+   labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Early winter")+
+   theme_densities)
+
+(WFmort_early <- 
+    ggplot()+
+    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_early)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+                colour = "grey80", alpha = .3, data = effsP_WFearly)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group),
+              size = 1, data = effsP_WFearly)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Early winter")+
+    theme_densities)
+
+(WFdensity_late <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_late)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+                colour = "grey80", alpha = .3, data = effsD_WFlate)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group),
+              size = 1, data = effsD_WFlate)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Late winter")+
+    theme_densities)
+
+(WFmort_late <- 
+    ggplot()+
+    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_late)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+                colour = "grey80", alpha = .3, data = effsP_WFlate)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group),
+              size = 1, data = effsP_WFlate)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Late winter")+
+    theme_densities)
+
+YESFOODseason <- ggarrange(WFdensity_early, WFdensity_late, WFmort_early, WFmort_late, ncol = 2, nrow = 2)
+
+
+
+ # Create mixed model outputs ----------------------------------------------------
 
 #list models and provide names
 mods <- list(NFmixed, WFmixed)
