@@ -29,7 +29,7 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
 foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
-
+DT <- DT[lastHR == "no"]
 
 # exploring home range distributions --------------------------------------
 
