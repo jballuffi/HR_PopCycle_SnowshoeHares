@@ -125,22 +125,6 @@ DT3[, SD := weeklysnow(weekdate = .BY[[1]], grid = snowgrid), by = .(date, id)]
 
 
 
-# Create seasons and find last home range -----------------------------
-
-#december and january are early winter
-DT3[mnth == 12 | mnth == 1, season := "early"]
-
-#february and march are last winter
-DT3[mnth == 2 | mnth == 3, season := "late"]
-
-#take the last home range week, make new variable by id
-DT3[, lastweek := max(weekdate), id]
-
-#is it the last home range for an individual?
-DT3[weekdate == lastweek, lastHR := "yes"]
-DT3[is.na(lastHR), lastHR := "no"]
-
-
 # Save final data sets -----------------------------------------------------
 
 #save merged data
