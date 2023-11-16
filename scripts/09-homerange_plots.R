@@ -13,10 +13,6 @@ DT[, Food := as.factor(Food)]
 #remove winter with no data in densities
 densities <- densities[!winter == "2021-2022"]
 
-#Need to figure out these outliers! -Liam looked into them, summary in email
-incl.out <- copy(DT)
-DT <- DT[!M90 > 20] 
-
 #reorder phase cycles
 #DT[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
@@ -29,7 +25,7 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
 foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
-DT <- DT[lastHR == "no"]
+#DT <- DT[lastHR == "no"]
 
 # exploring home range distributions --------------------------------------
 
