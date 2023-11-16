@@ -74,6 +74,42 @@ areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 
 
+# Create seasons and find last home range -----------------------------
+
+areas[, mnth := month(weekdate)]
+
+#december and january are early winter
+areas[mnth == 12 | mnth == 1, season := "early"]
+
+#february and march are last winter
+areas[mnth == 2 | mnth == 3, season := "late"]
+
+#take the last home range week, make new variable by id
+areas[, lastweek := max(weekdate), id]
+
+#is it the last home range for an individual?
+areas[weekdate == lastweek, lastHR := "yes"]
+areas[is.na(lastHR), lastHR := "no"]
+
+
+
+# Are last home ranges outliers? If so remove --------
+
+#first remove impossible home ranges (> 36 ha). That's a whole grid
+areas <- areas[!M90 > 36]
+
+#calculate z score
+areas[, zscore := abs((M90 - mean(M90))/sd(M90))]
+areas[zscore > 3]
+
+#remove any home ranges that are statistical outliers
+areas <- areas[!zscore > 3]
+
+#remove cases where the last home range is nearly 0. suspected mortality, but not in records
+areas <- areas[!(lastHR == "yes" & M90 < 0.1)]
+
+
+
 # explore data basics -----------------------------------------------------
 
 #plot areas against fix rate
