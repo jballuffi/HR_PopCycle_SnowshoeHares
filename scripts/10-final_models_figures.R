@@ -5,8 +5,6 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
-dat <- dat[!M90 > 20]
-dat <- dat[!is.na(SD)]
 
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
@@ -29,17 +27,17 @@ nofood <- dat[Food == "Control"]
 #make a data frame to only include the winters with food add 
 yesfood <- dat[winter %in% foodyears]
 
-#make a data frame for no food in early season
-nofood_early <- nofood[season == "early"]
-
-#make a dataframe for no food late season
-nofood_late <- nofood[season == "late"]
-
-#make a data fram for with food early season 
-yesfood_early <- yesfood[season == "early"]
-
-#makes a data frame for with food late season
-yesfood_late <- yesfood[season == "late"]
+# #make a data frame for no food in early season
+# nofood_early <- nofood[season == "early"]
+# 
+# #make a dataframe for no food late season
+# nofood_late <- nofood[season == "late"]
+# 
+# #make a data fram for with food early season 
+# yesfood_early <- yesfood[season == "early"]
+# 
+# #makes a data frame for with food late season
+# yesfood_late <- yesfood[season == "late"]
 
 
 
