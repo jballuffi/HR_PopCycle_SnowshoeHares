@@ -21,18 +21,6 @@ nofood <- dat[Food == "Control"]
 #make a data frame to only include the winters with food add 
 yesfood <- dat[winter %in% foodyears]
 
-# #make a data frame for no food in early season
-# nofood_early <- nofood[season == "early"]
-# 
-# #make a dataframe for no food late season
-# nofood_late <- nofood[season == "late"]
-# 
-# #make a data fram for with food early season 
-# yesfood_early <- yesfood[season == "early"]
-# 
-# #makes a data frame for with food late season
-# yesfood_late <- yesfood[season == "late"]
-
 
 
 # covariate correlation test --------------------------------------------------------
@@ -98,13 +86,14 @@ NFpse <- se.fixef(NF)["mortrate"]
     theme_densities)
 
 
-(hrNOFOOD <- ggarrange(NFdensity, NFmort, ncol = 1, nrow = 2))
+(hrCONTROL <- ggarrange(NFdensity, NFmort, ncol = 1, nrow = 2))
 
 
 
 # no food with seasons -------------------------------------------
 
-seasoncols <- c("early" = "skyblue", "late" = "blue3")
+#classify seasons into shapes
+seasonshapes <- c("early" = 4, "late" = 19)
 
 # linear mixed model for mort rate and hare density
 WS <- lmer(M90 ~ mortrate*season + haredensity*season + (1|id), data = nofood[!is.na(season)])
@@ -115,25 +104,19 @@ effsD_WS <- as.data.table(ggpredict(WS, terms = c("haredensity", "season")))
 
 (WSdensity <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = season), data = nofood[!is.na(season)])+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-                colour = "grey80", alpha = .3, data = effsD_WS)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsD_WS)+
-    scale_color_manual(values = seasoncols, guide = NULL)+
-    scale_fill_manual(values = seasoncols)+
+    #geom_point(aes(x = haredensity, y = M90, shape = season), data = nofood[!is.na(season)])+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effsD_WS)+
+    geom_line(aes(x = x, y = predicted, group = group, linetype = group), size = 1, data = effsD_WS)+
+    #scale_shape_manual(values = seasonshapes)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
     theme_densities)
 
 (WSmort <- 
     ggplot()+
-    geom_point(aes(x = mortrate, y = M90, color = season), data = nofood[!is.na(season)])+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-                colour = "grey80", alpha = .3, data = effsP_WS)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsP_WS)+
-    scale_color_manual(values = seasoncols, guide = NULL)+
-    scale_fill_manual(values = seasoncols)+
+    #geom_point(aes(x = mortrate, y = M90, shape = season), data = nofood[!is.na(season)])+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effsP_WS)+
+    geom_line(aes(x = x, y = predicted, group = group, linetype = group), size = 1, data = effsP_WS)+
+    #scale_shape_manual(values = seasonshapes)+
     labs(y = "90% MCP area (ha)", x = "Probability of mortality")+
     theme_densities)
 
@@ -154,7 +137,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 (WFdensity <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
+    #geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
                 colour = "grey80", alpha = .3, data = effsD_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
@@ -167,7 +150,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 (WFmort <- 
     ggplot()+
-    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood)+
+    #geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
                 colour = "grey80", alpha = .3, data = effsP_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group),
@@ -177,11 +160,11 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     labs(y = "90% MCP area (ha)", x = "Probability of mortality")+
     theme_densities)
 
-(hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
+(hrFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
 
 
 
-# with food separate seasons ----------------------------------------------
+# with food and seasons ----------------------------------------------
 
 
 #three way interaction between food and season
@@ -191,113 +174,85 @@ WFS <- lmer(M90 ~ mortrate*Food*season + haredensity*Food*season + (1|id), data 
 effsP_WFS <- as.data.table(ggpredict(WFS, terms = c("mortrate", "Food", "season")))
 effsD_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
 
-(WFdensity <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food, shape = season), data = yesfood)+
-    # geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-    #             colour = "grey80", alpha = .3, data = effsD_WF)+
-    # geom_line(aes(x = x, y = predicted, group = group, color = group),
-    #           size = 1, data = effsD_WF)+
-    # scale_color_manual(values = foodcols, guide = NULL)+
-    # scale_fill_manual(values = foodcols)+
+#combine group and facet into one category
+effsP_WFS[, Category := paste0(group, " ", facet)]
+effsD_WFS[, Category := paste0(group, " ", facet)]
+
+
+(WFSdensity <- 
+    ggplot(effsD_WFS)+
+    #geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
+    geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
+    scale_color_manual(values = foodcols)+
+    #scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
     theme_densities)
 
-
-
-# Figures with NO FOOD combined seasons ------------------------------------------------------------------
-
-
-
-# Figures no food separate seasons  ---------------------------------------
-
-
-
-# Figures with food combined seasons --------------------------------------------
-
-foodcols <- c("Food add" = "red3", "Control" = "grey30")
-
-(WFdensity <- 
-   ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-              colour = "grey80", alpha = .3, data = effsD_WF)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsD_WF)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
-    theme_densities)
-
-
-(WFmort <- 
-    ggplot()+
-    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-            colour = "grey80", alpha = .3, data = effsP_WF)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-            size = 1, data = effsP_WF)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
+(WFSmort <- 
+    ggplot(effsP_WFS)+
+    #geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
+    geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
+    scale_color_manual(values = foodcols)+
+    #scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Probability of mortality")+
     theme_densities)
 
-(hrYESFOOD <- ggarrange(WFdensity, WFmort, ncol = 1, nrow = 2))
+hrFOODSEASON <- ggarrange(WFSdensity, WFSmort, ncol = 1, nrow = 2)
 
 
 
 # figures with food separate seasons --------------------------------------
-
-(WFdensity_early <- 
-   ggplot()+
-   geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_early)+
-   geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-               colour = "grey80", alpha = .3, data = effsD_WFearly)+
-   geom_line(aes(x = x, y = predicted, group = group, color = group),
-             size = 1, data = effsD_WFearly)+
-   scale_color_manual(values = foodcols, guide = NULL)+
-   scale_fill_manual(values = foodcols)+
-   labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Early winter")+
-   theme_densities)
-
-(WFmort_early <- 
-    ggplot()+
-    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_early)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-                colour = "grey80", alpha = .3, data = effsP_WFearly)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsP_WFearly)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Early winter")+
-    theme_densities)
-
-(WFdensity_late <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_late)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-                colour = "grey80", alpha = .3, data = effsD_WFlate)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsD_WFlate)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Late winter")+
-    theme_densities)
-
-(WFmort_late <- 
-    ggplot()+
-    geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_late)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
-                colour = "grey80", alpha = .3, data = effsP_WFlate)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group),
-              size = 1, data = effsP_WFlate)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Late winter")+
-    theme_densities)
-
-YESFOODseason <- ggarrange(WFdensity_early, WFdensity_late, WFmort_early, WFmort_late, ncol = 2, nrow = 2)
-
+# 
+# (WFdensity_early <- 
+#    ggplot()+
+#    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_early)+
+#    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+#                colour = "grey80", alpha = .3, data = effsD_WFearly)+
+#    geom_line(aes(x = x, y = predicted, group = group, color = group),
+#              size = 1, data = effsD_WFearly)+
+#    scale_color_manual(values = foodcols, guide = NULL)+
+#    scale_fill_manual(values = foodcols)+
+#    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Early winter")+
+#    theme_densities)
+# 
+# (WFmort_early <- 
+#     ggplot()+
+#     geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_early)+
+#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+#                 colour = "grey80", alpha = .3, data = effsP_WFearly)+
+#     geom_line(aes(x = x, y = predicted, group = group, color = group),
+#               size = 1, data = effsP_WFearly)+
+#     scale_color_manual(values = foodcols, guide = NULL)+
+#     scale_fill_manual(values = foodcols)+
+#     labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Early winter")+
+#     theme_densities)
+# 
+# (WFdensity_late <- 
+#     ggplot()+
+#     geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood_late)+
+#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+#                 colour = "grey80", alpha = .3, data = effsD_WFlate)+
+#     geom_line(aes(x = x, y = predicted, group = group, color = group),
+#               size = 1, data = effsD_WFlate)+
+#     scale_color_manual(values = foodcols, guide = NULL)+
+#     scale_fill_manual(values = foodcols)+
+#     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "Late winter")+
+#     theme_densities)
+# 
+# (WFmort_late <- 
+#     ggplot()+
+#     geom_point(aes(x = mortrate, y = M90, color = Food), data = yesfood_late)+
+#     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group),
+#                 colour = "grey80", alpha = .3, data = effsP_WFlate)+
+#     geom_line(aes(x = x, y = predicted, group = group, color = group),
+#               size = 1, data = effsP_WFlate)+
+#     scale_color_manual(values = foodcols, guide = NULL)+
+#     scale_fill_manual(values = foodcols)+
+#     labs(y = "90% MCP area (ha)", x = "Probability of mortality", title = "Late winter")+
+#     theme_densities)
+# 
+# Fodbyseason <- ggarrange(WFdensity_early, WFdensity_late, WFmort_early, WFmort_late, ncol = 2, nrow = 2)
+# 
 
 
  # Create mixed model outputs ----------------------------------------------------
@@ -330,12 +285,12 @@ names(Mout) <- c("Model", "Intercept", "Density", "Mortality", "Treatment",
 
 
 
-ggsave("output/figures/HRnofood.jpeg", hrNOFOOD, width = 6, height = 8, units = "in")
+ggsave("output/figures/HRnofood.jpeg", hrCONTROL, width = 6, height = 8, units = "in")
 
-ggsave("output/figures/HRwithfood.jpeg", hrYESFOOD, width = 6, height = 8, units = "in")
+ggsave("output/figures/HRwithfood.jpeg", hrFOOD, width = 6, height = 8, units = "in")
 
-ggsave("output/figures/HRnofoodseasons.jpeg", NOFOODseason, width = 10, height = 8, units = "in")
+ggsave("output/figures/HRnofoodseasons.jpeg", hrSEASON, width = 6, height = 8, units = "in")
 
-ggsave("output/figures/HRwithfoodseasons.jpeg", YESFOODseason, width = 10, height = 8, unit = "in")
+ggsave("output/figures/HRwithfoodseasons.jpeg", hrFOODSEASON, width = 6, height = 8, unit = "in")
 
 fwrite(Mout, "Output/results/model_outputs.csv")
