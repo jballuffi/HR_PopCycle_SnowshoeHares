@@ -1,0 +1,171 @@
+
+#source the R folder to load any packages and functions
+lapply(dir('R', '*.R', full.names = TRUE), source)
+
+
+#read in data
+dat <- readRDS("output/results/compileddata.rds")
+
+#reorder phase cycles
+dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
+
+#rename food categories
+dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
+
+# #november and december are early winter
+# dat[mnth.x == 11 | mnth.x == 12, season := "early"]
+# 
+# #february and march are last winter
+# dat[mnth.x == 2 | mnth.x == 3, season := "late"]
+
+#pull out the years with food add
+foodyears <- dat[Food == "Food add", unique(winter)]
+
+#make a data frame with only control hares. This will be all years
+nofood <- dat[Food == "Control"]
+
+#make a data frame to only include the winters with food add 
+yesfood <- dat[winter %in% foodyears]
+
+
+
+# basic tests and stats ---------------------------------------------------
+
+# test if sex has an effect on home range
+HRsex <- anova(lm(M90 ~ Sex, data = nofood))
+Psex <- HRsex$`Pr(>F)`[1]
+DFsex <- HRsex$`Df`[2]
+Fsex <- HRsex$`F value`[1]
+
+#how many fixes in a home range on avg
+nfix <- dat[, mean(n.fixes)]
+
+#did treatment have a significant effect on home ranges alone
+summary(lm(M90 ~ Food, data = yesfood))
+ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
+
+
+
+# no food no seasons -----------------------------------------------------------
+
+# linear mixed model for mort rate and hare density
+NF <- lmer(M90 ~ haredensity + (1|id), data = nofood)
+
+#to get line predictions for both variables
+effs_NF <- ggpredict(NF, terms = c("haredensity"))
+
+#coefficients for density
+NFdcoef <- fixef(NF)["haredensity"]
+NFdse <- se.fixef(NF)["haredensity"]
+
+(NFplot <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90), data = nofood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
+    geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
+    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
+    theme_densities)
+
+
+
+# no food with seasons -------------------------------------------
+
+#classify seasons into shapes
+seasonshapes <- c("early" = 19, "late" = 4)
+
+# linear mixed model for mort rate and hare density
+WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood[!is.na(season)])
+
+#to get effects for the interactions in the food add model
+effs_WS <- as.data.table(ggpredict(WS, terms = c("haredensity", "season")))
+
+(WSplot <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, shape = season), data = nofood[!is.na(season)])+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
+    geom_line(aes(x = x, y = predicted, group = group, linetype = group), size = 1, data = effs_WS)+
+    scale_shape_manual(values = seasonshapes)+
+    labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
+    theme_densities)
+
+
+
+# with food no seasons ----------------------------------------------------
+
+# linear mixed model for mort rate and hare density
+WF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
+
+#to get effects for the interactions in the food add model
+effs_WF <- as.data.table(ggpredict(WF, terms = c("haredensity", "Food")))
+
+foodcols <- c("Food add" = "red3", "Control" = "grey30")
+
+(WFplot <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
+    theme_densities)
+
+
+
+# with food and seasons ----------------------------------------------
+
+#three way interaction between food and season
+WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
+
+#to get effects for the interactions in the food add model
+effs_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
+
+#combine group and facet into one category
+effs_WFS[, Category := paste0(group, " ", facet)]
+
+(WFSplot <- 
+    ggplot(effs_WFS)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
+    geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
+    scale_color_manual(values = foodcols)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "C) Food and season")+
+    theme_densities)
+
+
+
+# Combine panels ----------------------------------------------------------
+
+fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
+
+
+
+# Create mixed model outputs ----------------------------------------------------
+
+#list models and provide names
+mods <- list(NF, WS, WF, WFS)
+names <- c("Control-only", "Season", "Food treatment", "Season and food treatment")
+
+
+#apply the lm_out function to the top to same list of models as in AIC
+Mout <- lapply(mods, lmer_out)
+Mout <- rbindlist(Mout, fill = TRUE)
+Mout$Model <- names
+
+
+setcolorder(Mout, c("Model", "(Intercept)", "haredensity", "seasonlate", "FoodControl", 
+                    "haredensity:seasonlate", "haredensity:FoodControl", "FoodControl:seasonlate", "haredensity:FoodControl:seasonlate", 
+                    "R2m", "R2c"))
+
+names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
+                 "Season*Density", "Food*Density", "Food*Season", "Food*Season*Density",
+                 "R2m", "R2c")
+
+
+
+# save results ------------------------------------------------------------
+
+ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 11, unit = "in")
+ggsave("Output/figures/control_density.jpeg", NFplot, width = 6, height = 4, unit = "in")
+
+fwrite(Mout, "Output/results/model_outputs.csv")
