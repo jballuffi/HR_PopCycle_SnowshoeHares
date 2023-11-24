@@ -14,8 +14,6 @@ source("scripts/06-snow_depth.R")
 
 source("scripts/07-merge_data.R")
 
-source("scripts/08-system_plots.R")
-
 source("scripts/09-homerange_plots.R")
 
 source("scripts/10-final_models_figures.R")
