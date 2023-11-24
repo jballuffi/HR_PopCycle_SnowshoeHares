@@ -79,6 +79,10 @@ WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood[!is.na(season)])
 #to get effects for the interactions in the food add model
 effs_WS <- as.data.table(ggpredict(WS, terms = c("haredensity", "season")))
 
+#coefficients for density
+WScoef <- fixef(WS)["haredensity"]
+WSse <- se.fixef(WS)["haredensity"]
+
 (WSplot <- 
     ggplot()+
     geom_point(aes(x = haredensity, y = M90, shape = season), data = nofood[!is.na(season)])+
@@ -165,7 +169,7 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 # save results ------------------------------------------------------------
 
-ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 11, unit = "in")
+ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 10, unit = "in")
 ggsave("Output/figures/control_density.jpeg", NFplot, width = 6, height = 4, unit = "in")
 
 fwrite(Mout, "Output/results/model_outputs.csv")
