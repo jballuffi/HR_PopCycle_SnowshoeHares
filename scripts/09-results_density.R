@@ -119,7 +119,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 # with food and seasons ----------------------------------------------
 
 #three way interaction between food and season
-WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
+WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood[!is.na(season)])
 
 #to get effects for the interactions in the food add model
 effs_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
@@ -148,7 +148,7 @@ fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 #list models and provide names
 mods <- list(NF, WS, WF, WFS)
-names <- c("Control-only", "Season", "Food treatment", "Season and food treatment")
+names <- c("Control", "Season", "Treatment", "Season-treatment")
 
 
 #apply the lm_out function to the top to same list of models as in AIC
