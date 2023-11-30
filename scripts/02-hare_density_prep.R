@@ -70,6 +70,13 @@ phases <- springs[, .(winter, phase)]
 
 # run linear models of density decrease by winter -------------------------
 
+densityregressions <- 
+  ggplot(hdensity)+
+  geom_point(aes(x = date, y = haredensity))+
+  geom_smooth(aes(x = date, y = haredensity), method = "lm", se = FALSE)+
+  facet_wrap(~winter, scales = "free_x")+
+  theme_minimal()
+
 #summary plot of how we will get daily values by interpolating using the fitted line
 hdensity[, ggplot(.SD, aes(x = winterday, y = haredensity, color = winter) ) +
            geom_point() +
@@ -96,3 +103,4 @@ densitypred <- densitypred[winterday > 0]
 
 saveRDS(predrisk, "output/results/mortalityrates.rds")
 saveRDS(densitypred, "output/results/dailyharedensities.rds")
+ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 8, height = 7, unit = "in")
