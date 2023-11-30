@@ -9,14 +9,12 @@ dat <- readRDS("output/results/compileddata.rds")
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 
+dat[, winter := factor(winter)]
+
 #rename food categories
 dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
-# #november and december are early winter
-# dat[mnth.x == 11 | mnth.x == 12, season := "early"]
-# 
-# #february and march are last winter
-# dat[mnth.x == 2 | mnth.x == 3, season := "late"]
+dat <- dat[!mnth.x == 11]
 
 #pull out the years with food add
 foodyears <- dat[Food == "Food add", unique(winter)]
@@ -76,6 +74,7 @@ seasonshapes <- c("early" = 19, "late" = 4)
 # linear mixed model for mort rate and hare density
 WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood[!is.na(season)])
 
+
 #to get effects for the interactions in the food add model
 effs_WS <- as.data.table(ggpredict(WS, terms = c("haredensity", "season")))
 
@@ -87,7 +86,7 @@ WSse <- se.fixef(WS)["haredensity"]
     ggplot()+
     geom_point(aes(x = haredensity, y = M90, shape = season), data = nofood[!is.na(season)])+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
-    geom_line(aes(x = x, y = predicted, group = group, linetype = group), size = 1, data = effs_WS)+
+    geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
     scale_shape_manual(values = seasonshapes)+
     labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
     theme_densities)
@@ -98,6 +97,7 @@ WSse <- se.fixef(WS)["haredensity"]
 
 # linear mixed model for mort rate and hare density
 WF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
+
 
 #to get effects for the interactions in the food add model
 effs_WF <- as.data.table(ggpredict(WF, terms = c("haredensity", "Food")))
@@ -120,6 +120,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 #three way interaction between food and season
 WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood[!is.na(season)])
+
 
 #to get effects for the interactions in the food add model
 effs_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
@@ -144,12 +145,12 @@ fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 
 
+
 # Create mixed model outputs ----------------------------------------------------
 
 #list models and provide names
 mods <- list(NF, WS, WF, WFS)
 names <- c("Control", "Season", "Treatment", "Season-treatment")
-
 
 #apply the lm_out function to the top to same list of models as in AIC
 Mout <- lapply(mods, lmer_out)
