@@ -14,8 +14,6 @@ dat[, winter := factor(winter)]
 #rename food categories
 dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 
-dat <- dat[!mnth.x == 11]
-
 #pull out the years with food add
 foodyears <- dat[Food == "Food add", unique(winter)]
 

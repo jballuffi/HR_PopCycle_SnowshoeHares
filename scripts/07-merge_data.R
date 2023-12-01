@@ -85,7 +85,8 @@ setnames(DT3, c("date.y", "date.x"), c("dateweight", "date"))
 DT3[, dup := duplicated(date), id]
 DT3 <- DT3[dup == FALSE] # are HRs are removed that had no weight data
 
-
+#remove november data
+DT3 <- DT3[!mnth.x == 11]
 
 # merge in snow depth data ------------------------------------------------
 
