@@ -70,7 +70,7 @@ NFdse <- se.fixef(NF)["haredensity"]
 seasonshapes <- c("early" = 19, "late" = 4)
 
 # linear mixed model for mort rate and hare density
-WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood[!is.na(season)])
+WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood)
 
 
 #to get effects for the interactions in the food add model
@@ -117,7 +117,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 # with food and seasons ----------------------------------------------
 
 #three way interaction between food and season
-WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood[!is.na(season)])
+WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
 
 
 #to get effects for the interactions in the food add model
