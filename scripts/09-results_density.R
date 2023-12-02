@@ -48,7 +48,7 @@ ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
 NF <- lmer(M90 ~ haredensity + (1|id), data = nofood)
 
 #to get line predictions for both variables
-effs_NF <- ggpredict(NF, terms = c("haredensity"))
+effs_NF <- as.data.table(ggpredict(NF, terms = c("haredensity")))
 
 #coefficients for density
 NFdcoef <- fixef(NF)["haredensity"]
@@ -119,6 +119,9 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 #three way interaction between food and season
 WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
 
+#coefficients for density
+WFSdcoef <- fixef(WFS)["haredensity"]
+WFSdse <- se.fixef(WFS)["haredensity"]
 
 #to get effects for the interactions in the food add model
 effs_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
