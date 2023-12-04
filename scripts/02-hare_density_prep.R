@@ -70,19 +70,6 @@ phases <- springs[, .(winter, phase)]
 
 # run linear models of density decrease by winter -------------------------
 
-densityregressions <- 
-  ggplot(hdensity)+
-  geom_point(aes(x = date, y = haredensity))+
-  geom_smooth(aes(x = date, y = haredensity), method = "lm", se = FALSE)+
-  facet_wrap(~winter, scales = "free_x")+
-  theme_minimal()
-
-#summary plot of how we will get daily values by interpolating using the fitted line
-hdensity[, ggplot(.SD, aes(x = winterday, y = haredensity, color = winter) ) +
-           geom_point() +
-           geom_smooth(method = "lm", se = FALSE)]
-
-
 #run predictdens function by winter (lm of density over time, predicts for each day)
 densitypred <- hdensity[, predictdens(yvar = haredensity, xvar = winterday), by = winter]
 
@@ -94,10 +81,22 @@ densitypred[, date := mindate + winterday]
 #merge in cycle phases 
 densitypred <- merge(densitypred, phases, by = "winter", all.x = TRUE)
 
-#delete 31 days from the winterday col because HR data starts at November 1st, not October 1st
-densitypred[, winterday := winterday - 31]
-
+#delete 31 days from the winterday col because HR data starts at December 1st, not October 1st
+densitypred[, winterday := winterday - 61]
 densitypred <- densitypred[winterday > 0]
+
+
+
+# Figures -----------------------------------------------------------------
+
+densityregressions <- 
+  ggplot(densitypred)+
+  geom_line(aes(x = date, y = haredensity, group = 1), data = densitypred)+
+  geom_point(aes(x = date, y = haredensity), data = hdensity[winterday > 61])+
+  facet_wrap(~winter, scales = "free_x")+
+  labs(x = "Date", y = "Hare density (hares/ha)")+
+  theme_minimal()
+
 
 
 
