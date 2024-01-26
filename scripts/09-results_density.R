@@ -100,6 +100,10 @@ WF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
 #to get effects for the interactions in the food add model
 effs_WF <- as.data.table(ggpredict(WF, terms = c("haredensity", "Food")))
 
+#coefficients for density
+WFcoef <- fixef(WF)["haredensity"]
+WFse <- se.fixef(WF)["haredensity"]
+
 foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 (WFplot <- 
