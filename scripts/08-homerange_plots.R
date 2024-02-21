@@ -41,7 +41,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
 (d <- ggplot(densities)+
   geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
-  scale_color_manual(values = cols)+
+  scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
   labs(x = "", y = "Hares per ha", subtitle = "A")+
   theme_boxplots+
   theme(axis.text.x.bottom = element_text(size = 8)))
