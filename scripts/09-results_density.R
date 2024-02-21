@@ -56,7 +56,7 @@ NFdse <- se.fixef(NF)["haredensity"]
 
 (NFplot <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = M90), data = nofood)+
+    geom_point(aes(x = haredensity, y = M90), alpha = 0.6, data = nofood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
     geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
@@ -82,7 +82,7 @@ WSse <- se.fixef(WS)["haredensity"]
 
 (WSplot <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = M90, shape = season), data = nofood[!is.na(season)])+
+    geom_point(aes(x = haredensity, y = M90, shape = season), alpha = 0.6, data = nofood[!is.na(season)])+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
     geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
     scale_shape_manual(values = seasonshapes)+
@@ -108,7 +108,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 (WFplot <- 
     ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), data = yesfood)+
+    geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
     scale_color_manual(values = foodcols, guide = NULL)+
