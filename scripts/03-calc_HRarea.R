@@ -76,7 +76,7 @@ areas <- merge(mcpkernel, gps.sub, by = FRsplit)
 
 # Create seasons and find last home range -----------------------------
 
-areas[, mnth := month(weekdate)]
+areas[, mnth := lubridate::month(weekdate)]
 
 #december and january are early winter
 areas[mnth == 12 | mnth == 1, season := "early"]
@@ -100,7 +100,13 @@ areas <- areas[!M90 > 36]
 
 #calculate z score
 areas[, zscore := abs((M90 - mean(M90))/sd(M90))]
-areas[zscore > 3]
+
+#new table of just outliers
+outliers <- areas[zscore > 3]
+#who are the indiduals in this table? 
+outlier.inds <- outliers[, unique(id)]
+areas[id %in% outlier.inds]
+
 
 #remove any home ranges that are statistical outliers
 areas <- areas[!zscore > 3]
