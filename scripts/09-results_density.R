@@ -5,6 +5,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in data
 dat <- readRDS("output/results/compileddata.rds")
+densities <- readRDS("output/results/densities.rds")
 
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
@@ -25,6 +26,14 @@ yesfood <- dat[winter %in% foodyears]
 
 
 
+# summary stats ----------------------------------------------------
+
+mindens <- round(densities[, min(haredensity)], 3)
+maxdens <- round(densities[, max(haredensity)], 2)
+
+minhr <- round(dat[, min(M90)], 2)
+maxhr <- round(dat[, max(M90)], 2)
+
 # basic tests and stats ---------------------------------------------------
 
 # test if sex has an effect on home range
@@ -34,7 +43,11 @@ DFsex <- HRsex$`Df`[2]
 Fsex <- HRsex$`F value`[1]
 
 #how many fixes in a home range on avg
-nfix <- dat[, mean(n.fixes)]
+nfix <- round(dat[, mean(n.fixes)], 0)
+#min fix
+minfix <- round(dat[, min(n.fixes)], 0)
+#max fix
+maxfix <- round(dat[, max(n.fixes)], 0)
 
 #did treatment have a significant effect on home ranges alone
 summary(lm(M90 ~ Food, data = yesfood))
