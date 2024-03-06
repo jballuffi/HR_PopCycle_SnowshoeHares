@@ -73,6 +73,7 @@ NFdse <- se.fixef(NF)["haredensity"]
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
     geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
+    ylim(0, maxhr)+
     theme_densities)
 
 
@@ -100,6 +101,7 @@ WSse <- se.fixef(WS)["haredensity"]
     geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
     scale_shape_manual(values = seasonshapes)+
     labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
+    ylim(0, maxhr)+
     theme_densities)
 
 
@@ -127,6 +129,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
+    ylim(0, maxhr)+
     theme_densities)
 
 
@@ -153,6 +156,7 @@ effs_WFS[, Category := paste0(group, " ", facet)]
     scale_color_manual(values = foodcols)+
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "C) Food and season")+
+    ylim(0, maxhr)+
     theme_densities)
 
 
