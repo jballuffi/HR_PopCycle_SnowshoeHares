@@ -66,38 +66,42 @@ fullbyyear <- ggarrange(d, f, s, ncol = 1, nrow = 3)
 
 
 
-# mortality rate over time ------------------------------------------------
 
-# #cut to just the first day of any month
-# minmonths <- densities[, ymd(min(date)), by = .(mnth, winter)]
-# monthdates <- as.list(minmonths$V1)
-# #subset to new table
-# morts <- densities[date %in% minmonths$V1]
-# #remove NAs 
-# morts <- morts[!is.na(mortrate)]
-# setorder(morts, date)
-# setorder(densities, date)
-# 
-# #point version
-# (ggplot(morts)+
-#   geom_point(aes(x = date, y = mortrate, color = phase))+
-#   geom_text(aes(x = date, y = mortrate, label = mnth, color = phase), size = 3, nudge_y = .02)+
-#   scale_color_manual(values = cols)+
-#   labs(x = "", y = "Probability of mortality", subtitle = "B")+
-#   theme_boxplots+
-#   theme(axis.text.x.bottom = element_text(size = 8)))
-# 
-# #line version
-# (l <- ggplot(densities)+
-#     geom_path(aes(x = date, y = mortrate, group = winter, color = phase))+
-#     scale_color_manual(values = cols)+
-#     labs(x = "", y = "Mortality rate")+
-#     theme_boxplots+
-#     theme(axis.text.x.bottom = element_text(size = 8)))
+# FOR TALKS Multi-panel summary figure --------------------------------------------------------
+
+density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, phase)]
+
+(dT <- ggplot(density_avg)+
+   geom_line(aes(x = winter, y = haredensity, group = 1, color = phase), linewidth = 1)+
+   scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
+   labs(x = "", y = "Hares per ha", subtitle = "A")+
+   theme_boxplots+
+   theme(axis.text.x.bottom = element_text(size = 8)))
+
+(fT <- 
+    ggplot(DT)+
+    geom_boxplot(aes(x = winter, y = M90, color = Food))+
+    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "B")+
+    scale_color_manual(values = foodcols)+
+    theme_boxplots+
+    theme(axis.text.x.bottom = element_text(size = 8)))
+
+(sT <- 
+    ggplot(DT[!is.na(season)])+
+    geom_boxplot(aes(x = winter, y = M90, linetype = season))+
+    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C")+
+    theme_boxplots+
+    theme(axis.text.x.bottom = element_text(size = 8)))
+
+
+fortalks <- ggarrange(dT, fT, sT, ncol = 1, nrow = 3)
+
 
 
 
 # save -----------------------------------------
 
 ggsave("Output/figures/sumfigure.jpeg", fullbyyear, width = 6, height = 9.5, units = "in")
+ggsave("Output/figures/sumfigurefortalks.jpeg", fortalks, width = 6, height = 9.5, units = "in")
+
 ggsave("Output/figures/foodadd_histogram.jpeg", histo, width = 8, height = 5, units = "in")
