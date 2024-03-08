@@ -42,7 +42,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey40")
 (d <- ggplot(densities)+
   geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
   scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-  labs(x = "", y = "Hares per ha", subtitle = "A")+
+  labs(x = "", y = "Hare density (hares/ha)", subtitle = "A")+
   theme_boxplots+
   theme(axis.text.x.bottom = element_text(size = 8)))
 
@@ -74,14 +74,14 @@ density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, ph
 (dT <- ggplot(density_avg)+
    geom_line(aes(x = winter, y = haredensity, group = 1, color = phase), linewidth = 1)+
    scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-   labs(x = "", y = "Hares per ha", subtitle = "A")+
+   labs(y = "Hare density (hares/ha)", x = "Winter", subtitle = "A")+
    theme_boxplots+
    theme(axis.text.x.bottom = element_text(size = 8)))
 
 (fT <- 
     ggplot(DT)+
     geom_boxplot(aes(x = winter, y = M90, color = Food))+
-    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "B")+
+    labs(y = "HR area (ha)", x = "Winter", subtitle = "B")+
     scale_color_manual(values = foodcols)+
     theme_boxplots+
     theme(axis.text.x.bottom = element_text(size = 8)))
@@ -89,7 +89,7 @@ density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, ph
 (sT <- 
     ggplot(DT[!is.na(season)])+
     geom_boxplot(aes(x = winter, y = M90, linetype = season))+
-    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C")+
+    labs(y = "HR area (ha)", x = "Winter", subtitle = "C")+
     theme_boxplots+
     theme(axis.text.x.bottom = element_text(size = 8)))
 

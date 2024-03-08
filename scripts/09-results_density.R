@@ -72,10 +72,18 @@ NFdse <- se.fixef(NF)["haredensity"]
     geom_point(aes(x = haredensity, y = M90), alpha = 0.6, data = nofood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
     geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
+    labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
     theme_densities)
 
+(NFfortalk <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90), alpha = 0.6, data = nofood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
+    geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
+    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
+    ylim(0, maxhr)+
+    theme_densities)
 
 
 # no food with seasons -------------------------------------------
@@ -110,7 +118,7 @@ WSse <- se.fixef(WS)["haredensity"]
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
     geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
     scale_shape_manual(values = seasonshapes)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
+    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
     theme_densities)
 
@@ -147,7 +155,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
     scale_color_manual(values = foodcols, guide = NULL)+
     scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)")+
+    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
     theme_densities)
 
@@ -172,7 +180,7 @@ effs_WFS[, Category := paste0(group, " ", facet)]
     geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
     scale_color_manual(values = foodcols)+
     scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Hare Density (hares per ha)", title = "C) Food and season")+
+    labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)", title = "C) Food and season")+
     ylim(0, maxhr)+
     theme_densities)
 
@@ -211,6 +219,8 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 10, unit = "in")
 ggsave("Output/figures/control_density.jpeg", NFplot, width = 6, height = 4, unit = "in")
+
+ggsave("Output/figures/control_density_fortalks.jpeg", NFfortalk, width = 6, height = 4, unit = "in")
 ggsave("Output/figures/foodadd_density_fortalks.jpeg", foodfortalk, width = 7, height = 4, unit = "in")
 ggsave("Output/figures/seasons_density_fortalks.jpeg", seasonfortalk, width = 7, height = 4, unit = "in")
 
