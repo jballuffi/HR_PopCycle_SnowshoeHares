@@ -25,6 +25,9 @@ DT[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
 cols <- c("increase" = "purple", "peak" = "green4", "decrease" = "orange", "low" = "black")
 foodcols <- c("Food add" = "red3", "Control" = "grey40")
 
+#calculate the mean densityby winter
+meandens <- densities[, .(mean = mean(haredensity), date = mean(date)), winter]
+
 
 
 # exploring home range distributions --------------------------------------
@@ -40,7 +43,8 @@ foodcols <- c("Food add" = "red3", "Control" = "grey40")
 # Multi-panel summary figure --------------------------------------------------------
 
 (d <- ggplot(densities)+
-  geom_path(aes(x = date, y = haredensity, group = winter, color = phase))+
+  geom_path(aes(x = date, y = haredensity, group = winter, color = phase), data = densities)+
+  geom_point(aes(x = date, y = mean), data = meandens)+
   scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
   labs(x = "", y = "Hare density (hares/ha)", subtitle = "A")+
   theme_boxplots+
