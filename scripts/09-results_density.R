@@ -35,15 +35,15 @@ minhr <- round(dat[, min(M90)], 2)
 maxhr <- round(dat[, max(M90)], 2)
 
 #create summary table for supplemental information
-sumdat <- dat[, .(`N home range` = .N, `N ind` = length(unique(id))), winter]
+sumdat <- dat[, .(`Mean hare density` = round(mean(haredensity), 2), `N home range` = .N, `N ind` = length(unique(id))), winter]
 
-sumdensities <- densities[, .(`Mean density` = round(mean(haredensity), 2)), winter]
+#sumdensities <- densities[, .(`Mean density` = round(mean(haredensity), 2)), winter]
 
 sumfood <- dat[Food == "Food add", .(`N food add ind` = length(unique(id))), winter]
 
-sumtable <- merge(sumdat, sumdensities, by = "winter")
+#sumtable <- merge(sumdat, sumdensities, by = "winter")
 
-sumtable <- merge(sumtable, sumfood, by = "winter", all.x = TRUE)
+sumtable <- merge(sumdat, sumfood, by = "winter", all.x = TRUE)
 
 
 
