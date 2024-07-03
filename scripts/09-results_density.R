@@ -34,6 +34,19 @@ maxdens <- round(densities[, max(haredensity)], 2)
 minhr <- round(dat[, min(M90)], 2)
 maxhr <- round(dat[, max(M90)], 2)
 
+#create summary table for supplemental information
+sumdat <- dat[, .(`N home range` = .N, `N ind` = length(unique(id))), winter]
+
+sumdensities <- densities[, .(`Mean density` = round(mean(haredensity), 2)), winter]
+
+sumfood <- dat[Food == "Food add", .(`N food add ind` = .N), winter]
+
+sumtable <- merge(sumdat, sumdensities, by = "winter")
+
+sumtable <- merge(sumtable, sumfood, by = "winter", all.x = TRUE)
+
+
+
 # basic tests and stats ---------------------------------------------------
 
 # test if sex has an effect on home range
@@ -225,3 +238,5 @@ ggsave("Output/figures/foodadd_density_fortalks.jpeg", foodfortalk, width = 7, h
 ggsave("Output/figures/seasons_density_fortalks.jpeg", seasonfortalk, width = 7, height = 4, unit = "in")
 
 fwrite(Mout, "Output/results/model_outputs.csv")
+
+write.csv(sumtable, "Output/results/supplemental_table.csv")
