@@ -39,7 +39,7 @@ sumdat <- dat[, .(`N home range` = .N, `N ind` = length(unique(id))), winter]
 
 sumdensities <- densities[, .(`Mean density` = round(mean(haredensity), 2)), winter]
 
-sumfood <- dat[Food == "Food add", .(`N food add ind` = .N), winter]
+sumfood <- dat[Food == "Food add", .(`N food add ind` = length(unique(id))), winter]
 
 sumtable <- merge(sumdat, sumdensities, by = "winter")
 
