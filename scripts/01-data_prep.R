@@ -147,7 +147,7 @@ gps[, speed := sl/difffix]
 # clean out unrealistic movements -----------------------------------------
 
 #remove remove speeds greater than 750 meter/min (top speed is 45kph)
-gps <- gps[speed <= 750 | is.na(speed) | speed == Inf]
+gps <- gps[speed <= 750 | is.na(speed) | speed == Inf] #181676 - 181274 = removed 402 fixes
 
 #add cols for median fixrate, mode fixrate, median steplength, median speed
 gps[!is.na(difffix), med.fixrate := median(difffix), by = deploy_id]
