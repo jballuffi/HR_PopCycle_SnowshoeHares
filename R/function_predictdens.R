@@ -12,5 +12,5 @@ predictdens <- function(yvar, xvar) {
   output <- data.table(winterday = seq(1, 197, by = 1))
   #predict densities for each date
   output[, haredensity := (slope*winterday) + int]
-  return(output)
+  return(output$haredensity)
 }
