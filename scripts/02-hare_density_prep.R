@@ -73,11 +73,14 @@ phases <- springs[, .(winter, phase)]
 
 # run linear models of density decrease by winter -------------------------
 
-#run predictdens function by winter (lm of density over time, predicts for each day)
-densitypred <- hdensity[, .(dens = predictdens(yvar = haredensity, xvar = winterday), 
-                            upper = predictdens(yvar = hdensity_low95, xvar = winterday)), by = winter]
+#run predictions function by winter (lm of density over time, predicts for each day)
+densitypred <- hdensity[, .(haredensity = predictdens(yvar = haredensity, xvar = winterday), 
+                            lower = predictdens(yvar = hdensity_low95, xvar = winterday),
+                            upper = predictdens(yvar = hdensity_up95, xvar = winterday)),
+                        by = winter]
 
-
+#create the same sequence for winterday as in predictdens function
+densitypred[, winterday := seq(1, 197, by = 1), winter]
 
 #recreate date based on winter day if the min date is oct 1
 densitypred[, minyear := tstrsplit(winter, "-", keep = 1)]
@@ -95,17 +98,19 @@ densitypred <- densitypred[winterday > 0]
 
 # Figures -----------------------------------------------------------------
 
-densityregressions <- 
+(densityregressions <- 
   ggplot(densitypred)+
+  #geom_ribbon(aes(x = date, ymin = lower, ymax = upper), alpha = 0.3, color = "grey40", data = densitypred)+
   geom_line(aes(x = date, y = haredensity, group = 1), data = densitypred)+
   geom_point(aes(x = date, y = haredensity), data = hdensity[winterday > 61])+
+  geom_errorbar(aes(x = date, ymax = hdensity_up95, ymin = hdensity_low95), width = 3, data = hdensity[winterday > 61])+
   facet_wrap(~winter, scales = "free_x")+
   labs(x = "Date", y = "Hare density (hares/ha)")+
-  theme_minimal()
+  theme_minimal())
 
 
 
 
 saveRDS(predrisk, "output/results/mortalityrates.rds")
 saveRDS(densitypred, "output/results/dailyharedensities.rds")
-ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 8, height = 7, unit = "in")
+ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 9, height = 7, unit = "in")
