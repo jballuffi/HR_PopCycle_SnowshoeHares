@@ -113,4 +113,4 @@ densitypred <- densitypred[winterday > 0]
 
 saveRDS(predrisk, "output/results/mortalityrates.rds")
 saveRDS(densitypred, "output/results/dailyharedensities.rds")
-ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 9, height = 7, unit = "in")
+ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 10, height = 6, unit = "in")
