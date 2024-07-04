@@ -20,26 +20,29 @@ setnames(hdensity, "Year", "winter")
 setnames(hdensity, "hdensity", "haredensity")
 
 #pull months, years, and days into separate col
-hdensity[, mnth := month(Time)]
+hdensity[, date := mdy(Time)]
+hdensity[, mnth := month(date)]
 hdensity[mnth %in% early, y := tstrsplit(winter, "-", keep = 1)]
 hdensity[mnth %in% late, y := tstrsplit(winter, "-", keep = 2)]
-hdensity[, day := day(Time)]
+#hdensity[, day := day(date)]
 
 #remove time col
 hdensity[, Time := NULL]
 
-#create a date col
-hdensity[, date := dmy(paste0(day, "-", mnth, "-", y))]
+#remove winter of 2021-2022
+hdensity <- hdensity[!winter == "2021-2022"]
 
 #create a day col
 hdensity[, winterday := date - min(date), winter]
 hdensity[, winterday := as.integer(winterday)]
 
 
+
 # get mortality rates by month for predation risk -------------------------
 
 predrisk <- hdensity[, mean(mortality), by = .(mnth, winter)]
 setnames(predrisk, "V1", "mortrate")
+
 
 
 # Categorize years into cycle phases -------------------------------------
@@ -71,7 +74,10 @@ phases <- springs[, .(winter, phase)]
 # run linear models of density decrease by winter -------------------------
 
 #run predictdens function by winter (lm of density over time, predicts for each day)
-densitypred <- hdensity[, predictdens(yvar = haredensity, xvar = winterday), by = winter]
+densitypred <- hdensity[, .(dens = predictdens(yvar = haredensity, xvar = winterday), 
+                            upper = predictdens(yvar = hdensity_low95, xvar = winterday)), by = winter]
+
+
 
 #recreate date based on winter day if the min date is oct 1
 densitypred[, minyear := tstrsplit(winter, "-", keep = 1)]
