@@ -269,6 +269,8 @@ outYF <- outYF[, .(Modnames, R2m, R2c)]
 
 AICYF <- merge(AICYF, outYF, by = "Modnames")
 
+AICYF <- AICYF[order(Delta_AICc)]
+
 
 
 # save results ------------------------------------------------------------
