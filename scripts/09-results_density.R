@@ -71,14 +71,14 @@ maxfix <- round(dat[, max(n.fixes)], 0)
 # no food no seasons -----------------------------------------------------------
 
 # linear mixed model for mort rate and hare density
-NF <- lmer(M90 ~ haredensity + (1|id), data = nofood)
+controlNF <- lmer(M90 ~ haredensity + (1|id), data = nofood)
 
 #to get line predictions for both variables
-effs_NF <- as.data.table(ggpredict(NF, terms = c("haredensity")))
+effs_NF <- as.data.table(ggpredict(controlNF, terms = c("haredensity")))
 
 #coefficients for density
-NFdcoef <- fixef(NF)["haredensity"]
-NFdse <- se.fixef(NF)["haredensity"]
+NFdcoef <- fixef(controlNF)["haredensity"]
+NFdse <- se.fixef(controlNF)["haredensity"]
 
 (NFplot <- 
     ggplot()+
@@ -106,15 +106,15 @@ NFdse <- se.fixef(NF)["haredensity"]
 seasonshapes <- c("early" = 19, "late" = 4)
 
 # linear mixed model for mort rate and hare density
-WS <- lmer(M90 ~  haredensity*season + (1|id), data = nofood)
+seasonNF <- lmer(M90 ~  haredensity*season + (1|id), data = nofood)
 
 
 #to get effects for the interactions in the food add model
-effs_WS <- as.data.table(ggpredict(WS, terms = c("haredensity", "season")))
+effs_WS <- as.data.table(ggpredict(seasonNF, terms = c("haredensity", "season")))
 
 #coefficients for density
-WScoef <- fixef(WS)["haredensity"]
-WSse <- se.fixef(WS)["haredensity"]
+WScoef <- fixef(seasonNF)["haredensity"]
+WSse <- se.fixef(seasonNF)["haredensity"]
 
 (WSplot <- 
     ggplot()+
@@ -141,15 +141,15 @@ WSse <- se.fixef(WS)["haredensity"]
 # with food no seasons ----------------------------------------------------
 
 # linear mixed model for mort rate and hare density
-WF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
+foodYF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
 
 
 #to get effects for the interactions in the food add model
-effs_WF <- as.data.table(ggpredict(WF, terms = c("haredensity", "Food")))
+effs_WF <- as.data.table(ggpredict(foodYF, terms = c("haredensity", "Food")))
 
 #coefficients for density
-WFcoef <- fixef(WF)["haredensity"]
-WFse <- se.fixef(WF)["haredensity"]
+WFcoef <- fixef(foodYF)["haredensity"]
+WFse <- se.fixef(foodYF)["haredensity"]
 
 foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
@@ -180,14 +180,14 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
 # with food and seasons ----------------------------------------------
 
 #three way interaction between food and season
-WFS <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
+foodseasonYF <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
 
 #coefficients for density
-WFSdcoef <- fixef(WFS)["haredensity"]
-WFSdse <- se.fixef(WFS)["haredensity"]
+WFSdcoef <- fixef(foodseasonYF)["haredensity"]
+WFSdse <- se.fixef(foodseasonYF)["haredensity"]
 
 #to get effects for the interactions in the food add model
-effs_WFS <- as.data.table(ggpredict(WFS, terms = c("haredensity", "Food", "season")))
+effs_WFS <- as.data.table(ggpredict(foodseasonYF, terms = c("haredensity", "Food", "season")))
 
 #combine group and facet into one category
 effs_WFS[, Category := paste0(group, " ", facet)]
@@ -210,22 +210,27 @@ fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 
 
-# Non-density models ------------------------------------------------------
+# Additional models ------------------------------------------------------
 
 #did treatment have a significant effect on home ranges alone
-justfood <- lmer(M90 ~ Food + (1|id), data = yesfood)
+foodtestYF <- lmer(M90 ~ Food + (1|id), data = yesfood)
 ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
 
 #did treatment have a significant effect on home ranges alone
-justseason <- lmer(M90 ~ season +(1|id), data = nofood)
+seasontestNF <- lmer(M90 ~ season +(1|id), data = nofood)
 ggplot(nofood)+geom_boxplot(aes(x = season, y = M90))
+
+#control model for food add data set
+controlYF <- lmer(M90 ~ haredensity + (1|id), data = yesfood)
+
+seasonYF <- lmer(M90 ~  haredensity*season + (1|id), data = yesfood)
 
 
 
 # Create mixed model outputs ----------------------------------------------------
 
 #list models and provide names
-mods <- list(NF, WS, WF, WFS, justfood, justseason)
+mods <- list(controlNF, seasonNF, foodYF, foodseasonYF, foodtestYF, seasontestNF)
 names <- c("Control", "Season", "Treatment", "Season-treatment", "Treatment test", "Season test")
 
 #apply the lm_out function to the top to same list of models as in AIC
@@ -246,14 +251,15 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 # AIC results -------------------------------------------------------------
 
-#List and build AIC table
-Mods<-list(Null, Base, Temp, Coat, Energetic, Nitrogen, Phosphorus, Nutrient, Full)
-Names<-c('Null', 'Base', 'Temp', 'Coat', 'Energetic', 'Nitrogen', 'Phosphorus', 'Nutrient', 'Full')
-AIC<-as.data.table(aictab(REML=F, cand.set = Mods, modnames = Names, sort = TRUE))
-AIC[,ModelLik:=NULL]
-AIC[,Cum.Wt:=NULL]
+modsYF <- list(controlYF, seasonYF, foodYF, foodseasonYF)
+namesYF <- c("Control", "Season", "Treatment", "Season-treatment")
+
+AICYF <- as.data.table(aictab(REML = F, cand.set = modsYF, modnames = namesYF, sort = TRUE))
+AICYF[, ModelLik := NULL]
+AICYF[, Cum.Wt := NULL]
 #round whole table to 3 dec places
-AIC<-AIC %>% mutate_if(is.numeric, round, digits=3)
+AICYF <- AICYF %>% mutate_if(is.numeric, round, digits=3)
+
 
 
 # save results ------------------------------------------------------------
@@ -267,4 +273,6 @@ ggsave("Output/figures/seasons_density_fortalks.jpeg", seasonfortalk, width = 7,
 
 fwrite(Mout, "Output/results/model_outputs.csv")
 
-write.csv(sumtable, "Output/results/supplemental_table.csv")
+fwrite(sumtable, "Output/results/supplemental_table.csv")
+
+fwrite(AICYF, "Output/results/AIC_fooddataset.csv")

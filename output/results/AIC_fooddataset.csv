@@ -1,0 +1,5 @@
+Modnames,K,AICc,Delta_AICc,AICcWt,Res.LL
+Season-treatment,10,1588.668,0,0.977,-784.079
+Season,6,1596.225,7.557,0.022,-792.016
+Treatment,6,1604.996,16.328,0,-796.402
+Control,4,1615.127,26.459,0,-803.518
