@@ -251,7 +251,7 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 
 
-# AIC results -------------------------------------------------------------
+# AIC results for models that use the food add dataset -------------------------------------------------------------
 
 modsYF <- list(controlYF, seasonYF, foodYF, foodseasonYF, foodtestYF, seasontestYF)
 namesYF <- c("Control", "Season", "Treatment", "Season-treatment", "Food test", "Season test")
