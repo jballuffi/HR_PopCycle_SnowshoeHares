@@ -225,6 +225,8 @@ controlYF <- lmer(M90 ~ haredensity + (1|id), data = yesfood)
 
 seasonYF <- lmer(M90 ~  haredensity*season + (1|id), data = yesfood)
 
+seasontestYF <- lmer(M90 ~ season +(1|id), data = yesfood)
+
 
 
 # Create mixed model outputs ----------------------------------------------------
@@ -251,14 +253,21 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 # AIC results -------------------------------------------------------------
 
-modsYF <- list(controlYF, seasonYF, foodYF, foodseasonYF)
-namesYF <- c("Control", "Season", "Treatment", "Season-treatment")
+modsYF <- list(controlYF, seasonYF, foodYF, foodseasonYF, foodtestYF, seasontestYF)
+namesYF <- c("Control", "Season", "Treatment", "Season-treatment", "Food test", "Season test")
 
 AICYF <- as.data.table(aictab(REML = F, cand.set = modsYF, modnames = namesYF, sort = TRUE))
 AICYF[, ModelLik := NULL]
 AICYF[, Cum.Wt := NULL]
 #round whole table to 3 dec places
 AICYF <- AICYF %>% mutate_if(is.numeric, round, digits=3)
+
+outYF <- lapply(modsYF, lmer_out)
+outYF <- rbindlist(outYF, fill = TRUE)
+outYF$Modnames <- namesYF
+outYF <- outYF[, .(Modnames, R2m, R2c)]
+
+AICYF <- merge(AICYF, outYF, by = "Modnames")
 
 
 
