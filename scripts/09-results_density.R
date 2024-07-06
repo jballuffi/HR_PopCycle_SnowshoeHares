@@ -66,10 +66,6 @@ minfix <- round(dat[, min(n.fixes)], 0)
 #max fix
 maxfix <- round(dat[, max(n.fixes)], 0)
 
-#did treatment have a significant effect on home ranges alone
-summary(lm(M90 ~ Food, data = yesfood))
-ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
-
 
 
 # no food no seasons -----------------------------------------------------------
@@ -209,12 +205,23 @@ fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 
 
+# Non-density models ------------------------------------------------------
+
+#did treatment have a significant effect on home ranges alone
+justfood <- lmer(M90 ~ Food + (1|id), data = yesfood)
+ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
+
+#did treatment have a significant effect on home ranges alone
+justseason <- lmer(M90 ~ season +(1|id), data = nofood)
+ggplot(nofood)+geom_boxplot(aes(x = season, y = M90))
+
+
 
 # Create mixed model outputs ----------------------------------------------------
 
 #list models and provide names
-mods <- list(NF, WS, WF, WFS)
-names <- c("Control", "Season", "Treatment", "Season-treatment")
+mods <- list(NF, WS, WF, WFS, justfood, justseason)
+names <- c("Control", "Season", "Treatment", "Season-treatment", "Treatment test", "Season test")
 
 #apply the lm_out function to the top to same list of models as in AIC
 Mout <- lapply(mods, lmer_out)
