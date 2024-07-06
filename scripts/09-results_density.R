@@ -99,6 +99,7 @@ NFdse <- se.fixef(NF)["haredensity"]
     theme_densities)
 
 
+
 # no food with seasons -------------------------------------------
 
 #classify seasons into shapes
@@ -134,6 +135,8 @@ WSse <- se.fixef(WS)["haredensity"]
     labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
     theme_densities)
+
+
 
 # with food no seasons ----------------------------------------------------
 
@@ -171,6 +174,8 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
     theme_densities)
+
+
 
 # with food and seasons ----------------------------------------------
 
@@ -237,6 +242,18 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
                  "Season*Density", "Food*Density", "Food*Season", "Food*Season*Density",
                  "R2m", "R2c")
 
+
+
+# AIC results -------------------------------------------------------------
+
+#List and build AIC table
+Mods<-list(Null, Base, Temp, Coat, Energetic, Nitrogen, Phosphorus, Nutrient, Full)
+Names<-c('Null', 'Base', 'Temp', 'Coat', 'Energetic', 'Nitrogen', 'Phosphorus', 'Nutrient', 'Full')
+AIC<-as.data.table(aictab(REML=F, cand.set = Mods, modnames = Names, sort = TRUE))
+AIC[,ModelLik:=NULL]
+AIC[,Cum.Wt:=NULL]
+#round whole table to 3 dec places
+AIC<-AIC %>% mutate_if(is.numeric, round, digits=3)
 
 
 # save results ------------------------------------------------------------
