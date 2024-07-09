@@ -21,7 +21,8 @@ gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 #read in trapping data (to get grid)
 trapping <- fread("data/Trapping_data_all_records.csv")
 
-
+#import food add bunnies
+foodadd <- readRDS("data/food_adds.rds")
 
 
 # Reduce and categorize data -----------------------------------------------------
@@ -35,6 +36,11 @@ gps[, id := animal]
 #categorize fixes into winters
 gps[mnth > 10, winter := paste0(yr, "-", yr+1)]
 gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
+
+#merge in food add
+setnames(foodadd, "Eartag", "id")
+gps <- merge(gps, foodadd, by = c("id", "winter"), all.x = TRUE)
+gps[is.na(Food), Food := 0]
 
 #grab only winter
 gps <- gps[!is.na(winter)]
