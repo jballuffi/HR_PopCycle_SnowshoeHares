@@ -23,15 +23,6 @@ trapping <- fread("data/Trapping_data_all_records.csv")
 
 
 
-# make just a density data frame -------------------------------------------
-
-#merge hare density and predation risk
-hdensity[, mnth := month(date)]
-
-densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
-
-
-
 # merge in sex from trapping data ----------------------------------------------
 
 #make eartag a factor
@@ -55,15 +46,40 @@ sexes[, Sex := as.factor(Sex)]
 
 
 
+# make just a density + predation risk data frame -------------------------------------------
+
+#merge hare density and predation risk
+hdensity[, mnth := month(date)]
+
+densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
+
+
+
 # merge densities with home ranges ------------------------------------------------------
+
+#cut just hare density and date
+formerge <- hdensity[, .(date, phase, haredensity)]
+
+#reclassify date
+formerge[, date := ymd(date)]
 
 #reclassify date
 areas[, date := ymd(weekdate)]
+
 #set id as factor
 areas[, id := as.factor(id)]
 
 #merge hare density by day of week and winter
-DT <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
+DT <- merge(areas, formerge, by = "date", all.x = TRUE)
+
+#double check how many points in nov
+DT[mnth == 11, .N]
+
+#double check that .N of nov is equal to .N of those missing hare density
+DT[is.na(haredensity), .N]
+
+#remove any data from november
+DT <- DT[!mnth == 11]
 
 
 
