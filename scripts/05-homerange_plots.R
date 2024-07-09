@@ -8,9 +8,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 #read in data
 densities <- readRDS("output/results/densities.rds")
 DT <- readRDS("output/results/compileddata.rds")
-DT[, Food := as.factor(Food)]
 
-#remove winter with no data in densities
+#remove winter with no HR data
 densities <- densities[!winter == "2021-2022"]
 
 #reorder phase cycles
