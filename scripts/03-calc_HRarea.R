@@ -12,9 +12,9 @@ gps <- gps[weeklength > 6]
 #round winter day 
 gps[, weekwinterday := round(weekwinterday)]
 
-#items we will measure home ranges by
-weeksplit <- c("id", "winter", "deploy_id", "week", "weekdate", "weekwinterday", "grid")
 
+#items we will measure home ranges by
+weeksplit <- c("id", "winter", "deploy_id", "week", "weekdate", "weekwinterday", "grid", "Food")
 
 
 # calculate weekly Kernel Density areas -----------------------------------
