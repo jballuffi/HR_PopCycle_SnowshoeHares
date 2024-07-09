@@ -35,20 +35,11 @@ minhr <- round(dat[, min(M90)], 2)
 maxhr <- round(dat[, max(M90)], 2)
 
 #create summary table for supplemental information
-sumdat <- dat[, .(`Mean date` = mean(date), 
-                  `Mean hare density` = round(mean(haredensity), 2), 
-                  `N home ranges` = .N, 
-                  `N hares total` = length(unique(id))),
-              winter]
-
-#sumdensities <- densities[, .(`Mean density` = round(mean(haredensity), 2)), winter]
-
-sumfood <- dat[Food == "Food add", .(`N food add hares` = length(unique(id))), winter]
-
-#sumtable <- merge(sumdat, sumdensities, by = "winter")
-
-sumtable <- merge(sumdat, sumfood, by = "winter", all.x = TRUE)
-
+sumtable <- dat[order(winter, Food), .(`Mean date` = mean(date), 
+                                       `Mean hare density` = round(mean(haredensity), 2),
+                                       `N home ranges` = .N,
+                                       `N hares total` = length(unique(id))),
+                by = .(winter, Food)]
 
 
 # basic tests and stats ---------------------------------------------------
