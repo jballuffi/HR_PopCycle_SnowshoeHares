@@ -15,14 +15,16 @@ hdensity <- readRDS("output/results/dailyharedensities.rds")
 #import food add bunnies
 foodadd <- readRDS("data/food_adds.rds")
 
+#import mortality rates
+predrisk <- readRDS("output/results/mortalityrates.rds")
 
 
 # make just a density data frame -------------------------------------------
 
 #merge hare density and predation risk
 hdensity[, mnth := month(date)]
-densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
 
+densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
 
 
 # merge densities with home ranges ------------------------------------------------------
@@ -33,20 +35,20 @@ areas[, date := ymd(weekdate)]
 areas[, id := as.factor(id)]
 
 #merge hare density by day of week and winter
-DT1 <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
+DT <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
 
 
 
 # food add -----------------------------------------------------------
 
-DT2[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
+DT[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
 
 
 # Save final data sets -----------------------------------------------------
 
 #save merged data
-saveRDS(DT3, "output/results/compileddata.rds")
+saveRDS(DT, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
