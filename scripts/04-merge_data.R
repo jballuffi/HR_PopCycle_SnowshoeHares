@@ -18,6 +18,10 @@ foodadd <- readRDS("data/food_adds.rds")
 #import mortality rates
 predrisk <- readRDS("output/results/mortalityrates.rds")
 
+#import trapping data
+trapping <- fread("data/Trapping_data_all_records.csv")
+
+
 
 # make just a density data frame -------------------------------------------
 
@@ -25,6 +29,30 @@ predrisk <- readRDS("output/results/mortalityrates.rds")
 hdensity[, mnth := month(date)]
 
 densities <- merge(hdensity, predrisk, by = c("mnth", "winter"), all.x = TRUE)
+
+
+
+# merge in sex from trapping data ----------------------------------------------
+
+#make eartag a factor
+trapping[, id := as.factor(Eartag)]
+
+#turn 0s to NAs
+trapping[Sex == 0, Sex := NA]
+
+#grab all unique individuals from home range calculations
+inds <- unique(areas$id)
+
+#subset the trapping data.table to only include these individuals
+# also subset to remove all cases where weight was not taken
+t2 <- trapping[id %in% inds]
+
+#get mode of sex by id to remove any erroenous sex, this function doesnt account for NAs
+sexes <- t2[, .(Sex = getmode(Sex)), by = id]
+
+#change to factor
+sexes[, Sex := as.factor(Sex)]
+
 
 
 # merge densities with home ranges ------------------------------------------------------
@@ -39,16 +67,22 @@ DT <- merge(areas, densities, by = c("date", "winter"), all.x = TRUE)
 
 
 
+# merge sexes with home range data ----------------------------------------
+
+DT1 <- merge(DT, sexes, by = "id", all.x = TRUE)
+
+
+
 # food add -----------------------------------------------------------
 
-DT[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
+DT1[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
 
 
 
 # Save final data sets -----------------------------------------------------
 
 #save merged data
-saveRDS(DT, "output/results/compileddata.rds")
+saveRDS(DT1, "output/results/compileddata.rds")
 
 #save just densities
 saveRDS(densities, "output/results/densities.rds")
