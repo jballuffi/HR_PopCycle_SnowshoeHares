@@ -57,6 +57,7 @@ names(grids) <- c("id", "grid")
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
 
+
 # calculate time differences in data and sample periods ------------------------------------------------
 
 #calculate winter day, which is how many days since Nov 1 (doy = 305)
@@ -174,6 +175,15 @@ fr<-gps[!is.na(fixrate), unique(fixrate), deploy_id]
 c<-merge(gps, fr, by="deploy_id", all.x=T)
 gps<-c[, fixrate := V1]
 gps[, V1 := NULL]
+
+
+
+# make factors ------------------------------------------------------------
+
+gps[, id := as.factor(id)]
+gps[, Food := as.factor(Food)]
+
+
 
 # Save compiled gps data --------------------------------------------------
 saveRDS(gps, "Data/all_gps.rds")
