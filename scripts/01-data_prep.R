@@ -34,7 +34,7 @@ splityear <- c("id", "winter")
 gps[, id := animal]
 
 #categorize fixes into winters
-gps[mnth > 10, winter := paste0(yr, "-", yr+1)]
+gps[mnth > 11, winter := paste0(yr, "-", yr+1)]
 gps[mnth < 4, winter := paste0(yr-1, "-", yr)]
 
 #merge in food add
@@ -46,7 +46,6 @@ gps[is.na(Food), Food := 0]
 gps <- gps[!is.na(winter)]
 
 
-
 # merge with trapping data to get grid ------------------------------------
 
 #pull out the grid of every individual using the trapping data
@@ -56,23 +55,23 @@ names(grids) <- c("id", "grid")
 #merge grids into behaviour data set
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
-
+gps <- gps[Food == 1 & winter == "2016-2017"]
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
-#calculate winter day, which is how many days since Nov 1 (doy = 305)
-gps[doy > 304, winterday := doy - 305] #if between nov 1 and dec 31, just subtract from nov 1
-gps[doy < 304, winterday := doy + 61] #if after jan 1, add doy to 61 (dec 31 - nov 1)
+#calculate winter day, which is how many days since dec 1 (doy = 335)
+gps[doy > 334, winterday := doy - 335] #if between nov 1 and dec 31, just subtract from nov 1
+gps[doy < 334, winterday := doy + 61] #if after jan 1, add doy to 61 (dec 31 - nov 1)
 
 #calculate the difference in days from first day of a deployment
-gps[, diffday := idate - min(idate), by = deploy_id]
-gps[, maxdiffday := max(diffday), by = deploy_id]
+gps[, diffday := idate - min(idate) + 1, by = .(id, winter)]
+gps[, maxdiffday := max(diffday), by = .(id, winter)]
 
 #cut diffday into weeks
-gps[, week := cut(diffday, breaks = seq(-1, 200, by = 7))] #use 200 bc far above max diff day w/ or w/o deployID
+gps[, week := cut(diffday, breaks = seq(0, 200, by = 7))] #use 200 bc far above max diff day w/ or w/o deployID
 
 #calculate how many days are in each week using number of unique dates
-gps[, weeklength := length(unique(idate)), by = .(deploy_id, week)]
+gps[, weeklength := length(unique(idate)), by = .(id, week)]
 
 #take only weeks that have over 6 days of sampling
 gps <- gps[weeklength > 6] #174496 w/o deployid; 181676 w deployid
