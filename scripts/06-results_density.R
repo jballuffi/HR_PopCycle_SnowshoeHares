@@ -59,7 +59,7 @@ maxfix <- round(dat[, max(n.fixes)], 0)
 
 
 
-# no food no seasons -----------------------------------------------------------
+# Base control model -----------------------------------------------------------
 
 # linear mixed model for mort rate and hare density
 controlNF <- lmer(M90 ~ haredensity + (1|id), data = nofood)
@@ -80,151 +80,28 @@ NFdse <- se.fixef(controlNF)["haredensity"]
     ylim(0, maxhr)+
     theme_densities)
 
-(NFfortalk <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90), alpha = 0.6, data = nofood)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), colour = "grey80", alpha = .3, data = effs_NF)+
-    geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
-    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
-    ylim(0, maxhr)+
-    theme_densities)
 
 
+# makes models --------------------------------------------------------
 
-# no food with seasons -------------------------------------------
+# all models use the food add data set (one less year)
+# linear mixed model that interacts hare density with other terms
 
-#classify seasons into shapes
-seasonshapes <- c("early" = 19, "late" = 4)
-
-# linear mixed model for mort rate and hare density
-seasonNF <- lmer(M90 ~  haredensity*season + (1|id), data = nofood)
-
-
-#to get effects for the interactions in the food add model
-effs_WS <- as.data.table(ggpredict(seasonNF, terms = c("haredensity", "season")))
-
-#coefficients for density
-WScoef <- fixef(seasonNF)["haredensity"]
-WSse <- se.fixef(seasonNF)["haredensity"]
-
-(WSplot <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, shape = season), alpha = 0.6, data = nofood[!is.na(season)])+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
-    geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
-    scale_shape_manual(values = seasonshapes)+
-    labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
-    ylim(0, maxhr)+
-    theme_densities)
-
-(seasonfortalk <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, shape = season), alpha = 0.6, data = nofood[!is.na(season)])+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
-    geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
-    scale_shape_manual(values = seasonshapes)+
-    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
-    ylim(0, maxhr)+
-    theme_densities)
-
-
-
-# with food no seasons ----------------------------------------------------
-
-# linear mixed model for mort rate and hare density
-foodYF <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
-
-
-#to get effects for the interactions in the food add model
-effs_WF <- as.data.table(ggpredict(foodYF, terms = c("haredensity", "Food")))
-
-#coefficients for density
-WFcoef <- fixef(foodYF)["haredensity"]
-WFse <- se.fixef(foodYF)["haredensity"]
-
-foodcols <- c("Food add" = "red3", "Control" = "grey30")
-
-(WFplot <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
-    ylim(0, maxhr)+
-    theme_densities)
-
-(foodfortalk <- 
-    ggplot()+
-    geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
-    geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
-    ylim(0, maxhr)+
-    theme_densities)
-
-
-
-# with food and seasons ----------------------------------------------
-
-#three way interaction between food and season
-foodseasonYF <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
-
-#coefficients for density
-WFSdcoef <- fixef(foodseasonYF)["haredensity"]
-WFSdse <- se.fixef(foodseasonYF)["haredensity"]
-
-#to get effects for the interactions in the food add model
-effs_WFS <- as.data.table(ggpredict(foodseasonYF, terms = c("haredensity", "Food", "season")))
-
-#combine group and facet into one category
-effs_WFS[, Category := paste0(group, " ", facet)]
-
-(WFSplot <- 
-    ggplot(effs_WFS)+
-    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
-    geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
-    scale_color_manual(values = foodcols)+
-    scale_fill_manual(values = foodcols)+
-    labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)", title = "C) Food and season")+
-    ylim(0, maxhr)+
-    theme_densities)
-
-
-
-# Combine panels ----------------------------------------------------------
-
-fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
-
-
-
-# Additional models ------------------------------------------------------
-
-#did treatment have a significant effect on home ranges alone
-foodtestYF <- lmer(M90 ~ Food + (1|id), data = yesfood)
-ggplot(yesfood)+geom_boxplot(aes(x = Food, y = M90))
-
-#did treatment have a significant effect on home ranges alone
-seasontestNF <- lmer(M90 ~ season +(1|id), data = nofood)
-ggplot(nofood)+geom_boxplot(aes(x = season, y = M90))
-
-#control model for food add data set
+null <- lmer(M90 ~ (1|id), data = yesfood)
 controlYF <- lmer(M90 ~ haredensity + (1|id), data = yesfood)
+season <- lmer(M90 ~  haredensity*season + (1|id), data = yesfood)
+food <- lmer(M90 ~ haredensity*Food + (1|id), data = yesfood)
+foodseason <- lmer(M90 ~ haredensity*Food*season + (1|id), data = yesfood)
+foodtest <- lmer(M90 ~ Food + (1|id), data = yesfood)
+seasontest <- lmer(M90 ~ season +(1|id), data = yesfood)
 
-seasonYF <- lmer(M90 ~  haredensity*season + (1|id), data = yesfood)
-
-seasontestYF <- lmer(M90 ~ season +(1|id), data = yesfood)
 
 
-
-# Create mixed model outputs ----------------------------------------------------
+# collect model coefficients ----------------------------------------------
 
 #list models and provide names
-mods <- list(controlNF, seasonNF, foodYF, foodseasonYF, foodtestYF, seasontestNF)
-names <- c("Control", "Season", "Treatment", "Season-treatment", "Treatment test", "Season test")
+mods <- list(null, controlYF, season, food, foodseason, foodtest, seasontest)
+names <- c("Null", "Control", "Season", "Treatment", "Season-treatment", "Treatment test", "Season test")
 
 #apply the lm_out function to the top to same list of models as in AIC
 Mout <- lapply(mods, lmer_out)
@@ -242,25 +119,102 @@ names(Mout) <- c("Model", "Intercept", "Density", "Season", "Food",
 
 
 
-# AIC results for models that use the food add dataset -------------------------------------------------------------
+# run AIC comparison -------------------------------------------------------------
 
-modsYF <- list(controlYF, seasonYF, foodYF, foodseasonYF, foodtestYF, seasontestYF)
-namesYF <- c("Control", "Season", "Treatment", "Season-treatment", "Food test", "Season test")
+#run AIC function on same list of models as above
+AIC <- as.data.table(aictab(REML = F, cand.set = mods, modnames = names, sort = TRUE))
+AIC[, ModelLik := NULL]
+AIC[, Cum.Wt := NULL]
 
-AICYF <- as.data.table(aictab(REML = F, cand.set = modsYF, modnames = namesYF, sort = TRUE))
-AICYF[, ModelLik := NULL]
-AICYF[, Cum.Wt := NULL]
-#round whole table to 3 dec places
-AICYF <- AICYF %>% mutate_if(is.numeric, round, digits=3)
+#round whole table to 3 decimal places
+AIC <- AIC %>% mutate_if(is.numeric, round, digits=3)
 
-outYF <- lapply(modsYF, lmer_out)
-outYF <- rbindlist(outYF, fill = TRUE)
-outYF$Modnames <- namesYF
-outYF <- outYF[, .(Modnames, R2m, R2c)]
+#rename
+setnames(AIC, "Modnames", "Model")
 
-AICYF <- merge(AICYF, outYF, by = "Modnames")
+#grab just AIC delta
+AICd <- AIC[, .(Model, Delta_AICc)]
 
-AICYF <- AICYF[order(Delta_AICc)]
+
+
+# merge AIC and model outputs ---------------------------------------------
+
+Mout <- merge(Mout, AICd, by = "Model")
+
+#order by delta AIC
+Mout <- Mout[order(Delta_AICc)]
+
+
+
+# Multi-panel figure -------------------------------------------
+
+#classify seasons into shapes
+seasonshapes <- c("early" = 19, "late" = 4)
+
+#to get effects for the interactions in the food add model
+effs_WS <- as.data.table(ggpredict(season, terms = c("haredensity", "season")))
+
+#coefficients for density
+WScoef <- fixef(season)["haredensity"]
+WSse <- se.fixef(season)["haredensity"]
+
+#season model
+(WSplot <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, shape = season), alpha = 0.6, data = yesfood[!is.na(season)])+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
+    geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
+    scale_shape_manual(values = seasonshapes)+
+    labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
+    ylim(0, maxhr)+
+    theme_densities)
+
+
+#to get effects for the interactions in the food add model
+effs_WF <- as.data.table(ggpredict(food, terms = c("haredensity", "Food")))
+
+#coefficients for density
+WFcoef <- fixef(food)["haredensity"]
+WFse <- se.fixef(food)["haredensity"]
+
+#classify food treatment into colors
+foodcols <- c("Food add" = "red3", "Control" = "grey30")
+
+#Food treatment model
+(WFplot <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
+    scale_color_manual(values = foodcols, guide = NULL)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
+    ylim(0, maxhr)+
+    theme_densities)
+
+
+#coefficients for density from food-season model
+WFSdcoef <- fixef(foodseason)["haredensity"]
+WFSdse <- se.fixef(foodseason)["haredensity"]
+
+#to get effects for the interactions in the food add model
+effs_WFS <- as.data.table(ggpredict(foodseason, terms = c("haredensity", "Food", "season")))
+
+#combine group and facet into one category
+effs_WFS[, Category := paste0(group, " ", facet)]
+
+(WFSplot <- 
+    ggplot(effs_WFS)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
+    geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
+    scale_color_manual(values = foodcols)+
+    scale_fill_manual(values = foodcols)+
+    labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)", title = "C) Food and season")+
+    ylim(0, maxhr)+
+    theme_densities)
+
+
+fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 
 
@@ -269,12 +223,8 @@ AICYF <- AICYF[order(Delta_AICc)]
 ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 10, unit = "in")
 ggsave("Output/figures/control_density.jpeg", NFplot, width = 6, height = 4, unit = "in")
 
-ggsave("Output/figures/control_density_fortalks.jpeg", NFfortalk, width = 6, height = 4, unit = "in")
-ggsave("Output/figures/foodadd_density_fortalks.jpeg", foodfortalk, width = 7, height = 4, unit = "in")
-ggsave("Output/figures/seasons_density_fortalks.jpeg", seasonfortalk, width = 7, height = 4, unit = "in")
-
 fwrite(Mout, "Output/results/model_outputs.csv")
 
 fwrite(sumtable, "Output/results/supplemental_table.csv")
 
-fwrite(AICYF, "Output/results/AIC_fooddataset.csv")
+# fwrite(AICYF, "Output/results/AIC_fooddataset.csv")
