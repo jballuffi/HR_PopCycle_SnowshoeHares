@@ -2,7 +2,7 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #import hare densities
-hdensity <- fread("data/Hare_density_monthly.csv")
+hdensity <- fread("Input/Hare_density_monthly.csv")
 
 
 
