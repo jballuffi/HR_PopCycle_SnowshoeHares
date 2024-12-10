@@ -46,23 +46,20 @@ meandens <- densities[, .(mean = mean(haredensity), date = mean(date)), winter]
   geom_point(aes(x = date, y = mean), data = meandens)+
   scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
   labs(x = "", y = "Hare density (hares/ha)", subtitle = "A")+
-  theme_boxplots+
-  theme(axis.text.x.bottom = element_text(size = 8)))
+  themepoints)
 
 (f <- 
     ggplot(DT)+
     geom_boxplot(aes(x = winter, y = M90, color = Food))+
     labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "B")+
     scale_color_manual(values = foodcols)+
-    theme_boxplots+
-    theme(axis.text.x.bottom = element_text(size = 8)))
+    themepoints)
 
 (s <- 
   ggplot(DT[!is.na(season)])+
   geom_boxplot(aes(x = winter, y = M90, linetype = season))+
   labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C")+
-  theme_boxplots+
-  theme(axis.text.x.bottom = element_text(size = 8)))
+  themepoints)
 
 
 fullbyyear <- ggarrange(d, f, s, ncol = 1, nrow = 3)
@@ -78,23 +75,20 @@ density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, ph
    geom_line(aes(x = winter, y = haredensity, group = 1, color = phase), linewidth = 1)+
    scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
    labs(y = "Hare density (hares/ha)", x = "Winter", subtitle = "A")+
-   theme_boxplots+
-   theme(axis.text.x.bottom = element_text(size = 8)))
+   themepoints)
 
 (fT <- 
     ggplot(DT)+
     geom_boxplot(aes(x = winter, y = M90, color = Food))+
     labs(y = "HR area (ha)", x = "Winter", subtitle = "B")+
     scale_color_manual(values = foodcols)+
-    theme_boxplots+
-    theme(axis.text.x.bottom = element_text(size = 8)))
+    themepoints)
 
 (sT <- 
     ggplot(DT[!is.na(season)])+
     geom_boxplot(aes(x = winter, y = M90, linetype = season))+
     labs(y = "HR area (ha)", x = "Winter", subtitle = "C")+
-    theme_boxplots+
-    theme(axis.text.x.bottom = element_text(size = 8)))
+    themepoints)
 
 
 fortalks <- ggarrange(dT, fT, sT, ncol = 1, nrow = 3)

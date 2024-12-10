@@ -78,7 +78,7 @@ NFdse <- se.fixef(controlNF)["haredensity"]
     geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
     labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
-    theme_densities)
+    themepoints)
 
 
 
@@ -167,7 +167,7 @@ WSse <- se.fixef(season)["haredensity"]
     scale_shape_manual(values = seasonshapes)+
     labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
     ylim(0, maxhr)+
-    theme_densities)
+    themepoints)
 
 
 #to get effects for the interactions in the food add model
@@ -190,7 +190,7 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
     ylim(0, maxhr)+
-    theme_densities)
+    themepoints)
 
 
 #coefficients for density from food-season model
@@ -211,7 +211,7 @@ effs_WFS[, Category := paste0(group, " ", facet)]
     scale_fill_manual(values = foodcols)+
     labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)", title = "C) Food and season")+
     ylim(0, maxhr)+
-    theme_densities)
+    themepoints)
 
 
 fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
