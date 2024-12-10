@@ -50,6 +50,14 @@ Psex <- HRsex$`Pr(>F)`[1]
 DFsex <- HRsex$`Df`[2]
 Fsex <- HRsex$`F value`[1]
 
+#test if female controls differ from female food adds
+femyesfood <- yesfood[Sex == 2]
+femHR <- anova(lm(M90 ~ Food, data = femyesfood))
+femPfood <- femHR$`Pr(>F)`[1]
+femDFfood <- femHR$`Df`[2]
+femFfood <- femHR$`F value`[1]
+
+
 #how many fixes in a home range on avg
 nfix <- round(dat[, mean(n.fixes)], 0)
 #min fix
