@@ -66,6 +66,9 @@ springs[change < 0.44, phase := "decrease"]
 springs[is.na(phase) & haredensity < .1, phase := "low"]
 springs[is.na(phase) & haredensity > .4, phase := "peak"]
 
+springs[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
+
+
 #pull out just the phases and winters
 phases <- springs[, .(winter, phase)]
 
