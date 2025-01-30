@@ -91,7 +91,7 @@ DT1 <- merge(DT, sexes, by = "id", all.x = TRUE)
 
 # food add -----------------------------------------------------------
 
-DT1[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn't start till Jan
+DT1[winter == "2018-2019" & date < 2019-01-01, Food := 0] #18/19 food adds didn't start till Jan
 
 
 
