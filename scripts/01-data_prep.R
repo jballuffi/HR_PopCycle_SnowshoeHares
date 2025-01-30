@@ -55,7 +55,7 @@ names(grids) <- c("id", "grid")
 #merge grids into behaviour data set
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
-gps <- gps[Food == 1 & winter == "2016-2017"]
+
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
