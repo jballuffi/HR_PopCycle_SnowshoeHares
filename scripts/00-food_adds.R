@@ -4,7 +4,7 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #create path to all food add files
-files <- dir("input/FoodAdds/", full.names = TRUE)
+files <- dir("data/FoodAdds/", full.names = TRUE)
 
 #fread and assign year based on file name
 data = lapply(files, function(x) {
@@ -18,4 +18,4 @@ data = lapply(files, function(x) {
 foodadds <- rbindlist(data, fill = TRUE, use.names = TRUE)
 
 #save food adds to output
-saveRDS(foodadds, "output/data/food_adds.rds")
+saveRDS(foodadds, "data/food_adds.rds")
