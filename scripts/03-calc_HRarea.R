@@ -4,7 +4,7 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in prepped GPS data
-gps <- readRDS("Data/all_gps.rds")
+gps <- readRDS("output/data/all_gps.rds")
 
 #remove any data that is in a week that didn't hit 7 days
 gps <- gps[weeklength > 6]
@@ -150,4 +150,4 @@ ggplot(areas)+
 # save figures ------------------------------------------------------------
 
 #save HR areas as an RDS file in the output folder
-saveRDS(areas, "output/results/hrareas.rds")
+saveRDS(areas, "output/data/hrareas.rds")
