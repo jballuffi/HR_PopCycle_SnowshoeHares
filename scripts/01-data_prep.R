@@ -185,5 +185,5 @@ gps[, Food := as.factor(Food)]
 
 
 # Save compiled gps data --------------------------------------------------
-saveRDS(gps, "Data/all_gps.rds")
+#saveRDS(gps, "Data/all_gps.rds")
 
