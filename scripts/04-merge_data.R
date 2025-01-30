@@ -7,19 +7,19 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #read in HR areas
-areas <- readRDS("output/data/hrareas.rds")
+areas <- readRDS("data/hrareas.rds")
 
 #import hare densities
-hdensity <- readRDS("output/data/dailyharedensities.rds")
+hdensity <- readRDS("data/dailyharedensities.rds")
 
 #import food add bunnies
-foodadd <- readRDS("output/data/food_adds.rds")
+foodadd <- readRDS("data/food_adds.rds")
 
 #import mortality rates
-predrisk <- readRDS("output/data/mortalityrates.rds")
+predrisk <- readRDS("data/mortalityrates.rds")
 
 #import trapping data
-trapping <- fread("input/Trapping_data_all_records.csv")
+trapping <- fread("data/Trapping_data_all_records.csv")
 
 
 
@@ -98,10 +98,10 @@ DT1[winter == "2018-2019" & date < 2019-01-01, Food := 0] #Sho's food adds didn'
 # Save final data sets -----------------------------------------------------
 
 #save merged data
-saveRDS(DT1, "output/data/compileddata.rds")
+saveRDS(DT1, "data/compileddata.rds")
 
 #save just densities
-saveRDS(densities, "output/data/densities.rds")
+saveRDS(densities, "data/densities.rds")
 
 
 
