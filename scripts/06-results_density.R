@@ -4,8 +4,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 #read in data
-dat <- readRDS("output/results/compileddata.rds")
-densities <- readRDS("output/results/densities.rds")
+dat <- readRDS("data/compileddata.rds")
+densities <- readRDS("data/densities.rds")
 
 #reorder phase cycles
 dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
