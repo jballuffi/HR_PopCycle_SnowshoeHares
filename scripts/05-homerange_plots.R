@@ -6,8 +6,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 # preparations ------------------------------------------------------------
 
 #read in data
-densities <- readRDS("output/data/densities.rds")
-DT <- readRDS("output/data/compileddata.rds")
+densities <- readRDS("data/densities.rds")
+DT <- readRDS("data/compileddata.rds")
 
 #remove winter with no HR data
 densities <- densities[!winter == "2021-2022"]
