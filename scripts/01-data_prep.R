@@ -19,10 +19,10 @@ ls.files<-lapply(files, fread)
 gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 
 #read in trapping data (to get grid)
-trapping <- fread("input/Trapping_data_all_records.csv")
+trapping <- fread("data/Trapping_data_all_records.csv")
 
 #import food add bunnies
-foodadd <- readRDS("output/data/food_adds.rds")
+foodadd <- readRDS("data/food_adds.rds")
 
 
 # Reduce and categorize data -----------------------------------------------------
@@ -185,5 +185,5 @@ gps[, Food := as.factor(Food)]
 
 
 # Save compiled gps data --------------------------------------------------
-saveRDS(gps, "output/data/all_gps.rds")
+saveRDS(gps, "Data/all_gps.rds")
 
