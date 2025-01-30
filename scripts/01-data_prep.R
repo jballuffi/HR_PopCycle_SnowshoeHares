@@ -19,10 +19,10 @@ ls.files<-lapply(files, fread)
 gps <- rbindlist(ls.files, fill = TRUE, use.names = TRUE)
 
 #read in trapping data (to get grid)
-trapping <- fread("data/Trapping_data_all_records.csv")
+trapping <- fread("input/Trapping_data_all_records.csv")
 
 #import food add bunnies
-foodadd <- readRDS("data/food_adds.rds")
+foodadd <- readRDS("output/data/food_adds.rds")
 
 
 # Reduce and categorize data -----------------------------------------------------
@@ -55,7 +55,7 @@ names(grids) <- c("id", "grid")
 #merge grids into behaviour data set
 gps <- merge(gps, grids, by = "id", all.x = TRUE)
 
-gps <- gps[Food == 1 & winter == "2016-2017"]
+
 
 # calculate time differences in data and sample periods ------------------------------------------------
 
@@ -91,23 +91,26 @@ gps[, weekwinterday := mean(winterday), by = .(deploy_id, week)]
 
 #Correct deploy_ids that are clearly two collars ------------------------
 #get list of days per deploy_id
-s<-gps[, unique(idate), deploy_id]
+s <- gps[, unique(idate), deploy_id]
 setnames(s, "V1", "u.idate")
 
 #check for large gaps between days
 setorder(s, u.idate)
 s[, prev.date := shift(u.idate, n = 1, type = "lag"), by = deploy_id] 
-s[, dd := u.idate-prev.date]
-ss<-s[dd>1] #get gaps larger than 1 day
-di<-s[dd>1, deploy_id] #get deploy ids for these gaps
-dd<-s[dd>1, u.idate] #get the first date after a large gap
+s[, dd := u.idate - prev.date]
+ss <- s[dd > 1] #get gaps larger than 1 day
+di <- s[dd > 1, deploy_id] #get deploy ids for these gaps
+dd <- s[dd > 1, u.idate] #get the first date after a large gap
 
-qw<-gps[deploy_id %in% di] #get  deploy ids that have large gaps
-gps<-gps[deploy_id %notin% di] #temporarily remove these fixes with these deploy ids from gps
-q<-merge(qw, ss, by="deploy_id") #add the post-gap date to main data
-q[idate >= u.idate, deploy_id := paste0(id,"_",u.idate)] #make new deployment id when date is after the gap
-q2<-q[, c("u.idate", "dd", "prev.date") := NULL] #reduce cols for rbind
-gps<-rbind(gps, q2) #added 4 deploy IDs
+qw <- gps[deploy_id %in% di] #get  deploy ids that have large gaps
+gps <- gps[deploy_id %notin% di] #temporarily remove these fixes with these deploy ids from gps
+
+q <- merge(qw, ss, by = "deploy_id", allow.cartesian = TRUE) #add the post-gap date to main data
+
+q[idate >= u.idate, deploy_id := paste0(id, "_", u.idate)] #make new deployment id when date is after the gap
+q2 <- q[, c("u.idate", "dd", "prev.date") := NULL] #reduce cols for rbind
+
+gps <- rbind(gps, q2) #added 4 deploy IDs
 
 
 #RE-CALCULATE the difference in days from first day of a deployment
@@ -185,5 +188,5 @@ gps[, Food := as.factor(Food)]
 
 
 # Save compiled gps data --------------------------------------------------
-saveRDS(gps, "Data/all_gps.rds")
+saveRDS(gps, "output/data/all_gps.rds")
 
