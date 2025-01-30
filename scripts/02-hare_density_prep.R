@@ -2,7 +2,7 @@
 lapply(dir('R', '*.R', full.names = TRUE), source)
 
 #import hare densities
-hdensity <- fread("Input/Hare_density_monthly.csv")
+hdensity <- fread("input/Hare_density_monthly.csv")
 
 
 
@@ -114,6 +114,6 @@ densitypred <- densitypred[winterday > 0]
 
 
 
-saveRDS(predrisk, "output/results/mortalityrates.rds")
-saveRDS(densitypred, "output/results/dailyharedensities.rds")
+saveRDS(predrisk, "output/data/mortalityrates.rds")
+saveRDS(densitypred, "output/data/dailyharedensities.rds")
 ggsave("output/figures/densityestimates.jpeg", densityregressions, width = 10, height = 6, unit = "in")
