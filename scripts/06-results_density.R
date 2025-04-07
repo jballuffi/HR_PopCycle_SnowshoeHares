@@ -13,16 +13,22 @@ dat[, phase := factor(phase, levels = c("increase", "peak", "decrease", "low"))]
 dat[, winter := factor(winter)]
 
 #rename food categories
-dat[Food == 1, Food := "Food add"][Food == 0, Food := "Control"]
+dat[Food == 1, Food := "Suppl."][Food == 0, Food := "Control"]
 
 #pull out the years with food add
-foodyears <- dat[Food == "Food add", unique(winter)]
+foodyears <- dat[Food == "Suppl.", unique(winter)]
 
 #make a data frame with only control hares. This will be all years
 nofood <- dat[Food == "Control"]
 
 #make a data frame to only include the winters with food add 
 yesfood <- dat[winter %in% foodyears]
+
+#classify seasons into shapes
+seasonshapes <- c("early" = 19, "late" = 4)
+
+#classify food treatment into colors
+foodcols <- c("Suppl." = "red3", "Control" = "grey30")
 
 
 
@@ -86,7 +92,7 @@ NFdse <- se.fixef(controlNF)["haredensity"]
     geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
     labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)")+
     ylim(0, maxhr)+
-    themepoints)
+    themethesisright)
 
 
 
@@ -156,8 +162,6 @@ Mout <- Mout[order(Delta_AICc)]
 
 # Multi-panel figure -------------------------------------------
 
-#classify seasons into shapes
-seasonshapes <- c("early" = 19, "late" = 4)
 
 #to get effects for the interactions in the food add model
 effs_WS <- as.data.table(ggpredict(season, terms = c("haredensity", "season")))
@@ -172,10 +176,11 @@ WSse <- se.fixef(season)["haredensity"]
     geom_point(aes(x = haredensity, y = M90, shape = season), alpha = 0.6, data = yesfood[!is.na(season)])+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group), colour = "grey80", alpha = .2, data = effs_WS)+
     geom_line(aes(x = x, y = predicted, group = group, linetype = group), linewidth = 1, data = effs_WS)+
-    scale_shape_manual(values = seasonshapes)+
+    scale_shape_manual(values = seasonshapes, name = "Season")+
+    scale_linetype(name = "Season")+
     labs(y = "90% MCP area (ha)", x = " ", title = "A) Season")+
     ylim(0, maxhr)+
-    themepoints)
+    themethesisright)
 
 
 #to get effects for the interactions in the food add model
@@ -185,8 +190,6 @@ effs_WF <- as.data.table(ggpredict(food, terms = c("haredensity", "Food")))
 WFcoef <- fixef(food)["haredensity"]
 WFse <- se.fixef(food)["haredensity"]
 
-#classify food treatment into colors
-foodcols <- c("Food add" = "red3", "Control" = "grey30")
 
 #Food treatment model
 (WFplot <- 
@@ -194,11 +197,11 @@ foodcols <- c("Food add" = "red3", "Control" = "grey30")
     geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), colour = "grey80", alpha = .3, data = effs_WF)+
     geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
-    scale_color_manual(values = foodcols, guide = NULL)+
-    scale_fill_manual(values = foodcols)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
     labs(y = "90% MCP area (ha)", x = " ", title = "B) Food treatment")+
     ylim(0, maxhr)+
-    themepoints)
+    themethesisright)
 
 
 #coefficients for density from food-season model
@@ -215,11 +218,12 @@ effs_WFS[, Category := paste0(group, " ", facet)]
     ggplot(effs_WFS)+
     geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = Category, fill = group), alpha = .2)+
     geom_line(aes(x = x, y = predicted, group = Category, color = group, linetype = facet), size = 1)+
-    scale_color_manual(values = foodcols)+
-    scale_fill_manual(values = foodcols)+
+    scale_color_manual(values = foodcols, name = "Food treatment")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
+    scale_linetype(name = "Season")+
     labs(y = "90% MCP area (ha)", x = "Hare density (hares/ha)", title = "C) Food and season")+
     ylim(0, maxhr)+
-    themepoints)
+    themethesisright)
 
 
 fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
