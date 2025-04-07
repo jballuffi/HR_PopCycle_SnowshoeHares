@@ -48,20 +48,20 @@ meandens <- densities[, .(mean = mean(haredensity), date = mean(date)), winter]
   geom_path(aes(x = date, y = haredensity, group = winter, color = phase), data = densities)+
   geom_point(aes(x = date, y = mean), data = meandens)+
   scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'), name = "Phase")+
-  labs(x = "", y = "Hare density (hares/ha)", subtitle = "A")+
+  labs(x = "", y = "Hare density (hares/ha)", subtitle = "A)")+
   themethesisright)
 
 (f <- 
     ggplot(DT)+
-    geom_boxplot(aes(x = winter, y = M90, color = Food))+
-    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "B")+
-    scale_color_manual(values = foodcols, name = "Food treatment")+
+    geom_boxplot(aes(x = winter, y = M90, fill = Food), alpha = .5)+
+    labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "B)")+
+    scale_fill_manual(values = foodcols, name = "Food treatment")+
     themethesisright)
 
 (s <- 
   ggplot(DT[!is.na(season)])+
   geom_boxplot(aes(x = winter, y = M90, linetype = season))+
-  labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C")+
+  labs(y = "90% MCP area (ha)", x = "Winter", subtitle = "C)")+
   scale_linetype(name = "Season")+
   themethesisright)
 
