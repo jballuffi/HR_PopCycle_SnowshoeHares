@@ -94,6 +94,14 @@ NFdse <- se.fixef(controlNF)["haredensity"]
     ylim(0, maxhr)+
     themethesisright)
 
+(NFplot_talks <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90), alpha = 0.6, data = nofood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high), alpha = .3, data = effs_NF)+
+    geom_line(aes(x = x, y = predicted), linewidth = 1, data = effs_NF)+
+    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
+    ylim(0, maxhr)+
+    themethesisright)
 
 
 # makes models --------------------------------------------------------
@@ -203,6 +211,17 @@ WFse <- se.fixef(food)["haredensity"]
     ylim(0, maxhr)+
     themethesisright)
 
+(WFplot_talks <- 
+    ggplot()+
+    geom_point(aes(x = haredensity, y = M90, color = Food), alpha = 0.6, data = yesfood)+
+    geom_ribbon(aes(x = x, ymin = conf.low, ymax = conf.high, group = group, fill = group), alpha = .3, data = effs_WF)+
+    geom_line(aes(x = x, y = predicted, group = group, color = group), size = 1, data = effs_WF)+
+    scale_color_manual(values = foodcols, guide = FALSE)+
+    scale_fill_manual(values = foodcols, guide = FALSE)+
+    labs(y = "HR area (ha)", x = "Hare density (hares/ha)")+
+    ylim(0, maxhr)+
+    themethesisright)
+
 
 #coefficients for density from food-season model
 WFSdcoef <- fixef(foodseason)["haredensity"]
@@ -234,6 +253,10 @@ fullfig <- ggarrange(WSplot, WFplot, WFSplot, ncol = 1, nrow = 3)
 
 ggsave("Output/figures/all_density.jpeg", fullfig, width = 6, height = 10, unit = "in")
 ggsave("Output/figures/control_density.jpeg", NFplot, width = 6, height = 4, unit = "in")
+
+ggsave("Output/figures/control_density_fortalks.jpeg", NFplot_talks, width = 6, height = 4, unit = "in")
+ggsave("Output/figures/foodadd_density_fortalks.jpeg", WFplot_talks, width = 6, height = 4, unit = "in")
+
 
 fwrite(Mout, "Output/results/model_outputs.csv")
 

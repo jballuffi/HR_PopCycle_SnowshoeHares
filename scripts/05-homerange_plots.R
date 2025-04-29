@@ -78,14 +78,14 @@ density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, ph
 (dT <- ggplot(density_avg)+
    geom_line(aes(x = winter, y = haredensity, group = 1, color = phase), linewidth = 1)+
    scale_color_manual(values = cols, breaks=c('increase', 'peak', 'decrease', 'low'))+
-   labs(y = "Hare density (hares/ha)", x = "Winter", subtitle = "A")+
+   labs(y = "Hare density (hares/ha)", x = "Winter", subtitle = "A)")+
    themethesisright)
 
 (fT <- 
     ggplot(DT)+
-    geom_boxplot(aes(x = winter, y = M90, color = Food))+
-    labs(y = "HR area (ha)", x = "Winter", subtitle = "B")+
-    scale_color_manual(values = foodcols)+
+    geom_boxplot(aes(x = winter, y = M90, fill = Food), alpha = 0.5)+
+    labs(y = "HR area (ha)", x = "Winter", subtitle = "B)")+
+    scale_fill_manual(values = foodcols)+
     themethesisright)
 
 (sT <- 
@@ -96,7 +96,7 @@ density_avg <- densities[, .(haredensity = mean(haredensity)), by = .(winter, ph
     themethesisright)
 
 
-fortalks <- ggarrange(dT, fT, sT, ncol = 1, nrow = 3)
+fortalks <- ggarrange(d, fT, sT, ncol = 1, nrow = 3)
 
 
 
